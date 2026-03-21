@@ -549,9 +549,8 @@
 
     /* ── EASTER EGG ── */
     #easter-trigger {
-      background: none;
-      border: none;
-      cursor: pointer;
+      color: inherit;
+      text-decoration: none;
       font-size: 0.75rem;
       opacity: 0.15;
       padding: 0 0 0 0.4rem;
@@ -560,91 +559,6 @@
       line-height: 1;
     }
     #easter-trigger:hover { opacity: 0.6; }
-
-    #easter-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(8,8,16,0.85);
-      backdrop-filter: blur(10px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s;
-    }
-    #easter-modal.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    #easter-card {
-      position: relative;
-      background: rgba(124,58,237,0.07);
-      border: 1px solid rgba(124,58,237,0.25);
-      border-radius: 20px;
-      padding: 3rem 2.5rem 2.5rem;
-      max-width: 380px;
-      width: 90%;
-      text-align: center;
-      transform: scale(0.85) translateY(20px);
-      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
-    }
-    #easter-modal.open #easter-card {
-      transform: scale(1) translateY(0);
-    }
-
-    #easter-close {
-      position: absolute;
-      top: 1rem; right: 1rem;
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 1rem;
-      transition: color 0.2s;
-    }
-    #easter-close:hover { color: var(--text); }
-
-    #easter-roses {
-      display: flex;
-      justify-content: center;
-      gap: 0.2rem;
-      margin-bottom: 1.5rem;
-    }
-    .rose {
-      display: inline-block;
-      font-size: 1.8rem;
-      transform: translateX(var(--x)) rotate(var(--r));
-      animation: roseIn 0.6s var(--d) both cubic-bezier(.34,1.56,.64,1);
-    }
-    @keyframes roseIn {
-      from { opacity: 0; transform: translateX(var(--x)) rotate(var(--r)) translateY(20px) scale(0.5); }
-      to   { opacity: 1; transform: translateX(var(--x)) rotate(var(--r)) translateY(0)   scale(1); }
-    }
-
-    #easter-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #c084fc, #818cf8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 1rem;
-    }
-    #easter-msg {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.75;
-    }
-    #easter-sig {
-      margin-top: 1.5rem;
-      font-size: 0.85rem;
-      color: rgba(192,132,252,0.6);
-      font-style: italic;
-    }
 
     /* SERVICES */
     .services-section {
@@ -1171,7 +1085,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <span class="footer-left">© 2026 Carlos Pulido Rosas · carpuro.ai <button id="easter-trigger" aria-label="secret" title="">💜</button></span>
+    <span class="footer-left">© 2026 Carlos Pulido Rosas · carpuro.ai <a id="easter-trigger" href="mon.html" aria-label="secret" title="">💜</a></span>
     <div class="footer-links">
       <a href="https://github.com/Carpuro" target="_blank">GitHub</a>
       <a href="https://www.linkedin.com/in/carlos-pulido-489700132/" target="_blank">LinkedIn</a>
@@ -1179,23 +1093,6 @@
       <a href="contact.html">Contact</a>
     </div>
   </footer>
-
-  <!-- EASTER EGG MODAL -->
-  <div id="easter-modal" aria-hidden="true">
-    <div id="easter-card">
-      <button id="easter-close" aria-label="Close">✕</button>
-      <div id="easter-roses">
-        <span class="rose" style="--d:0s;  --x:-60px; --r:-15deg">🌹</span>
-        <span class="rose" style="--d:.15s; --x:-30px; --r:-8deg">🌹</span>
-        <span class="rose" style="--d:.3s;  --x:0px;  --r:0deg">🌹</span>
-        <span class="rose" style="--d:.45s; --x:30px;  --r:8deg">🌹</span>
-        <span class="rose" style="--d:.6s;  --x:60px;  --r:15deg">🌹</span>
-      </div>
-      <h2 id="easter-title">Para Mon 💜</h2>
-      <p id="easter-msg">Este sitio lo construí con código, pero lo que siento por ti no cabe en ningún pipeline.<br><br>Te amo.</p>
-      <div id="easter-sig">— Carlos</div>
-    </div>
-  </div>
 
   <script>
     /* ── PARALLAX ── */
@@ -1245,18 +1142,6 @@
       requestAnimationFrame(animate);
     }
     animate();
-
-    /* ── EASTER EGG ── */
-    const easterModal = document.getElementById('easter-modal');
-    document.getElementById('easter-trigger').addEventListener('click', () => {
-      easterModal.classList.add('open');
-    });
-    document.getElementById('easter-close').addEventListener('click', () => {
-      easterModal.classList.remove('open');
-    });
-    easterModal.addEventListener('click', (e) => {
-      if (e.target === easterModal) easterModal.classList.remove('open');
-    });
 
     function handleNewsletter(e) {
       e.preventDefault();
