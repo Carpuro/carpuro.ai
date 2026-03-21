@@ -113,6 +113,151 @@
       justify-content: center;
       text-align: center;
       padding: 6rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Parallax layers */
+    .parallax-scene {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .p-layer {
+      position: absolute;
+      transition: transform 0.1s ease-out;
+      will-change: transform;
+    }
+
+    /* Floating data nodes */
+    .node {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--gradient);
+      opacity: 0.6;
+    }
+    .node-ring {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(124,58,237,0.3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .node-ring .node { width: 8px; height: 8px; }
+
+    .p-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(167,139,250,0.7);
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+    }
+
+    .p-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent);
+    }
+
+    .p-pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(8,8,16,0.6);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(167,139,250,0.8);
+      backdrop-filter: blur(12px);
+    }
+
+    .p-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #22d3ee;
+      animation: pulse 2s infinite;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    /* MARQUEE */
+    .marquee-section {
+      position: relative;
+      z-index: 1;
+      padding: 2.5rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .marquee-label {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      gap: 0;
+    }
+
+    .marquee-list {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 0 1rem;
+      flex-shrink: 0;
+    }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      white-space: nowrap;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .marquee-item:hover {
+      border-color: rgba(124,58,237,0.4);
+      color: var(--text);
+    }
+
+    .marquee-icon { font-size: 1.1rem; }
+
+    /* Fade edges */
+    .marquee-section::before,
+    .marquee-section::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 120px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .marquee-section::before {
+      left: 0;
+      background: linear-gradient(90deg, var(--bg), transparent);
+    }
+    .marquee-section::after {
+      right: 0;
+      background: linear-gradient(-90deg, var(--bg), transparent);
     }
 
     .hero-badge {
@@ -402,9 +547,207 @@
     }
     .footer-links a:hover { color: var(--text); }
 
+    /* SERVICES */
+    .services-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .service-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .service-card:hover {
+      border-color: rgba(124,58,237,0.4);
+      background: rgba(124,58,237,0.05);
+      transform: translateY(-3px);
+    }
+
+    .service-icon {
+      width: 48px; height: 48px;
+      background: var(--gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .service-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .service-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* CASE STUDIES */
+    .cases-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .cases-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .case-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .case-card:hover {
+      border-color: rgba(124,58,237,0.4);
+      background: rgba(124,58,237,0.05);
+      transform: translateX(4px);
+    }
+
+    .case-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .case-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent1);
+      letter-spacing: 0.1em;
+    }
+
+    .case-tag {
+      padding: 0.15rem 0.6rem;
+      background: rgba(6,182,212,0.1);
+      border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #22d3ee;
+    }
+
+    .case-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .case-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .case-arrow {
+      font-size: 1.5rem;
+      color: var(--muted);
+      transition: color 0.2s, transform 0.2s;
+    }
+    .case-card:hover .case-arrow { color: var(--text); transform: translate(3px, -3px); }
+
+    /* NEWSLETTER */
+    .newsletter-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .newsletter-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .newsletter-box h2 {
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    .newsletter-box p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .newsletter-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .newsletter-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .newsletter-input::placeholder { color: var(--muted); }
+    .newsletter-input:focus { border-color: rgba(124,58,237,0.5); }
+
+    .newsletter-btn {
+      padding: 0.75rem 1.5rem;
+      background: var(--gradient);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+    }
+    .newsletter-btn:hover { opacity: 0.85; }
+
+    .newsletter-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
     @media (max-width: 640px) {
       .nav-links { display: none; }
       footer { flex-direction: column; align-items: flex-start; }
+      .newsletter-box { grid-template-columns: 1fr; }
+      .case-card { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -419,28 +762,110 @@
     <ul class="nav-links">
       <li><a href="index.html#stack">Stack</a></li>
       <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="index.html#services">Services</a></li>
+      <li><a href="blog.html">Blog</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html" class="nav-cta">Contact</a></li>
     </ul>
   </nav>
 
   <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge">Data Engineer · Mexico</div>
-    <h1>
-      Building the<br/>
-      <span class="gradient-text">Data Infrastructure</span><br/>
-      of tomorrow
-    </h1>
-    <p>
-      Hi, I'm Carlos Pulido Rosas. I design and build scalable data pipelines,
-      multicloud architectures, and ML-powered systems that turn raw data into decisions.
-    </p>
-    <div class="hero-actions">
-      <a href="index.html#projects" class="btn-primary">View Projects</a>
-      <a href="https://github.com/Carpuro" target="_blank" class="btn-secondary">GitHub →</a>
+  <section class="hero" id="hero-section">
+
+    <!-- Parallax background scene -->
+    <div class="parallax-scene" id="parallax-scene">
+
+      <!-- Depth 0.15 — farthest -->
+      <div class="p-layer" data-depth="0.15" style="top:15%; left:5%;">
+        <div class="node-ring"><div class="node"></div></div>
+      </div>
+      <div class="p-layer" data-depth="0.15" style="top:70%; right:8%;">
+        <div class="node-ring"><div class="node"></div></div>
+      </div>
+      <div class="p-layer" data-depth="0.15" style="top:40%; right:3%;">
+        <div class="p-line" style="width:120px;"></div>
+      </div>
+
+      <!-- Depth 0.3 — mid -->
+      <div class="p-layer" data-depth="0.3" style="top:20%; right:12%;">
+        <div class="p-card">❄️ Snowflake</div>
+      </div>
+      <div class="p-layer" data-depth="0.3" style="top:65%; left:6%;">
+        <div class="p-card">⚡ Apache Spark</div>
+      </div>
+      <div class="p-layer" data-depth="0.3" style="bottom:22%; right:15%;">
+        <div class="p-card">☁️ BigQuery</div>
+      </div>
+      <div class="p-layer" data-depth="0.3" style="top:30%; left:2%;">
+        <div class="node"></div>
+      </div>
+      <div class="p-layer" data-depth="0.3" style="bottom:30%; left:18%;">
+        <div class="node" style="width:6px;height:6px;"></div>
+      </div>
+
+      <!-- Depth 0.5 — foreground -->
+      <div class="p-layer" data-depth="0.5" style="top:18%; left:14%;">
+        <div class="p-pipeline">
+          <div class="p-dot"></div>
+          Pipeline · running
+        </div>
+      </div>
+      <div class="p-layer" data-depth="0.5" style="bottom:18%; right:10%;">
+        <div class="p-pipeline">
+          <div class="p-dot" style="background:#a78bfa;"></div>
+          DAG · success
+        </div>
+      </div>
+      <div class="p-layer" data-depth="0.5" style="top:55%; left:3%;">
+        <div class="p-card">🧱 Databricks</div>
+      </div>
+
     </div>
+
+    <!-- Main content -->
+    <div class="hero-content">
+      <div class="hero-badge">Data Engineer · Mexico</div>
+      <h1>
+        Building the<br/>
+        <span class="gradient-text">Data Infrastructure</span><br/>
+        of tomorrow
+      </h1>
+      <p>
+        Hi, I'm Carlos Pulido Rosas. I design and build scalable data pipelines,
+        multicloud architectures, and ML-powered systems that turn raw data into decisions.
+      </p>
+      <div class="hero-actions">
+        <a href="index.html#projects" class="btn-primary">View Projects</a>
+        <a href="https://github.com/Carpuro" target="_blank" class="btn-secondary">GitHub →</a>
+      </div>
+    </div>
+
   </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-label">Tech Stack</div>
+    <div class="marquee-track" id="marquee-track">
+      <div class="marquee-list" id="marquee-original">
+        <div class="marquee-item"><span class="marquee-icon">🐍</span>Python</div>
+        <div class="marquee-item"><span class="marquee-icon">🗄️</span>SQL</div>
+        <div class="marquee-item"><span class="marquee-icon">❄️</span>Snowflake</div>
+        <div class="marquee-item"><span class="marquee-icon">☁️</span>BigQuery</div>
+        <div class="marquee-item"><span class="marquee-icon">🧱</span>Databricks</div>
+        <div class="marquee-item"><span class="marquee-icon">⚡</span>Apache Spark</div>
+        <div class="marquee-item"><span class="marquee-icon">🌬️</span>Apache Airflow</div>
+        <div class="marquee-item"><span class="marquee-icon">📦</span>Docker</div>
+        <div class="marquee-item"><span class="marquee-icon">🏗️</span>Terraform</div>
+        <div class="marquee-item"><span class="marquee-icon">🔷</span>Azure</div>
+        <div class="marquee-item"><span class="marquee-icon">🟠</span>AWS</div>
+        <div class="marquee-item"><span class="marquee-icon">🔵</span>GCP</div>
+        <div class="marquee-item"><span class="marquee-icon">🐘</span>PostgreSQL</div>
+        <div class="marquee-item"><span class="marquee-icon">🔀</span>Apache Kafka</div>
+        <div class="marquee-item"><span class="marquee-icon">🤖</span>PySpark ML</div>
+        <div class="marquee-item"><span class="marquee-icon">📊</span>dbt</div>
+      </div>
+    </div>
+  </div>
 
   <!-- STACK -->
   <section class="stack-section" id="stack">
@@ -533,6 +958,111 @@
     </div>
   </section>
 
+  <div class="divider"></div>
+
+  <!-- SERVICES -->
+  <section class="services-section" id="services">
+    <div class="section-label">What I do</div>
+    <h2 class="section-title">Services</h2>
+    <p class="section-sub">End-to-end data engineering — from raw ingestion to production-ready infrastructure.</p>
+    <div class="services-grid">
+
+      <div class="service-card">
+        <div class="service-icon">🔁</div>
+        <div class="service-title">Pipeline Design & Implementation</div>
+        <div class="service-desc">Build robust, scalable ETL/ELT pipelines using Python, Airflow, and Spark. From API ingestion to warehouse delivery.</div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">❄️</div>
+        <div class="service-title">Data Warehouse Setup</div>
+        <div class="service-desc">Design and implement data warehouses on Snowflake, BigQuery, or Databricks — schema design, optimization, and cost control.</div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🌐</div>
+        <div class="service-title">Multicloud Architecture</div>
+        <div class="service-desc">Cross-cloud data infrastructure on AWS, Azure, and GCP with Terraform IaC, CI/CD pipelines, and security best practices.</div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🔍</div>
+        <div class="service-title">Data Audits & Consulting</div>
+        <div class="service-desc">Review your current data stack, identify bottlenecks, reduce costs, and define a roadmap to a modern data architecture.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CASE STUDIES -->
+  <section class="cases-section" id="cases">
+    <div class="section-label">Case Studies</div>
+    <h2 class="section-title">Problems solved</h2>
+    <p class="section-sub">Real projects, real challenges, real outcomes.</p>
+    <div class="cases-list">
+
+      <a class="case-card" href="https://github.com/Carpuro/multicloud-data-pipelines" target="_blank">
+        <div>
+          <div class="case-meta">
+            <span class="case-num">01</span>
+            <span class="case-tag">Infrastructure</span>
+          </div>
+          <div class="case-title">Unified data pipelines across 3 clouds</div>
+          <div class="case-desc">Challenge: data siloed in AWS, Azure, and GCP with no unified layer. Solution: cross-cloud pipelines with Terraform IaC and automated CI/CD. Result: single source of truth, reproducible infrastructure.</div>
+        </div>
+        <span class="case-arrow">↗</span>
+      </a>
+
+      <a class="case-card" href="https://github.com/Carpuro/crypto-analytics-pipeline" target="_blank">
+        <div>
+          <div class="case-meta">
+            <span class="case-num">02</span>
+            <span class="case-tag">ETL · Analytics</span>
+          </div>
+          <div class="case-title">Real-time crypto market analytics pipeline</div>
+          <div class="case-desc">Challenge: raw market data from CoinGecko API with no structure or history. Solution: automated ETL pipeline with PostgreSQL storage and Docker deployment. Result: queryable market history updated daily.</div>
+        </div>
+        <span class="case-arrow">↗</span>
+      </a>
+
+      <a class="case-card" href="https://github.com/Carpuro/ai-automation-risk-jalisco" target="_blank">
+        <div>
+          <div class="case-meta">
+            <span class="case-num">03</span>
+            <span class="case-tag">ML · Research</span>
+          </div>
+          <div class="case-title">Predicting AI labor displacement risk in Jalisco</div>
+          <div class="case-desc">Challenge: quantify which jobs in Jalisco are most at risk from AI automation through 2030. Solution: PySpark ML pipeline on labor market microdata. Result: sector-level risk scores published as master's thesis.</div>
+        </div>
+        <span class="case-arrow">↗</span>
+      </a>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter-section" id="newsletter">
+    <div class="newsletter-box">
+      <div>
+        <div class="section-label">Stay in the loop</div>
+        <h2>Data engineering insights<br/>& <span style="background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">early access</span></h2>
+        <p>Articles on pipelines, cloud architecture, and the future of data — plus early access when carpuro.ai launches its first product.</p>
+      </div>
+      <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+        <input class="newsletter-input" type="text" placeholder="Your name" />
+        <input class="newsletter-input" type="email" placeholder="your@email.com" required />
+        <button class="newsletter-btn" type="submit">Join the waitlist →</button>
+        <span class="newsletter-note">No spam. Unsubscribe anytime.</span>
+      </form>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
   <!-- CTA -->
   <section class="cta-section">
     <h2>Let's build something <span style="background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">remarkable</span></h2>
@@ -550,6 +1080,65 @@
       <a href="contact.html">Contact</a>
     </div>
   </footer>
+
+  <script>
+    /* ── PARALLAX ── */
+    const heroSection = document.getElementById('hero-section');
+    const layers = document.querySelectorAll('.p-layer');
+
+    heroSection.addEventListener('mousemove', (e) => {
+      const rect = heroSection.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const dx = e.clientX - rect.left - cx;
+      const dy = e.clientY - rect.top - cy;
+
+      layers.forEach(layer => {
+        const depth = parseFloat(layer.dataset.depth) || 0.2;
+        layer.style.transform = `translate3d(${dx * depth}px, ${dy * depth}px, 0)`;
+      });
+    });
+
+    heroSection.addEventListener('mouseleave', () => {
+      layers.forEach(layer => {
+        layer.style.transition = 'transform 0.8s ease-out';
+        layer.style.transform = 'translate3d(0,0,0)';
+        setTimeout(() => { layer.style.transition = 'transform 0.1s ease-out'; }, 800);
+      });
+    });
+
+    /* ── MARQUEE ── */
+    const track = document.getElementById('marquee-track');
+    const original = document.getElementById('marquee-original');
+    const clone = original.cloneNode(true);
+    track.appendChild(clone);
+
+    let offset = 0;
+    const speed = 0.5;
+    let paused = false;
+
+    track.addEventListener('mouseenter', () => paused = true);
+    track.addEventListener('mouseleave', () => paused = false);
+
+    function animate() {
+      if (!paused) {
+        offset += speed;
+        if (offset >= original.offsetWidth) offset = 0;
+        track.style.transform = `translateX(-${offset}px)`;
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    function handleNewsletter(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.newsletter-btn');
+      btn.textContent = 'You\'re on the list ✓';
+      btn.style.opacity = '0.7';
+      btn.disabled = true;
+      // TODO: wire to Mailchimp / ConvertKit / custom API
+    }
+  </script>
 
 </body>
 </html>
