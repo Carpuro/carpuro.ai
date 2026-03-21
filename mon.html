@@ -12,13 +12,15 @@
 
     body {
       background: #060008;
-      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       font-family: 'Inter', sans-serif;
+      padding: 2rem 0 3rem;
     }
 
     canvas {
@@ -58,9 +60,10 @@
     /* ── BOUQUET ── */
     .stage {
       perspective: 700px;
-      width: 340px;
-      height: 320px;
+      width: min(340px, 88vw);
+      height: calc(min(340px, 88vw) * 0.94);
       position: relative;
+      flex-shrink: 0;
     }
 
     .world {
@@ -113,7 +116,7 @@
     .stems {
       position: absolute;
       left: 50%;
-      bottom: 8px;
+      bottom: 6%;
       transform: translateX(-50%);
       opacity: 0;
       animation: fadeUp 0.9s 2.5s cubic-bezier(.34,1.4,.64,1) forwards;
@@ -140,8 +143,9 @@
       opacity: 0;
       animation: riseIn 1.4s 3.4s cubic-bezier(.34, 1.2, .64, 1) forwards;
       max-width: 400px;
-      padding: 0 2rem;
-      margin-top: -1rem;
+      width: 100%;
+      padding: 0 1.5rem;
+      margin-top: 0;
     }
 
     @keyframes riseIn {
@@ -153,8 +157,8 @@
       font-family: 'Playfair Display', serif;
       font-style: italic;
       font-weight: 700;
-      font-size: clamp(2.2rem, 7vw, 3.4rem);
-      line-height: 1.15;
+      font-size: clamp(1.7rem, 7vw, 3.4rem);
+      line-height: 1.2;
       background: linear-gradient(135deg, #f9a8d4 0%, #c084fc 45%, #818cf8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -195,8 +199,8 @@
     /* Back link */
     .back-link {
       position: fixed;
-      top: 1.5rem;
-      left: 1.5rem;
+      top: 1rem;
+      left: 1rem;
       z-index: 10;
       color: rgba(255,255,255,0.2);
       text-decoration: none;
@@ -204,8 +208,10 @@
       transition: color 0.3s;
       opacity: 0;
       animation: fadeIn 1s 5s forwards;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
     }
-    .back-link:hover { color: rgba(255,255,255,0.5); }
+    .back-link:hover, .back-link:active { color: rgba(255,255,255,0.5); }
 
     @keyframes fadeIn {
       to { opacity: 1; }
@@ -250,7 +256,7 @@
       <div class="world" id="world">
 
         <!-- Stems -->
-        <svg class="stems" width="160" height="100" viewBox="0 0 160 100">
+        <svg class="stems" width="47%" height="auto" viewBox="0 0 160 100">
           <line x1="80" y1="0" x2="20"  y2="100" stroke="#1f5c1f" stroke-width="3.5" stroke-linecap="round"/>
           <line x1="80" y1="0" x2="55"  y2="100" stroke="#256325" stroke-width="3"   stroke-linecap="round"/>
           <line x1="80" y1="0" x2="80"  y2="100" stroke="#1f5c1f" stroke-width="4"   stroke-linecap="round"/>
@@ -269,14 +275,10 @@
     </div>
 
     <div class="message">
-      <h1>Para Mon 💜</h1>
+      <h1>Para Mon,<br>mi peluchina hermosa</h1>
       <div class="divider-line"></div>
-      <p>
-        Este sitio lo construí con código,<br>
-        pero lo que siento por ti<br>
-        no cabe en ningún pipeline.
-      </p>
-      <div class="sig">— Carlos te ama 💜</div>
+      <p>Te amo con toda mi alma.</p>
+      <div class="sig">— De Osini 💜</div>
     </div>
 
   </div>
@@ -346,34 +348,42 @@
       [ 34,  22,  55,  10, 0.98, 2.9],
     ];
 
-    const world  = document.getElementById('world');
-    const cx = 170, cy = 148; // stage center
+    const world = document.getElementById('world');
+    const stage = document.querySelector('.stage');
+
+    // Scale all positions relative to the original 340px design
+    const factor = stage.offsetWidth / 340;
+    const cx = stage.offsetWidth / 2;
+    const cy = stage.offsetHeight / 2 - 10 * factor;
 
     bouquetPoses.forEach(([tx, ty, tz, rot, sc, fs], i) => {
       const el = document.createElement('div');
       el.className = 'rose';
       el.textContent = '🌹';
 
-      // Random "from" positions scattered around
+      const stx  = tx  * factor;
+      const sty  = ty  * factor;
+      const stz  = tz  * factor;
+      const sfs  = fs  * factor;
+      const dist = (450 + Math.random() * 200) * factor;
       const angle = Math.random() * Math.PI * 2;
-      const dist  = 450 + Math.random() * 200;
       const fx = (Math.cos(angle) * dist).toFixed(1);
       const fy = (Math.sin(angle) * dist).toFixed(1);
-      const fz = ((Math.random() - 0.5) * 600).toFixed(1);
+      const fz = ((Math.random() - 0.5) * 600 * factor).toFixed(1);
       const fr = ((Math.random() - 0.5) * 540).toFixed(1);
-      const dur = (0.85 + Math.random() * 0.35).toFixed(2);
+      const dur   = (0.85 + Math.random() * 0.35).toFixed(2);
       const delay = (0.15 + i * 0.13).toFixed(2);
 
       el.style.cssText = `
-        left: ${cx + tx - fs * 8}px;
-        top:  ${cy + ty - fs * 8}px;
-        font-size: ${fs}rem;
-        z-index: ${50 + Math.round(tz)};
+        left: ${cx + stx - sfs * 8}px;
+        top:  ${cy + sty - sfs * 8}px;
+        font-size: ${sfs}rem;
+        z-index: ${50 + Math.round(stz)};
         --fx: ${fx}px;
         --fy: ${fy}px;
         --fz: ${fz}px;
         --fr: ${fr}deg;
-        --tz: ${tz}px;
+        --tz: ${stz}px;
         --rot: ${rot}deg;
         --sc: ${sc};
         --dur: ${dur}s;
