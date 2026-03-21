@@ -16,13 +16,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      overflow-x: hidden;
-      overflow-y: auto;
+      overflow: hidden auto;
       font-family: 'Inter', sans-serif;
-      padding: 3rem 0 3rem;
+      padding: 4rem 0 3rem;
       gap: 0.5rem;
     }
+    /* Centra verticalmente sin cortar el top cuando hay scroll */
+    .scene { margin: auto; }
 
     canvas {
       position: fixed;
@@ -274,7 +274,7 @@
   <div class="petal" style="left:80%; --fs:1.1rem; --pd:7s;  --pd2:4s;   --pdx:-15px">🌸</div>
   <div class="petal" style="left:92%; --fs:0.8rem; --pd:13s; --pd2:1s;   --pdx:10px">💜</div>
 
-  <a class="back-link" href="index.html">← volver</a>
+  <a class="back-link" href="/">← volver</a>
 
   <div class="scene">
 
