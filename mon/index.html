@@ -61,8 +61,8 @@
     /* ── BOUQUET ── */
     .stage {
       perspective: 700px;
-      width: min(340px, 92vw);
-      height: calc(min(340px, 92vw) * 0.94);
+      width: min(320px, 88vw);
+      height: calc(min(320px, 88vw) * 0.72);
       position: relative;
       flex-shrink: 0;
     }
@@ -113,29 +113,28 @@
       100% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(-16px); }
     }
 
-    /* Stems SVG */
+    /* Stems SVG — in normal flow, outside 3D world */
     .stems {
-      position: absolute;
-      left: 50%;
-      bottom: 6%;
-      transform: translateX(-50%);
+      display: block;
+      width: min(150px, 44vw);
+      height: auto;
+      margin: -12px auto 0;
       opacity: 0;
       animation: fadeUp 0.9s 2.5s cubic-bezier(.34,1.4,.64,1) forwards;
     }
     /* Ribbon */
     .ribbon {
-      position: absolute;
-      bottom: -4px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 2.2rem;
+      font-size: 2rem;
+      text-align: center;
+      line-height: 1;
+      margin-top: -4px;
       opacity: 0;
       animation: fadeUp 0.8s 2.8s cubic-bezier(.34,1.4,.64,1) forwards;
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ── MESSAGE ── */
@@ -146,7 +145,7 @@
       max-width: 400px;
       width: 100%;
       padding: 0 1.5rem;
-      margin-top: 0;
+      margin-top: 0.75rem;
     }
 
     @keyframes riseIn {
@@ -240,7 +239,7 @@
 
       .stage {
         width: 92vw;
-        height: calc(92vw * 0.94);
+        height: calc(92vw * 0.72);
       }
 
       .message { padding: 0 1.25rem; }
@@ -279,26 +278,21 @@
   <div class="scene">
 
     <div class="stage">
-      <div class="world" id="world">
-
-        <!-- Stems -->
-        <svg class="stems" width="47%" height="auto" viewBox="0 0 160 100">
-          <line x1="80" y1="0" x2="20"  y2="100" stroke="#1f5c1f" stroke-width="3.5" stroke-linecap="round"/>
-          <line x1="80" y1="0" x2="55"  y2="100" stroke="#256325" stroke-width="3"   stroke-linecap="round"/>
-          <line x1="80" y1="0" x2="80"  y2="100" stroke="#1f5c1f" stroke-width="4"   stroke-linecap="round"/>
-          <line x1="80" y1="0" x2="105" y2="100" stroke="#256325" stroke-width="3"   stroke-linecap="round"/>
-          <line x1="80" y1="0" x2="140" y2="100" stroke="#1f5c1f" stroke-width="3.5" stroke-linecap="round"/>
-          <!-- leaves -->
-          <ellipse cx="38"  cy="55" rx="13" ry="6" fill="#1f5c1f" transform="rotate(-35,38,55)"  opacity="0.85"/>
-          <ellipse cx="122" cy="60" rx="13" ry="6" fill="#1f5c1f" transform="rotate(30,122,60)"  opacity="0.85"/>
-          <ellipse cx="68"  cy="75" rx="10" ry="5" fill="#256325" transform="rotate(-15,68,75)"  opacity="0.7"/>
-        </svg>
-
-        <!-- Ribbon bow -->
-        <div class="ribbon">🎀</div>
-
-      </div>
+      <div class="world" id="world"></div>
     </div>
+
+    <!-- Stems and ribbon in normal flow (outside 3D context) -->
+    <svg class="stems" viewBox="0 0 160 100">
+      <line x1="80" y1="0" x2="20"  y2="100" stroke="#1f5c1f" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="80" y1="0" x2="55"  y2="100" stroke="#256325" stroke-width="3"   stroke-linecap="round"/>
+      <line x1="80" y1="0" x2="80"  y2="100" stroke="#1f5c1f" stroke-width="4"   stroke-linecap="round"/>
+      <line x1="80" y1="0" x2="105" y2="100" stroke="#256325" stroke-width="3"   stroke-linecap="round"/>
+      <line x1="80" y1="0" x2="140" y2="100" stroke="#1f5c1f" stroke-width="3.5" stroke-linecap="round"/>
+      <ellipse cx="38"  cy="55" rx="13" ry="6" fill="#1f5c1f" transform="rotate(-35,38,55)"  opacity="0.85"/>
+      <ellipse cx="122" cy="60" rx="13" ry="6" fill="#1f5c1f" transform="rotate(30,122,60)"  opacity="0.85"/>
+      <ellipse cx="68"  cy="75" rx="10" ry="5" fill="#256325" transform="rotate(-15,68,75)"  opacity="0.7"/>
+    </svg>
+    <div class="ribbon">🎀</div>
 
     <div class="message">
       <h1>Para Mon,<br>mi peluchina hermosa</h1>
@@ -377,10 +371,11 @@
     const world = document.getElementById('world');
     const stage = document.querySelector('.stage');
 
-    // Scale all positions relative to the original 340px design
-    const factor = stage.offsetWidth / 340;
+    // Scale all positions relative to the original 320px design
+    const factor = stage.offsetWidth / 320;
     const cx = stage.offsetWidth / 2;
-    const cy = stage.offsetHeight / 2 - 10 * factor;
+    // cy: center the roses in the upper 60% of the stage
+    const cy = stage.offsetHeight * 0.45;
 
     bouquetPoses.forEach(([tx, ty, tz, rot, sc, fs], i) => {
       const el = document.createElement('div');
