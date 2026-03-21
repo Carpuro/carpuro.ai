@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Carpuro.ai</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080810;
+      --bg2: #0d0d1a;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #e2e2f0;
+      --muted: #6b6b8a;
+      --accent1: #7c3aed;
+      --accent2: #2563eb;
+      --accent3: #06b6d4;
+      --gradient: linear-gradient(135deg, #7c3aed, #2563eb, #06b6d4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(124,58,237,0.10); top: -100px; left: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(6,182,212,0.08); bottom: 20%; right: -100px; }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8,8,16,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+
+    .nav-cta {
+      background: var(--gradient);
+      color: #fff !important;
+      padding: 0.45rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.875rem !important;
+      font-weight: 600 !important;
+    }
+
+    section { position: relative; z-index: 1; }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* HERO */
+    .about-hero {
+      padding: 9rem 2rem 4rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent1);
+      margin-bottom: 0.75rem;
+    }
+
+    .about-hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .gradient-text {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .about-hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 640px;
+    }
+
+    /* BIO */
+    .bio-section {
+      padding: 3rem 0 4rem;
+    }
+
+    .bio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .bio-text p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .bio-text p strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .bio-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* SKILLS */
+    .skills-section {
+      padding: 4rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .skills-section h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+    }
+
+    .skills-categories {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .skill-category h3 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent3);
+      margin-bottom: 0.75rem;
+    }
+
+    .skill-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill {
+      padding: 0.35rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.825rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .pill:hover {
+      border-color: rgba(124,58,237,0.4);
+      background: rgba(124,58,237,0.06);
+    }
+
+    /* EXPERIENCE */
+    .experience-section {
+      padding: 4rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .experience-section h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 2rem;
+      padding-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .timeline-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 139px;
+      top: 8px;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .timeline-date {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+      padding-top: 2px;
+      text-align: right;
+    }
+
+    .timeline-content {
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .timeline-content::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      background: var(--accent1);
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+    }
+
+    .timeline-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-org {
+      font-size: 0.825rem;
+      color: var(--accent3);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* CTA */
+    .about-cta {
+      padding: 4rem 0 6rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .about-cta h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .about-cta p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .btn-primary {
+      padding: 0.75rem 1.75rem;
+      background: var(--gradient);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .footer-left { font-size: 0.875rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.875rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .bio-grid { grid-template-columns: 1fr; }
+      .timeline-item { grid-template-columns: 1fr; gap: 0.25rem; }
+      .timeline-item::after { display: none; }
+      .timeline-date { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <nav>
+    <a href="index.html" class="nav-logo">carpuro.ai</a>
+    <ul class="nav-links">
+      <li><a href="index.html#stack">Stack</a></li>
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="contact.html" class="nav-cta">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="about-hero">
+    <div class="section-label">About me</div>
+    <h1>Economist turned<br/><span class="gradient-text">Data Engineer</span></h1>
+    <p>
+      I'm Carlos Pulido Rosas — based in Zapopan, Jalisco, Mexico. I bridge the gap between
+      economic analysis and modern data infrastructure, building systems that scale and insights that matter.
+    </p>
+  </div>
+
+  <div class="container">
+
+    <!-- BIO -->
+    <section class="bio-section">
+      <div class="bio-grid">
+        <div class="bio-text">
+          <p>
+            My path started in <strong>Economics</strong>, where I learned to think in systems, incentives, and data.
+            That foundation pushed me toward data engineering — building the infrastructure that makes analysis possible at scale.
+          </p>
+          <p>
+            Today I work across the full modern data stack: from ingesting raw data with <strong>Python pipelines</strong>,
+            transforming it in <strong>Snowflake, BigQuery, or Databricks</strong>, to orchestrating workflows with
+            <strong>Apache Airflow</strong> and deploying infrastructure across multiple clouds.
+          </p>
+          <p>
+            Currently pursuing a <strong>Master's degree</strong>, focusing on how AI and automation are reshaping
+            labor markets — combining ML, PySpark, and economic modeling.
+          </p>
+        </div>
+        <div class="bio-stats">
+          <div class="stat-card">
+            <div class="stat-number">3+</div>
+            <div class="stat-label">Cloud platforms (AWS · Azure · GCP)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">4+</div>
+            <div class="stat-label">Open source projects on GitHub</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">MSc</div>
+            <div class="stat-label">Master's research in AI & Labor Economics</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">MX</div>
+            <div class="stat-label">Zapopan, Jalisco · Mexico</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="skills-section">
+      <h2>Technical Skills</h2>
+      <div class="skills-categories">
+        <div class="skill-category">
+          <h3>Languages</h3>
+          <div class="skill-pills">
+            <span class="pill">Python</span>
+            <span class="pill">SQL</span>
+            <span class="pill">HCL (Terraform)</span>
+            <span class="pill">Bash</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h3>Data Warehouses & Platforms</h3>
+          <div class="skill-pills">
+            <span class="pill">Snowflake</span>
+            <span class="pill">BigQuery</span>
+            <span class="pill">Databricks</span>
+            <span class="pill">PostgreSQL</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h3>Apache Ecosystem</h3>
+          <div class="skill-pills">
+            <span class="pill">Apache Spark / PySpark</span>
+            <span class="pill">Apache Airflow</span>
+            <span class="pill">Apache Kafka</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h3>Cloud & Infrastructure</h3>
+          <div class="skill-pills">
+            <span class="pill">AWS</span>
+            <span class="pill">Azure</span>
+            <span class="pill">GCP</span>
+            <span class="pill">Docker</span>
+            <span class="pill">Terraform</span>
+            <span class="pill">CI/CD</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h3>Data Science & ML</h3>
+          <div class="skill-pills">
+            <span class="pill">Machine Learning</span>
+            <span class="pill">Predictive Modeling</span>
+            <span class="pill">Data Analysis</span>
+            <span class="pill">Jupyter</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE / TIMELINE -->
+    <section class="experience-section">
+      <h2>Journey</h2>
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-date">2025 – Present</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Master's Research — AI & Labor Markets</div>
+            <div class="timeline-org">Posgrado · Jalisco, Mexico</div>
+            <div class="timeline-desc">Predictive modeling of AI-driven labor displacement risk across industries in Jalisco (2025–2030), using PySpark, ML classification models, and economic indicators.</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-date">2024 – Present</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Data Engineer</div>
+            <div class="timeline-org">Open Source & Freelance</div>
+            <div class="timeline-desc">Building end-to-end data pipelines, multicloud architectures, and ETL systems. Key projects: crypto analytics pipeline and multicloud data infrastructure.</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-date">2023 – 2024</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Data Analyst → Data Scientist path</div>
+            <div class="timeline-org">Self-directed learning & projects</div>
+            <div class="timeline-desc">Transition from data analysis to data engineering. Built automation tools, SQL analytics, and Excel macro systems for business operations.</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-date">Earlier</div>
+          <div class="timeline-content">
+            <div class="timeline-title">Economist</div>
+            <div class="timeline-org">University · Jalisco, Mexico</div>
+            <div class="timeline-desc">Degree in Economics. Focus on quantitative methods, statistical modeling, and economic systems — the foundation for data-driven thinking.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="about-cta">
+      <div>
+        <h2>Ready to collaborate?</h2>
+        <p>Open to data engineering projects, consulting, and interesting problems.</p>
+      </div>
+      <a href="contact.html" class="btn-primary">Get in touch →</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-left">© 2026 Carlos Pulido Rosas · carpuro.ai</span>
+    <div class="footer-links">
+      <a href="https://github.com/Carpuro" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/carlos-pulido-489700132/" target="_blank">LinkedIn</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
+
+</body>
+</html>

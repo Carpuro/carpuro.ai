@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carpuro.ai — Carlos Pulido Rosas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080810;
+      --bg2: #0d0d1a;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #e2e2f0;
+      --muted: #6b6b8a;
+      --accent1: #7c3aed;
+      --accent2: #2563eb;
+      --accent3: #06b6d4;
+      --gradient: linear-gradient(135deg, #7c3aed, #2563eb, #06b6d4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(124,58,237,0.12); top: -200px; right: -200px; }
+    .orb-2 { width: 500px; height: 500px; background: rgba(37,99,235,0.10); bottom: 10%; left: -150px; }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8,8,16,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--gradient);
+      color: #fff !important;
+      padding: 0.45rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.875rem !important;
+      font-weight: 600 !important;
+    }
+
+    /* SECTIONS */
+    section { position: relative; z-index: 1; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      color: #a78bfa;
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: #7c3aed;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 .gradient-text {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+    .btn-primary {
+      padding: 0.75rem 1.75rem;
+      background: var(--gradient);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-secondary {
+      padding: 0.75rem 1.75rem;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.07); transform: translateY(-1px); }
+
+    /* STACK */
+    .stack-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent1);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 3rem;
+    }
+
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .stack-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1.25rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .stack-item:hover {
+      border-color: rgba(124,58,237,0.4);
+      background: rgba(124,58,237,0.06);
+      transform: translateY(-2px);
+    }
+    .stack-icon { font-size: 1.75rem; }
+
+    /* PROJECTS */
+    .projects-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .project-card:hover {
+      border-color: rgba(124,58,237,0.4);
+      background: rgba(124,58,237,0.05);
+      transform: translateY(-3px);
+    }
+
+    .project-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .project-icon {
+      width: 44px; height: 44px;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .project-arrow {
+      color: var(--muted);
+      font-size: 1.1rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .project-card:hover .project-arrow { color: var(--text); transform: translate(2px, -2px); }
+
+    .project-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .project-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+    }
+
+    .tag {
+      padding: 0.2rem 0.65rem;
+      background: rgba(37,99,235,0.1);
+      border: 1px solid rgba(37,99,235,0.2);
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #93c5fd;
+    }
+
+    /* DIVIDER */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* CTA SECTION */
+    .cta-section {
+      padding: 6rem 2rem;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(1.75rem, 3vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-left {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      font-size: 0.875rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">carpuro.ai</a>
+    <ul class="nav-links">
+      <li><a href="index.html#stack">Stack</a></li>
+      <li><a href="index.html#projects">Projects</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="nav-cta">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">Data Engineer · Mexico</div>
+    <h1>
+      Building the<br/>
+      <span class="gradient-text">Data Infrastructure</span><br/>
+      of tomorrow
+    </h1>
+    <p>
+      Hi, I'm Carlos Pulido Rosas. I design and build scalable data pipelines,
+      multicloud architectures, and ML-powered systems that turn raw data into decisions.
+    </p>
+    <div class="hero-actions">
+      <a href="index.html#projects" class="btn-primary">View Projects</a>
+      <a href="https://github.com/Carpuro" target="_blank" class="btn-secondary">GitHub →</a>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section class="stack-section" id="stack">
+    <div class="section-label">Technology Stack</div>
+    <h2 class="section-title">Tools of the trade</h2>
+    <p class="section-sub">From ingestion to transformation, orchestration to serving — the full modern data stack.</p>
+    <div class="stack-grid">
+      <div class="stack-item"><span class="stack-icon">🐍</span>Python</div>
+      <div class="stack-item"><span class="stack-icon">🗄️</span>SQL</div>
+      <div class="stack-item"><span class="stack-icon">❄️</span>Snowflake</div>
+      <div class="stack-item"><span class="stack-icon">☁️</span>BigQuery</div>
+      <div class="stack-item"><span class="stack-icon">🧱</span>Databricks</div>
+      <div class="stack-item"><span class="stack-icon">⚡</span>Apache Spark</div>
+      <div class="stack-item"><span class="stack-icon">🌬️</span>Apache Airflow</div>
+      <div class="stack-item"><span class="stack-icon">📦</span>Docker</div>
+      <div class="stack-item"><span class="stack-icon">🏗️</span>Terraform</div>
+      <div class="stack-item"><span class="stack-icon">🔷</span>Azure</div>
+      <div class="stack-item"><span class="stack-icon">🟠</span>AWS</div>
+      <div class="stack-item"><span class="stack-icon">🔵</span>GCP</div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PROJECTS -->
+  <section class="projects-section" id="projects">
+    <div class="section-label">Open Source</div>
+    <h2 class="section-title">Featured Projects</h2>
+    <p class="section-sub">End-to-end pipelines, ML models, and data infrastructure built in the open.</p>
+    <div class="projects-grid">
+
+      <a class="project-card" href="https://github.com/Carpuro/multicloud-data-pipelines" target="_blank">
+        <div class="project-top">
+          <div class="project-icon">🌐</div>
+          <span class="project-arrow">↗</span>
+        </div>
+        <div class="project-title">Multicloud Data Pipelines</div>
+        <div class="project-desc">Cross-cloud data pipelines spanning AWS, Azure, and GCP with Infrastructure as Code, CI/CD automation, and security best practices.</div>
+        <div class="project-tags">
+          <span class="tag">Terraform</span>
+          <span class="tag">AWS</span>
+          <span class="tag">Azure</span>
+          <span class="tag">GCP</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/Carpuro/crypto-analytics-pipeline" target="_blank">
+        <div class="project-top">
+          <div class="project-icon">📈</div>
+          <span class="project-arrow">↗</span>
+        </div>
+        <div class="project-title">Crypto Analytics Pipeline</div>
+        <div class="project-desc">End-to-end ETL pipeline for cryptocurrency market analysis using the CoinGecko API, PostgreSQL, and Docker with automated reporting.</div>
+        <div class="project-tags">
+          <span class="tag">Python</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">Docker</span>
+          <span class="tag">ETL</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/Carpuro/ai-automation-risk-jalisco" target="_blank">
+        <div class="project-top">
+          <div class="project-icon">🤖</div>
+          <span class="project-arrow">↗</span>
+        </div>
+        <div class="project-title">AI Automation Risk — Jalisco</div>
+        <div class="project-desc">Master's thesis: predictive model analyzing AI-driven labor displacement risk across industries in Jalisco, Mexico (2025–2030) using PySpark and ML.</div>
+        <div class="project-tags">
+          <span class="tag">PySpark</span>
+          <span class="tag">Machine Learning</span>
+          <span class="tag">Research</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/Carpuro/vba-macros-excel" target="_blank">
+        <div class="project-top">
+          <div class="project-icon">📊</div>
+          <span class="project-arrow">↗</span>
+        </div>
+        <div class="project-title">VBA Macros & Excel Automation</div>
+        <div class="project-desc">Collection of Excel macros for business task simplification, data reorganization, and automated report creation — bridging legacy workflows with modern data.</div>
+        <div class="project-tags">
+          <span class="tag">Python</span>
+          <span class="tag">VBA</span>
+          <span class="tag">Automation</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Let's build something <span style="background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">remarkable</span></h2>
+    <p>Interested in data engineering, consulting, or collaborating on a project? I'm open to conversations.</p>
+    <a href="contact.html" class="btn-primary">Get in touch →</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-left">© 2026 Carlos Pulido Rosas · carpuro.ai</span>
+    <div class="footer-links">
+      <a href="https://github.com/Carpuro" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/carlos-pulido-489700132/" target="_blank">LinkedIn</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
+
+</body>
+</html>
