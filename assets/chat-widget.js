@@ -157,9 +157,14 @@
   `);
 
   // ── State ────────────────────────────────────────────────────
-  let chatSessionId = getSessionId();
+  let chatSessionId = getSessionId(); // may reset sessionStorage if stale
   let chatHistory   = JSON.parse(sessionStorage.getItem('chatHistory') || '[]');
   let welcomed      = sessionStorage.getItem('chatWelcomed') === '1';
+  // Safety: if history is empty, mark as not welcomed so welcome shows
+  if (chatHistory.length === 0) {
+    welcomed = false;
+    sessionStorage.setItem('chatWelcomed', '0');
+  }
   let inactivityTimer = null;
 
   function saveHistory() {
@@ -283,6 +288,9 @@
   chatBtn.addEventListener('click', () => {
     chatBox.classList.toggle('open');
     if (chatBox.classList.contains('open')) {
+      // Always ensure input is enabled when opening
+      chatInput.disabled = false;
+      chatSend.disabled  = false;
       if (!welcomed) {
         showWelcome();
       } else if (messages.children.length === 0) {
