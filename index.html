@@ -1456,7 +1456,7 @@
         });
         const data = await res.json();
         typing.remove();
-        addMsg(data.reply, 'bot');
+        if (data.reply && data.reply.trim()) addMsg(data.reply, 'bot');
         addButtons(data.buttons);
       } catch {
         typing.remove();
