@@ -496,24 +496,20 @@
       C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; typeof namespace === "string" ? (cal.ns[namespace] = api) && p(api, ar) : p(cal, ar); return; } p(cal, ar); };
     })(window, "https://app.cal.com/embed/embed.js", "init");
 
-    const CAL_USERNAME = "YOUR_CAL_USERNAME"; // ← replace after creating Cal.com account
-
-    if (CAL_USERNAME !== "YOUR_CAL_USERNAME") {
-      document.getElementById('cal-placeholder').style.display = 'none';
-      Cal("init", { origin: "https://cal.com" });
-      Cal("inline", {
-        elementOrSelector: "#cal-embed",
-        calLink: CAL_USERNAME + "/discovery-call",
-        config: {
-          layout: "month_view",
-          theme: "dark",
-        }
-      });
-      Cal("ui", {
-        styles: { branding: { brandColor: "#7c3aed" } },
-        hideEventTypeDetails: false,
-      });
-    }
+    document.getElementById('cal-placeholder').style.display = 'none';
+    Cal("init", { origin: "https://cal.com" });
+    Cal("inline", {
+      elementOrSelector: "#cal-embed",
+      calLink: "carpuro/discovery-call",
+      config: {
+        layout: "month_view",
+        theme: "dark",
+      }
+    });
+    Cal("ui", {
+      styles: { branding: { brandColor: "#7c3aed" } },
+      hideEventTypeDetails: false,
+    });
   </script>
 
   <script>
