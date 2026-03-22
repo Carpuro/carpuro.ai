@@ -276,9 +276,8 @@
             .filter(t => t.role === 'user')
             .map(t => t.content)
             .filter(c => !c.startsWith('['))
-            .slice(-5) // last 5 user messages for context
+            .slice(-5)
             .join(' | ');
-          // Mark session as scheduled
           try {
             await fetch('/api/chat-log', {
               method: 'POST',
@@ -286,20 +285,15 @@
               body: JSON.stringify({
                 sessionId: chatSessionId,
                 role: 'user',
-                content: '[User opened booking popup]',
+                content: '[User clicked: Book a Call]',
                 page: location.pathname,
                 stage: 'scheduled',
               }),
             });
           } catch {}
-          // Open Cal.com in a centered popup window
-          const slug = btn.action.slice(4);
-          const params = summary ? '?notes=' + encodeURIComponent('Chat: ' + summary) : '';
-          const url = 'https://cal.com/carpuro/' + slug + params;
-          const w = 600, h = 700;
-          const left = (screen.width - w) / 2;
-          const top  = (screen.height - h) / 2;
-          window.open(url, 'cal_booking', `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`);
+          const params = new URLSearchParams({ session: chatSessionId });
+          if (summary) params.set('notes', summary);
+          window.location.href = '/contact/?' + params.toString();
         });
       } else {
         b.addEventListener('click', () => window.location.href = btn.action);
