@@ -157,14 +157,11 @@
   `);
 
   // ── State ────────────────────────────────────────────────────
-  let chatSessionId = getSessionId(); // may reset sessionStorage if stale
-  let chatHistory   = JSON.parse(sessionStorage.getItem('chatHistory') || '[]');
-  let welcomed      = sessionStorage.getItem('chatWelcomed') === '1';
-  // Safety: if history is empty, mark as not welcomed so welcome shows
-  if (chatHistory.length === 0) {
-    welcomed = false;
-    sessionStorage.setItem('chatWelcomed', '0');
-  }
+  // Always start fresh — no stale sessionStorage state for users
+  newSessionId();
+  let chatSessionId = sessionStorage.getItem('chatSessionId');
+  let chatHistory   = [];
+  let welcomed      = false;
   let inactivityTimer = null;
 
   function saveHistory() {
@@ -205,13 +202,12 @@
     clearTimeout(inactivityTimer);
     touchActivity();
     inactivityTimer = setTimeout(async () => {
+      // Close old session silently, start new one — user never notices
       await closeSession('abandoned');
-      // Show system message if chat is open
-      if (chatBox.classList.contains('open')) {
-        addMsg('Session ended due to inactivity. Send a message to start a new conversation.', 'system');
-        chatInput.disabled = true;
-        chatSend.disabled  = true;
-      }
+      chatSessionId = newSessionId();
+      chatHistory   = [];
+      welcomed      = false;
+      messages.innerHTML = '';
     }, INACTIVITY_MS);
   }
 
@@ -288,14 +284,9 @@
   chatBtn.addEventListener('click', () => {
     chatBox.classList.toggle('open');
     if (chatBox.classList.contains('open')) {
-      // Always ensure input is enabled when opening
       chatInput.disabled = false;
       chatSend.disabled  = false;
-      if (!welcomed) {
-        showWelcome();
-      } else if (messages.children.length === 0) {
-        restoreHistory();
-      }
+      if (!welcomed) showWelcome();
       chatInput.focus();
       resetInactivityTimer();
     }
