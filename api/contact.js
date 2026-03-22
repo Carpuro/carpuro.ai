@@ -22,6 +22,17 @@ export default async function handler(req, res) {
     message,
   });
 
+  // If sessionId provided, mark session as contacted
+  if (req.body.sessionId) {
+    await supabase.from('chat_sessions')
+      .update({
+        lead_stage: 'contacted',
+        conversion_type: 'message_sent',
+        converted_at: new Date().toISOString(),
+      })
+      .eq('session_id', req.body.sessionId);
+  }
+
   if (error) {
     console.error('Supabase error:', error.message);
     return res.status(500).json({ error: 'Failed to save contact' });

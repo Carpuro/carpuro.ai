@@ -259,7 +259,25 @@
       if (btn.action.startsWith('msg:')) {
         b.addEventListener('click', () => sendMessage(btn.action.slice(4)));
       } else {
-        b.addEventListener('click', () => window.location.href = btn.action);
+        b.addEventListener('click', async () => {
+          // Mark session as scheduled if navigating to contact/cal
+          if (btn.action.includes('contact') || btn.action.includes('cal')) {
+            try {
+              await fetch('/api/chat-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  sessionId: chatSessionId,
+                  role: 'user',
+                  content: '[User clicked: Schedule a Call]',
+                  page: location.pathname,
+                  stage: 'scheduled',
+                }),
+              });
+            } catch {}
+          }
+          window.location.href = btn.action;
+        });
       }
       wrap.appendChild(b);
     });
