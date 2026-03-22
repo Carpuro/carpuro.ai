@@ -2,6 +2,19 @@
 (function () {
   const INACTIVITY_MS = 30 * 60 * 1000; // 30 minutes
 
+  // ── Load Cal.com embed script ────────────────────────────────
+  (function (C, A, L) {
+    let p = function (a, ar) { a.q.push(ar); };
+    let d = C.document;
+    C.Cal = C.Cal || function () {
+      let cal = C.Cal; let ar = arguments;
+      if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; }
+      if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; typeof namespace === "string" ? (cal.ns[namespace] = api) && p(api, ar) : p(cal, ar); return; }
+      p(cal, ar);
+    };
+  })(window, "https://app.cal.com/embed/embed.js", "init");
+  Cal("init", { origin: "https://cal.com" });
+
   // ── Session helpers ──────────────────────────────────────────
   function newSessionId() {
     const id = crypto.randomUUID();
@@ -258,38 +271,36 @@
       b.textContent = btn.label;
       if (btn.action.startsWith('msg:')) {
         b.addEventListener('click', () => sendMessage(btn.action.slice(4)));
-      } else {
+      } else if (btn.action.startsWith('cal:')) {
+        // Open Cal.com popup directly in chat
         b.addEventListener('click', async () => {
-          // Mark session as scheduled if navigating to contact/cal
-          if (btn.action.includes('contact') || btn.action.includes('cal')) {
-            try {
-              await fetch('/api/chat-log', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  sessionId: chatSessionId,
-                  role: 'user',
-                  content: '[User clicked: Schedule a Call]',
-                  page: location.pathname,
-                  stage: 'scheduled',
-                }),
-              });
-            } catch {}
-            // Build chat summary to pass to contact page
-            const summary = chatHistory
-              .filter(t => t.role === 'user')
-              .map(t => t.content)
-              .filter(c => !c.startsWith('['))
-              .join(' | ');
-            const params = new URLSearchParams({
-              notes: summary,
-              session: chatSessionId,
+          const calLink = 'carpuro/' + btn.action.slice(4);
+          const summary = chatHistory
+            .filter(t => t.role === 'user')
+            .map(t => t.content)
+            .filter(c => !c.startsWith('['))
+            .join(' | ');
+          // Mark session as scheduled
+          try {
+            await fetch('/api/chat-log', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sessionId: chatSessionId,
+                role: 'user',
+                content: '[User opened booking popup]',
+                page: location.pathname,
+                stage: 'scheduled',
+              }),
             });
-            window.location.href = btn.action + '?' + params.toString();
-          } else {
-            window.location.href = btn.action;
-          }
+          } catch {}
+          Cal("modal", {
+            calLink,
+            config: { theme: "dark", notes: summary ? `Chat context: ${summary}` : '' },
+          });
         });
+      } else {
+        b.addEventListener('click', () => window.location.href = btn.action);
       }
       wrap.appendChild(b);
     });
