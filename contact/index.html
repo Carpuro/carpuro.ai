@@ -496,6 +496,11 @@
       C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; typeof namespace === "string" ? (cal.ns[namespace] = api) && p(api, ar) : p(cal, ar); return; } p(cal, ar); };
     })(window, "https://app.cal.com/embed/embed.js", "init");
 
+    // Read context passed from chat widget
+    const urlParams  = new URLSearchParams(window.location.search);
+    const chatNotes  = urlParams.get('notes') || '';
+    const chatSession = urlParams.get('session') || '';
+
     document.getElementById('cal-placeholder').style.display = 'none';
     Cal("init", { origin: "https://cal.com" });
     Cal("inline", {
@@ -504,12 +509,29 @@
       config: {
         layout: "month_view",
         theme: "dark",
+        // Pre-fill notes with chat context so Carlos sees what the client needs
+        notes: chatNotes ? `Chat context: ${chatNotes}` : '',
       }
     });
     Cal("ui", {
       styles: { branding: { brandColor: "#7c3aed" } },
       hideEventTypeDetails: false,
     });
+
+    // If came from chat, mark session as scheduled via API
+    if (chatSession) {
+      fetch('/api/chat-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: chatSession,
+          role: 'user',
+          content: '[User arrived at booking page]',
+          page: '/contact/',
+          stage: 'scheduled',
+        }),
+      }).catch(() => {});
+    }
   </script>
 
   <script>

@@ -275,8 +275,20 @@
                 }),
               });
             } catch {}
+            // Build chat summary to pass to contact page
+            const summary = chatHistory
+              .filter(t => t.role === 'user')
+              .map(t => t.content)
+              .filter(c => !c.startsWith('['))
+              .join(' | ');
+            const params = new URLSearchParams({
+              notes: summary,
+              session: chatSessionId,
+            });
+            window.location.href = btn.action + '?' + params.toString();
+          } else {
+            window.location.href = btn.action;
           }
-          window.location.href = btn.action;
         });
       }
       wrap.appendChild(b);
