@@ -1387,6 +1387,24 @@
     const messages  = document.getElementById('chat-messages');
     const chatMenu  = document.getElementById('chat-menu');
     let welcomed    = false;
+    let chatHistory = []; // [{role:'user'|'assistant', content:'...'}]
+
+    // Persistent session ID for this visitor tab
+    const chatSessionId = sessionStorage.getItem('chatSessionId') || (() => {
+      const id = crypto.randomUUID();
+      sessionStorage.setItem('chatSessionId', id);
+      return id;
+    })();
+
+    async function logMessage(role, content) {
+      try {
+        await fetch('/api/chat-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: chatSessionId, role, content, page: location.pathname }),
+        });
+      } catch { /* non-blocking */ }
+    }
 
     function addMsg(text, role) {
       const el = document.createElement('div');
@@ -1448,6 +1466,8 @@
       if (!msg.trim()) return;
       chatMenu.style.display = 'none';
       addMsg(msg, 'user');
+      chatHistory.push({ role: 'user', content: msg });
+      logMessage('user', msg);
       chatInput.value = '';
       chatSend.disabled = true;
 
@@ -1457,15 +1477,20 @@
         const res = await fetch('https://carpuro-chat.carpuro.workers.dev', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: msg })
+          body: JSON.stringify({ message: msg, history: chatHistory.slice(0, -1) })
         });
         const data = await res.json();
         typing.remove();
-        if (data.reply && data.reply.trim()) addMsg(data.reply, 'bot');
+        if (data.reply && data.reply.trim()) {
+          addMsg(data.reply, 'bot');
+          chatHistory.push({ role: 'assistant', content: data.reply });
+          logMessage('assistant', data.reply);
+        }
         addButtons(data.buttons);
       } catch {
         typing.remove();
         addMsg('Something went wrong. Try again in a moment.', 'bot');
+        chatHistory.pop(); // remove the failed user message
       } finally {
         chatSend.disabled = false;
         chatInput.focus();
