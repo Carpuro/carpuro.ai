@@ -1391,7 +1391,12 @@
     function addMsg(text, role) {
       const el = document.createElement('div');
       el.className = `chat-msg ${role}`;
-      el.textContent = text;
+      // Render line breaks and basic bold (**text**)
+      const safe = text
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      el.innerHTML = safe;
       messages.appendChild(el);
       messages.scrollTop = messages.scrollHeight;
       return el;
@@ -1422,7 +1427,7 @@
       if (welcomed) return;
       welcomed = true;
       setTimeout(() => {
-        addMsg("Hi! I'm Mon, Carlos' AI assistant 👋 I can tell you about his experience, projects, tech stack, and services. What would you like to know?", 'bot');
+        addMsg(`👋 Hi! I'm **Mon**, Carlos' AI sales assistant.\n\nI'm here to understand your data challenges and connect you with the right solution.\n\n🔧 **What I can help you with:**\n- Pipeline design & ETL/ELT architecture\n- Data warehouse setup (Snowflake, BigQuery, Databricks)\n- Multicloud infrastructure (AWS, Azure, GCP)\n- Data stack audits & consulting\n\n💬 **What's the biggest data challenge you're facing right now?**`, 'bot');
       }, 300);
     }
 
