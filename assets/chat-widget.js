@@ -170,11 +170,10 @@
   `);
 
   // ── State ────────────────────────────────────────────────────
-  // Always start fresh — no stale sessionStorage state for users
-  newSessionId();
-  let chatSessionId = sessionStorage.getItem('chatSessionId');
-  let chatHistory   = [];
-  let welcomed      = false;
+  // Restore session if still active, otherwise start fresh
+  let chatSessionId = getSessionId();
+  let chatHistory   = JSON.parse(sessionStorage.getItem('chatHistory') || '[]');
+  let welcomed      = sessionStorage.getItem('chatWelcomed') === '1';
   let inactivityTimer = null;
 
   function saveHistory() {
@@ -272,13 +271,12 @@
       if (btn.action.startsWith('msg:')) {
         b.addEventListener('click', () => sendMessage(btn.action.slice(4)));
       } else if (btn.action.startsWith('cal:')) {
-        // Open Cal.com popup directly in chat
         b.addEventListener('click', async () => {
-          const calLink = 'carpuro/' + btn.action.slice(4);
           const summary = chatHistory
             .filter(t => t.role === 'user')
             .map(t => t.content)
             .filter(c => !c.startsWith('['))
+            .slice(-5) // last 5 user messages for context
             .join(' | ');
           // Mark session as scheduled
           try {
@@ -294,10 +292,14 @@
               }),
             });
           } catch {}
-          Cal("modal", {
-            calLink,
-            config: { theme: "dark", notes: summary ? `Chat context: ${summary}` : '' },
-          });
+          // Open Cal.com in a centered popup window
+          const slug = btn.action.slice(4);
+          const params = summary ? '?notes=' + encodeURIComponent('Chat: ' + summary) : '';
+          const url = 'https://cal.com/carpuro/' + slug + params;
+          const w = 600, h = 700;
+          const left = (screen.width - w) / 2;
+          const top  = (screen.height - h) / 2;
+          window.open(url, 'cal_booking', `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`);
         });
       } else {
         b.addEventListener('click', () => window.location.href = btn.action);
@@ -327,7 +329,11 @@
     if (chatBox.classList.contains('open')) {
       chatInput.disabled = false;
       chatSend.disabled  = false;
-      if (!welcomed) showWelcome();
+      if (!welcomed) {
+        showWelcome();
+      } else if (messages.children.length === 0 && chatHistory.length > 0) {
+        restoreHistory();
+      }
       chatInput.focus();
       resetInactivityTimer();
     }
