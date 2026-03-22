@@ -244,7 +244,8 @@
       color: var(--text);
     }
 
-    .marquee-icon { font-size: 1.1rem; }
+    .marquee-icon { width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: middle; }
+    .marquee-icon img { width: 100%; height: 100%; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.75; }
 
     /* Fade edges */
     .marquee-section::before,
@@ -401,7 +402,9 @@
       background: rgba(124,58,237,0.06);
       transform: translateY(-2px);
     }
-    .stack-icon { font-size: 1.75rem; }
+    .stack-icon { width: 1.75rem; height: 1.75rem; display: block; }
+    .stack-icon img { width: 100%; height: 100%; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.85; transition: opacity 0.2s; }
+    .stack-item:hover .stack-icon img { opacity: 1; filter: none; }
 
     /* PROJECTS */
     .projects-section {
@@ -897,22 +900,22 @@
     <div class="marquee-label">Tech Stack</div>
     <div class="marquee-track" id="marquee-track">
       <div class="marquee-list" id="marquee-original">
-        <div class="marquee-item"><span class="marquee-icon">🐍</span>Python</div>
-        <div class="marquee-item"><span class="marquee-icon">🗄️</span>SQL</div>
-        <div class="marquee-item"><span class="marquee-icon">❄️</span>Snowflake</div>
-        <div class="marquee-item"><span class="marquee-icon">☁️</span>BigQuery</div>
-        <div class="marquee-item"><span class="marquee-icon">🧱</span>Databricks</div>
-        <div class="marquee-item"><span class="marquee-icon">⚡</span>Apache Spark</div>
-        <div class="marquee-item"><span class="marquee-icon">🌬️</span>Apache Airflow</div>
-        <div class="marquee-item"><span class="marquee-icon">📦</span>Docker</div>
-        <div class="marquee-item"><span class="marquee-icon">🏗️</span>Terraform</div>
-        <div class="marquee-item"><span class="marquee-icon">🔷</span>Azure</div>
-        <div class="marquee-item"><span class="marquee-icon">🟠</span>AWS</div>
-        <div class="marquee-item"><span class="marquee-icon">🔵</span>GCP</div>
-        <div class="marquee-item"><span class="marquee-icon">🐘</span>PostgreSQL</div>
-        <div class="marquee-item"><span class="marquee-icon">🔀</span>Apache Kafka</div>
-        <div class="marquee-item"><span class="marquee-icon">🤖</span>PySpark ML</div>
-        <div class="marquee-item"><span class="marquee-icon">📊</span>dbt</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/python/ffffff" alt="Python"/></span>Python</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/postgresql/ffffff" alt="SQL"/></span>SQL</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/snowflake/ffffff" alt="Snowflake"/></span>Snowflake</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/googlebigquery/ffffff" alt="BigQuery"/></span>BigQuery</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/databricks/ffffff" alt="Databricks"/></span>Databricks</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/apachespark/ffffff" alt="Apache Spark"/></span>Apache Spark</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/apacheairflow/ffffff" alt="Apache Airflow"/></span>Apache Airflow</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/docker/ffffff" alt="Docker"/></span>Docker</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/terraform/ffffff" alt="Terraform"/></span>Terraform</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/microsoftazure/ffffff" alt="Azure"/></span>Azure</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/amazonaws/ffffff" alt="AWS"/></span>AWS</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/googlecloud/ffffff" alt="GCP"/></span>GCP</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/postgresql/ffffff" alt="PostgreSQL"/></span>PostgreSQL</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/apachekafka/ffffff" alt="Kafka"/></span>Apache Kafka</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/apachespark/ffffff" alt="PySpark"/></span>PySpark ML</div>
+        <div class="marquee-item"><span class="marquee-icon"><img src="https://cdn.simpleicons.org/dbt/ffffff" alt="dbt"/></span>dbt</div>
       </div>
     </div>
   </div>
@@ -923,18 +926,18 @@
     <h2 class="section-title">Tools of the trade</h2>
     <p class="section-sub">From ingestion to transformation, orchestration to serving — the full modern data stack.</p>
     <div class="stack-grid">
-      <div class="stack-item"><span class="stack-icon">🐍</span>Python</div>
-      <div class="stack-item"><span class="stack-icon">🗄️</span>SQL</div>
-      <div class="stack-item"><span class="stack-icon">❄️</span>Snowflake</div>
-      <div class="stack-item"><span class="stack-icon">☁️</span>BigQuery</div>
-      <div class="stack-item"><span class="stack-icon">🧱</span>Databricks</div>
-      <div class="stack-item"><span class="stack-icon">⚡</span>Apache Spark</div>
-      <div class="stack-item"><span class="stack-icon">🌬️</span>Apache Airflow</div>
-      <div class="stack-item"><span class="stack-icon">📦</span>Docker</div>
-      <div class="stack-item"><span class="stack-icon">🏗️</span>Terraform</div>
-      <div class="stack-item"><span class="stack-icon">🔷</span>Azure</div>
-      <div class="stack-item"><span class="stack-icon">🟠</span>AWS</div>
-      <div class="stack-item"><span class="stack-icon">🔵</span>GCP</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/python/ffffff" alt="Python"/></span>Python</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/postgresql/ffffff" alt="SQL"/></span>SQL</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/snowflake/ffffff" alt="Snowflake"/></span>Snowflake</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/googlebigquery/ffffff" alt="BigQuery"/></span>BigQuery</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/databricks/ffffff" alt="Databricks"/></span>Databricks</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/apachespark/ffffff" alt="Apache Spark"/></span>Apache Spark</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/apacheairflow/ffffff" alt="Apache Airflow"/></span>Apache Airflow</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/docker/ffffff" alt="Docker"/></span>Docker</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/terraform/ffffff" alt="Terraform"/></span>Terraform</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/microsoftazure/ffffff" alt="Azure"/></span>Azure</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/amazonaws/ffffff" alt="AWS"/></span>AWS</div>
+      <div class="stack-item"><span class="stack-icon"><img src="https://cdn.simpleicons.org/googlecloud/ffffff" alt="GCP"/></span>GCP</div>
     </div>
   </section>
 
