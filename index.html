@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carpuro.ai — Carlos Pulido Rosas</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/carpuro-icon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -73,13 +74,17 @@
     }
 
     .nav-logo {
-      font-size: 1.1rem;
-      font-weight: 700;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
       text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .nav-logo img {
+      width: 160px;
+      height: auto;
+      display: block;
+    }
+    @media (max-width: 768px) {
+      .nav-logo img { width: 120px; }
     }
 
     .nav-links { display: flex; gap: 2rem; list-style: none; }
@@ -801,7 +806,9 @@
 
   <!-- NAV -->
   <nav>
-    <a href="/" class="nav-logo">carpuro.ai</a>
+    <a href="/" class="nav-logo" aria-label="carpuro.ai">
+      <img src="/assets/carpuro-logo-dark.svg" alt="carpuro.ai" />
+    </a>
     <ul class="nav-links">
       <li><a href="/#stack">Stack</a></li>
       <li><a href="/#projects">Projects</a></li>

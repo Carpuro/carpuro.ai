@@ -1,0 +1,88 @@
+<svg width="320" height="80" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow-dark" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- ═══ PYRAMID MARK ═══ -->
+
+  <!-- ROW 3 BASE — Left cube (C) tip at (20, 38) -->
+  <polygon points="20,38 31,44 20,50 9,44"   fill="#6C8EFF" fill-opacity="0.13" stroke="#6C8EFF" stroke-width="0.8"/>
+  <polygon points="9,44  20,50 20,62 9,56"    fill="#6C8EFF" fill-opacity="0.05" stroke="#6C8EFF" stroke-width="0.7"/>
+  <polygon points="31,44 20,50 20,62 31,56"   fill="#6C8EFF" fill-opacity="0.18" stroke="#6C8EFF" stroke-width="0.9"/>
+  <path d="M25 46 Q21 46 21 53 Q21 60 25 60"  fill="none" stroke="#6C8EFF" stroke-width="1.6" stroke-linecap="round" filter="url(#glow-dark)"/>
+
+  <!-- ROW 3 BASE — Mid cube (P) tip at (37, 38) -->
+  <polygon points="37,38 48,44 37,50 26,44"   fill="#6C8EFF" fill-opacity="0.13" stroke="#6C8EFF" stroke-width="0.8"/>
+  <polygon points="26,44 37,50 37,62 26,56"   fill="#6C8EFF" fill-opacity="0.05" stroke="#6C8EFF" stroke-width="0.7"/>
+  <polygon points="48,44 37,50 37,62 48,56"   fill="#6C8EFF" fill-opacity="0.18" stroke="#6C8EFF" stroke-width="0.9"/>
+  <line x1="39" y1="46" x2="39" y2="60"      stroke="#6C8EFF" stroke-width="1.6" stroke-linecap="round" filter="url(#glow-dark)"/>
+  <path d="M39 46 Q45 46 45 50 Q45 54 39 54"  fill="none" stroke="#6C8EFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-dark)"/>
+
+  <!-- ROW 3 BASE — Right cube (R) tip at (54, 38) -->
+  <polygon points="54,38 65,44 54,50 43,44"   fill="#6C8EFF" fill-opacity="0.13" stroke="#6C8EFF" stroke-width="0.8"/>
+  <polygon points="43,44 54,50 54,62 43,56"   fill="#6C8EFF" fill-opacity="0.05" stroke="#6C8EFF" stroke-width="0.7"/>
+  <polygon points="65,44 54,50 54,62 65,56"   fill="#6C8EFF" fill-opacity="0.18" stroke="#6C8EFF" stroke-width="0.9"/>
+  <line x1="56" y1="46" x2="56" y2="60"      stroke="#6C8EFF" stroke-width="1.6" stroke-linecap="round" filter="url(#glow-dark)"/>
+  <path d="M56 46 Q62 46 62 50 Q62 54 56 54"  fill="none" stroke="#6C8EFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-dark)"/>
+  <line x1="60" y1="54" x2="63" y2="60"      stroke="#6C8EFF" stroke-width="1.6" stroke-linecap="round" filter="url(#glow-dark)"/>
+
+  <!-- ROW 2 — Left cube tip at (28.5, 26) -->
+  <polygon points="28.5,26 39.5,32 28.5,38 17.5,32"  fill="#6C8EFF" fill-opacity="0.15" stroke="#6C8EFF" stroke-width="0.85"/>
+  <polygon points="17.5,32 28.5,38 28.5,50 17.5,44"  fill="#6C8EFF" fill-opacity="0.06" stroke="#6C8EFF" stroke-width="0.75"/>
+  <polygon points="39.5,32 28.5,38 28.5,50 39.5,44"  fill="#6C8EFF" fill-opacity="0.22" stroke="#6C8EFF" stroke-width="0.95"/>
+
+  <!-- ROW 2 — Right cube tip at (45.5, 26) -->
+  <polygon points="45.5,26 56.5,32 45.5,38 34.5,32"  fill="#6C8EFF" fill-opacity="0.15" stroke="#6C8EFF" stroke-width="0.85"/>
+  <polygon points="34.5,32 45.5,38 45.5,50 34.5,44"  fill="#6C8EFF" fill-opacity="0.06" stroke="#6C8EFF" stroke-width="0.75"/>
+  <polygon points="56.5,32 45.5,38 45.5,50 56.5,44"  fill="#6C8EFF" fill-opacity="0.22" stroke="#6C8EFF" stroke-width="0.95"/>
+
+  <!-- ROW 1 — Apex cube tip at (37, 8) -->
+  <polygon points="37,8 48,14 37,20 26,14"    fill="#6C8EFF" fill-opacity="0.22" stroke="#6C8EFF" stroke-width="1.0"/>
+  <polygon points="26,14 37,20 37,32 26,26"   fill="#6C8EFF" fill-opacity="0.08" stroke="#6C8EFF" stroke-width="0.85"/>
+  <polygon points="48,14 37,20 37,32 48,26"   fill="#6C8EFF" fill-opacity="0.28" stroke="#6C8EFF" stroke-width="1.1"/>
+
+  <!-- Apex glow dot -->
+  <circle cx="37" cy="8" r="2.5" fill="#6C8EFF" filter="url(#glow-dark)"/>
+  <circle cx="37" cy="8" r="1.5" fill="#a8bcff"/>
+
+  <!-- Vertex dots -->
+  <circle cx="28.5" cy="26"  r="1.5" fill="#6C8EFF" fill-opacity="0.55"/>
+  <circle cx="45.5" cy="26"  r="1.5" fill="#6C8EFF" fill-opacity="0.55"/>
+  <circle cx="20"   cy="38"  r="1.3" fill="#6C8EFF" fill-opacity="0.42"/>
+  <circle cx="37"   cy="38"  r="1.3" fill="#6C8EFF" fill-opacity="0.42"/>
+  <circle cx="54"   cy="38"  r="1.3" fill="#6C8EFF" fill-opacity="0.42"/>
+  <circle cx="9"    cy="44"  r="1.1" fill="#6C8EFF" fill-opacity="0.28"/>
+  <circle cx="65"   cy="44"  r="1.1" fill="#6C8EFF" fill-opacity="0.28"/>
+  <circle cx="37"   cy="62"  r="1.2" fill="#6C8EFF" fill-opacity="0.25"/>
+
+  <!-- Base bottom edge -->
+  <line x1="9"  y1="56" x2="37" y2="62" stroke="#6C8EFF" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="37" y1="62" x2="65" y2="56" stroke="#6C8EFF" stroke-width="0.6" stroke-opacity="0.2"/>
+
+  <!-- ═══ WORDMARK ═══ -->
+  <text
+    x="86" y="38"
+    font-family="'DM Serif Display', Georgia, serif"
+    font-size="30"
+    font-weight="400"
+    fill="#ffffff"
+    letter-spacing="-0.5">carpuro</text>
+  <text
+    x="245" y="38"
+    font-family="'DM Serif Display', Georgia, serif"
+    font-size="30"
+    font-weight="400"
+    fill="#6C8EFF"
+    letter-spacing="-0.5">.ai</text>
+  <text
+    x="86" y="54"
+    font-family="'DM Sans', Arial, sans-serif"
+    font-size="8"
+    font-weight="400"
+    fill="#ffffff"
+    fill-opacity="0.28"
+    letter-spacing="4">DATA INFRASTRUCTURE</text>
+</svg>

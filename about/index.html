@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About — Carpuro.ai</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/carpuro-icon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -69,7 +70,7 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .nav-logo {
+    .nav-logo { text-decoration: none; display: flex; align-items: center; } .nav-logo img { width: 160px; height: auto; } .nav-logo-old {
       font-size: 1.1rem;
       font-weight: 700;
       background: var(--gradient);
@@ -400,7 +401,7 @@
   <div class="orb orb-2"></div>
 
   <nav>
-    <a href="/" class="nav-logo">carpuro.ai</a>
+    <a href="/" class="nav-logo" aria-label="carpuro.ai"><img src="/assets/carpuro-logo-dark.svg" alt="carpuro.ai" /></a>
     <ul class="nav-links">
       <li><a href="/#stack">Stack</a></li>
       <li><a href="/#projects">Projects</a></li>

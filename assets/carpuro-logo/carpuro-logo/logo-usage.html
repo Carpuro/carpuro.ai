@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>carpuro.ai — Logo Usage Guide</title>
+  <link rel="icon" type="image/svg+xml" href="carpuro-icon.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f0f1f5;
+      color: #0a0e1a;
+      padding: 48px 32px;
+      line-height: 1.6;
+    }
+    h1 { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 6px; }
+    .subtitle { font-size: 12px; letter-spacing: 3px; color: #888; text-transform: uppercase; margin-bottom: 48px; }
+    section { margin-bottom: 56px; }
+    h2 { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #aaa; margin-bottom: 20px; }
+    .card {
+      border-radius: 12px; padding: 36px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .card-dark  { background: #080b12; }
+    .card-mid   { background: #0d1127; border: 1px solid rgba(108,142,255,0.18); }
+    .card-light { background: #ffffff; border: 1px solid #e2e4ea; }
+    .card-gray  { background: #f0f1f5; border: 1px solid #dde0e8; }
+    .hint { font-size: 11px; color: #aaa; margin-bottom: 32px; letter-spacing: 0.5px; }
+
+    .icon-row { display: flex; gap: 20px; align-items: flex-end; }
+    .icon-box {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #aaa;
+    }
+    .icon-pill {
+      border-radius: 10px; background: rgba(108,142,255,0.1);
+      border: 1px solid rgba(108,142,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      padding: 8px;
+    }
+    .icon-pill-light {
+      border-radius: 10px; background: #fff;
+      border: 1px solid #dde0e8;
+      display: flex; align-items: center; justify-content: center;
+      padding: 8px;
+    }
+
+    code {
+      background: #1a1d2e; color: #a8bcff;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      padding: 2px 6px; border-radius: 4px;
+    }
+    pre {
+      background: #0d1127; color: #c8d6ff;
+      font-family: 'Courier New', monospace;
+      font-size: 12px; line-height: 1.7;
+      padding: 20px 24px; border-radius: 10px;
+      overflow-x: auto; margin-bottom: 12px;
+      border: 1px solid rgba(108,142,255,0.15);
+    }
+    .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 8px; }
+    .file-card {
+      background: #fff; border: 1px solid #e2e4ea;
+      border-radius: 8px; padding: 16px;
+    }
+    .file-name { font-size: 12px; font-weight: 500; color: #3B5FCC; margin-bottom: 4px; }
+    .file-desc { font-size: 11px; color: #888; }
+  </style>
+</head>
+<body>
+
+  <h1>carpuro.ai</h1>
+  <p class="subtitle">Logo Usage Guide</p>
+
+  <!-- ── DARK BACKGROUND ── -->
+  <section>
+    <h2>Sobre fondo oscuro (uso principal)</h2>
+    <div class="card card-dark">
+      <img src="carpuro-logo-dark.svg" alt="carpuro.ai logo" width="280"/>
+    </div>
+    <div class="card card-mid">
+      <img src="carpuro-logo-dark.svg" alt="carpuro.ai logo" width="220"/>
+    </div>
+    <p class="hint">Archivo: carpuro-logo-dark.svg — usar cuando el fondo sea oscuro (#080b12, #0d1127, etc.)</p>
+  </section>
+
+  <!-- ── LIGHT BACKGROUND ── -->
+  <section>
+    <h2>Sobre fondo claro</h2>
+    <div class="card card-light">
+      <img src="carpuro-logo-light.svg" alt="carpuro.ai logo" width="280"/>
+    </div>
+    <div class="card card-gray">
+      <img src="carpuro-logo-light.svg" alt="carpuro.ai logo" width="220"/>
+    </div>
+    <p class="hint">Archivo: carpuro-logo-light.svg — usar cuando el fondo sea claro o blanco.</p>
+  </section>
+
+  <!-- ── ICON ONLY ── -->
+  <section>
+    <h2>Ícono standalone (favicon / avatar / app icon)</h2>
+    <div class="icon-row">
+      <div class="icon-box">
+        <div class="icon-pill" style="background:#080b12;">
+          <img src="carpuro-icon.svg" width="56" height="56"/>
+        </div>
+        56px — dark
+      </div>
+      <div class="icon-box">
+        <div class="icon-pill" style="background:#080b12;">
+          <img src="carpuro-icon.svg" width="40" height="40"/>
+        </div>
+        40px
+      </div>
+      <div class="icon-box">
+        <div class="icon-pill" style="background:#080b12;">
+          <img src="carpuro-icon.svg" width="28" height="28"/>
+        </div>
+        28px
+      </div>
+      <div class="icon-box">
+        <div class="icon-pill" style="background:#080b12;">
+          <img src="carpuro-icon.svg" width="20" height="20"/>
+        </div>
+        20px
+      </div>
+      <div class="icon-box">
+        <div class="icon-pill-light">
+          <img src="carpuro-icon.svg" width="40" height="40"/>
+        </div>
+        light bg
+      </div>
+    </div>
+    <br/>
+    <p class="hint">Archivo: carpuro-icon.svg — para favicon, navbar colapsada, og:image, etc.</p>
+  </section>
+
+  <!-- ── USAGE CODE ── -->
+  <section>
+    <h2>Cómo usarlo en tu sitio</h2>
+
+    <p style="font-size:13px; color:#444; margin-bottom:16px;">Favicon (en tu &lt;head&gt;):</p>
+    <pre>&lt;link rel="icon" type="image/svg+xml" href="/assets/logos/carpuro-icon.svg"/&gt;</pre>
+
+    <p style="font-size:13px; color:#444; margin-bottom:16px; margin-top:24px;">Navbar (fondo oscuro):</p>
+    <pre>&lt;img
+  src="/assets/logos/carpuro-logo-dark.svg"
+  alt="carpuro.ai"
+  width="200"
+  height="50"
+/&gt;</pre>
+
+    <p style="font-size:13px; color:#444; margin-bottom:16px; margin-top:24px;">Responsive con CSS (recomendado):</p>
+    <pre>/* En tu CSS */
+.logo {
+  width: 180px;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .logo { width: 140px; }
+}</pre>
+
+    <p style="font-size:13px; color:#444; margin-bottom:16px; margin-top:24px;">Inline SVG (máxima calidad, sin petición HTTP):</p>
+    <pre>&lt;!-- Copia el contenido de carpuro-logo-dark.svg directamente en tu HTML --&gt;
+&lt;a href="/" aria-label="carpuro.ai home"&gt;
+  &lt;svg width="200" height="50" ... &gt;...&lt;/svg&gt;
+&lt;/a&gt;</pre>
+  </section>
+
+  <!-- ── FILES ── -->
+  <section>
+    <h2>Archivos incluidos</h2>
+    <div class="files-grid">
+      <div class="file-card">
+        <div class="file-name">carpuro-logo-dark.svg</div>
+        <div class="file-desc">Logo completo para fondos oscuros. Wordmark + ícono.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-name">carpuro-logo-light.svg</div>
+        <div class="file-desc">Logo completo para fondos claros. Wordmark + ícono.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-name">carpuro-icon.svg</div>
+        <div class="file-desc">Solo la pirámide. Favicon, avatar, app icon.</div>
+      </div>
+      <div class="file-card">
+        <div class="file-name">logo-usage.html</div>
+        <div class="file-desc">Esta guía. Referencia visual de uso.</div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
