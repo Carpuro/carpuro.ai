@@ -1,0 +1,8 @@
+name = "carpuro-chat"
+main = "worker/index.js"
+compatibility_date = "2025-09-27"
+compatibility_flags = ["nodejs_compat"]
+
+# GEMINI_API_KEY must be added as a secret in the Cloudflare dashboard:
+# Workers & Pages → carpuro-chat → Settings → Variables and Secrets → Add variable
+# Name: GEMINI_API_KEY  |  Type: Secret  |  Value: your key
