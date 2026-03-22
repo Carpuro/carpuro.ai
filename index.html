@@ -1346,6 +1346,7 @@
     }
     #chat-send:hover { opacity: 0.85; }
     #chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-bot-btns { display: flex; flex-wrap: wrap; gap: 0.4rem; align-self: flex-start; max-width: 100%; }
   </style>
 
   <button id="chat-btn" aria-label="Chat con Mon">💬</button>
@@ -1396,6 +1397,27 @@
       return el;
     }
 
+    function addButtons(buttons) {
+      if (!buttons || buttons.length === 0) return;
+      // Remove previous bot buttons
+      messages.querySelectorAll('.chat-bot-btns').forEach(el => el.remove());
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-bot-btns';
+      buttons.forEach(btn => {
+        const b = document.createElement('button');
+        b.className = 'chat-quick';
+        b.textContent = btn.label;
+        if (btn.action.startsWith('msg:')) {
+          b.addEventListener('click', () => sendMessage(btn.action.slice(4)));
+        } else {
+          b.addEventListener('click', () => window.location.href = btn.action);
+        }
+        wrap.appendChild(b);
+      });
+      messages.appendChild(wrap);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
     function showWelcome() {
       if (welcomed) return;
       welcomed = true;
@@ -1435,6 +1457,7 @@
         const data = await res.json();
         typing.remove();
         addMsg(data.reply, 'bot');
+        addButtons(data.buttons);
       } catch {
         typing.remove();
         addMsg('Something went wrong. Try again in a moment.', 'bot');
