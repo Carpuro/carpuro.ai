@@ -1,6 +1,35 @@
 // Mon Chat Widget — shared across all pages
 (function () {
-  // ── Inject CSS ──────────────────────────────────────────────
+  const INACTIVITY_MS = 30 * 60 * 1000; // 30 minutes
+
+  // ── Session helpers ──────────────────────────────────────────
+  function newSessionId() {
+    const id = crypto.randomUUID();
+    sessionStorage.setItem('chatSessionId', id);
+    sessionStorage.setItem('chatHistory', '[]');
+    sessionStorage.setItem('chatWelcomed', '0');
+    sessionStorage.setItem('chatSessionStatus', 'active');
+    sessionStorage.setItem('chatLastActivity', Date.now().toString());
+    return id;
+  }
+
+  function getSessionId() {
+    const status   = sessionStorage.getItem('chatSessionStatus');
+    const lastActivity = parseInt(sessionStorage.getItem('chatLastActivity') || '0');
+    const timedOut = Date.now() - lastActivity > INACTIVITY_MS;
+
+    // Start fresh if session was closed, abandoned, or timed out
+    if (!sessionStorage.getItem('chatSessionId') || status === 'closed' || status === 'abandoned' || timedOut) {
+      return newSessionId();
+    }
+    return sessionStorage.getItem('chatSessionId');
+  }
+
+  function touchActivity() {
+    sessionStorage.setItem('chatLastActivity', Date.now().toString());
+  }
+
+  // ── Inject CSS ───────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
     #chat-btn {
@@ -36,11 +65,19 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 1rem; flex-shrink: 0;
     }
-    .chat-header-info { display: flex; flex-direction: column; gap: 1px; }
+    .chat-header-info { display: flex; flex-direction: column; gap: 1px; flex: 1; }
     .chat-header-info strong { font-size: 0.85rem; font-weight: 600; color: #e2e2f0; }
     .chat-header-info small { font-size: 0.7rem; color: #6b6b8a; }
     .chat-status { display: flex; align-items: center; gap: 4px; }
-    .chat-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+    .chat-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    #chat-close-btn {
+      background: none; border: none; color: #6b6b8a; cursor: pointer;
+      font-size: 1.1rem; line-height: 1; padding: 0.2rem 0.3rem;
+      border-radius: 6px; transition: color 0.2s, background 0.2s;
+      margin-left: auto; flex-shrink: 0;
+    }
+    #chat-close-btn:hover { color: #e2e2f0; background: rgba(255,255,255,0.06); }
     #chat-messages {
       flex: 1; overflow-y: auto; padding: 1rem;
       display: flex; flex-direction: column; gap: 0.7rem;
@@ -56,6 +93,7 @@
     .chat-msg.bot { background: rgba(255,255,255,0.06); color: #c4c4d8; align-self: flex-start; border-bottom-left-radius: 4px; }
     .chat-msg.user { background: linear-gradient(135deg, #7c3aed, #2563eb); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
     .chat-msg.typing { color: #6b6b8a; font-style: italic; }
+    .chat-msg.system { color: #6b6b8a; font-size: 0.75rem; font-style: italic; align-self: center; background: none; padding: 0.2rem 0; }
     #chat-menu { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.75rem; }
     .chat-quick {
       background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.3);
@@ -89,7 +127,7 @@
   `;
   document.head.appendChild(style);
 
-  // ── Inject HTML ─────────────────────────────────────────────
+  // ── Inject HTML ──────────────────────────────────────────────
   document.body.insertAdjacentHTML('beforeend', `
     <button id="chat-btn" aria-label="Chat con Mon">💬</button>
     <div id="chat-box">
@@ -102,6 +140,7 @@
             <small>Carlos' AI assistant · online</small>
           </div>
         </div>
+        <button id="chat-close-btn" title="End conversation">✕</button>
       </div>
       <div id="chat-messages"></div>
       <div id="chat-menu">
@@ -117,29 +156,71 @@
     </div>
   `);
 
-  // ── State (persisted in sessionStorage) ─────────────────────
-  const chatSessionId = sessionStorage.getItem('chatSessionId') || (() => {
-    const id = crypto.randomUUID();
-    sessionStorage.setItem('chatSessionId', id);
-    return id;
-  })();
-
-  // Restore history across page navigations
-  let chatHistory = JSON.parse(sessionStorage.getItem('chatHistory') || '[]');
-  let welcomed = sessionStorage.getItem('chatWelcomed') === '1';
+  // ── State ────────────────────────────────────────────────────
+  let chatSessionId = getSessionId();
+  let chatHistory   = JSON.parse(sessionStorage.getItem('chatHistory') || '[]');
+  let welcomed      = sessionStorage.getItem('chatWelcomed') === '1';
+  let inactivityTimer = null;
 
   function saveHistory() {
     sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
   }
 
   // ── DOM refs ─────────────────────────────────────────────────
-  const chatBtn   = document.getElementById('chat-btn');
-  const chatBox   = document.getElementById('chat-box');
-  const chatForm  = document.getElementById('chat-form');
-  const chatInput = document.getElementById('chat-input');
-  const chatSend  = document.getElementById('chat-send');
-  const messages  = document.getElementById('chat-messages');
-  const chatMenu  = document.getElementById('chat-menu');
+  const chatBtn      = document.getElementById('chat-btn');
+  const chatBox      = document.getElementById('chat-box');
+  const chatCloseBtn = document.getElementById('chat-close-btn');
+  const chatForm     = document.getElementById('chat-form');
+  const chatInput    = document.getElementById('chat-input');
+  const chatSend     = document.getElementById('chat-send');
+  const messages     = document.getElementById('chat-messages');
+  const chatMenu     = document.getElementById('chat-menu');
+
+  // ── Session lifecycle ────────────────────────────────────────
+  async function closeSession(status = 'closed') {
+    sessionStorage.setItem('chatSessionStatus', status);
+    clearTimeout(inactivityTimer);
+    try {
+      // Use sendBeacon for reliability on page unload
+      const payload = JSON.stringify({ sessionId: chatSessionId, status });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/session-close', new Blob([payload], { type: 'application/json' }));
+      } else {
+        await fetch('/api/session-close', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true,
+        });
+      }
+    } catch { /* non-blocking */ }
+  }
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    touchActivity();
+    inactivityTimer = setTimeout(async () => {
+      await closeSession('abandoned');
+      // Show system message if chat is open
+      if (chatBox.classList.contains('open')) {
+        addMsg('Session ended due to inactivity. Send a message to start a new conversation.', 'system');
+        chatInput.disabled = true;
+        chatSend.disabled  = true;
+      }
+    }, INACTIVITY_MS);
+  }
+
+  function startNewConversation() {
+    chatSessionId = newSessionId();
+    chatHistory   = [];
+    welcomed      = false;
+    messages.innerHTML = '';
+    chatInput.disabled = false;
+    chatSend.disabled  = false;
+    chatMenu.style.display = '';
+    showWelcome();
+    resetInactivityTimer();
+  }
 
   // ── Helpers ──────────────────────────────────────────────────
   async function logMessage(role, content) {
@@ -185,7 +266,6 @@
     messages.scrollTop = messages.scrollHeight;
   }
 
-  // Restore previous messages visually when returning to a page
   function restoreHistory() {
     chatHistory.forEach(turn => addMsg(turn.content, turn.role === 'assistant' ? 'bot' : 'user'));
   }
@@ -195,8 +275,7 @@
     welcomed = true;
     sessionStorage.setItem('chatWelcomed', '1');
     setTimeout(() => {
-      const welcome = `👋 Hi! I'm **Mon**, Carlos' AI sales assistant.\n\nI'm here to understand your data challenges and connect you with the right solution.\n\n🔧 **What I can help you with:**\n- Pipeline design & ETL/ELT architecture\n- Data warehouse setup (Snowflake, BigQuery, Databricks)\n- Multicloud infrastructure (AWS, Azure, GCP)\n- Data stack audits & consulting\n\n💬 **What's the biggest data challenge you're facing right now?**`;
-      addMsg(welcome, 'bot');
+      addMsg(`👋 Hi! I'm **Mon**, Carlos' AI sales assistant.\n\nI'm here to understand your data challenges and connect you with the right solution.\n\n🔧 **What I can help you with:**\n- Pipeline design & ETL/ELT architecture\n- Data warehouse setup (Snowflake, BigQuery, Databricks)\n- Multicloud infrastructure (AWS, Azure, GCP)\n- Data stack audits & consulting\n\n💬 **What's the biggest data challenge you're facing right now?**`, 'bot');
     }, 300);
   }
 
@@ -210,7 +289,25 @@
         restoreHistory();
       }
       chatInput.focus();
+      resetInactivityTimer();
     }
+  });
+
+  // ✕ button — end session explicitly
+  chatCloseBtn.addEventListener('click', async () => {
+    if (chatHistory.length > 0) {
+      await closeSession('closed');
+    }
+    chatBox.classList.remove('open');
+    // Start fresh next time
+    chatSessionId = newSessionId();
+    chatHistory   = [];
+    welcomed      = false;
+    messages.innerHTML = '';
+    chatInput.disabled = false;
+    chatSend.disabled  = false;
+    chatMenu.style.display = '';
+    clearTimeout(inactivityTimer);
   });
 
   chatMenu.querySelectorAll('.chat-quick').forEach(btn => {
@@ -224,6 +321,7 @@
     chatHistory.push({ role: 'user', content: msg });
     saveHistory();
     logMessage('user', msg);
+    resetInactivityTimer();
     chatInput.value = '';
     chatSend.disabled = true;
 
@@ -259,4 +357,14 @@
     e.preventDefault();
     sendMessage(chatInput.value.trim());
   });
+
+  // Close session as abandoned when tab/browser closes
+  window.addEventListener('pagehide', () => {
+    if (chatHistory.length > 0 && sessionStorage.getItem('chatSessionStatus') === 'active') {
+      closeSession('abandoned');
+    }
+  });
+
+  // Start inactivity timer on load if there's an active session
+  if (chatHistory.length > 0) resetInactivityTimer();
 })();
