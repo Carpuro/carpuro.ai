@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services — Carpuro.ai</title>
+  <meta name="description" content="End-to-end data engineering services by Carlos Pulido Rosas — pipeline design, data warehouse setup, multicloud architecture, and data audits." />
+  <link rel="icon" type="image/svg+xml" href="/assets/carpuro-icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080810;
+      --bg2: #0d0d1a;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #e2e2f0;
+      --muted: #6b6b8a;
+      --accent1: #7c3aed;
+      --accent2: #2563eb;
+      --accent3: #06b6d4;
+      --gradient: linear-gradient(135deg, #7c3aed, #2563eb, #06b6d4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 700px; height: 700px; background: rgba(124,58,237,0.10); top: -250px; right: -200px; }
+    .orb-2 { width: 500px; height: 500px; background: rgba(37,99,235,0.09); bottom: 15%; left: -150px; }
+    .orb-3 { width: 400px; height: 400px; background: rgba(6,182,212,0.07); top: 50%; right: -100px; }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8,8,16,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .nav-logo img { width: 160px; height: auto; display: block; }
+
+    @media (max-width: 768px) {
+      .nav-logo img { width: 120px; }
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--text); }
+
+    .nav-cta {
+      background: var(--gradient);
+      color: #fff !important;
+      padding: 0.45rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.875rem !important;
+      font-weight: 600 !important;
+    }
+
+    @media (max-width: 860px) {
+      .nav-links { gap: 1.2rem; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+    }
+
+    section { position: relative; z-index: 1; }
+
+    /* ── HERO ── */
+    .services-hero {
+      padding: 9rem 2rem 5rem;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent1);
+      margin-bottom: 1.25rem;
+      background: rgba(124,58,237,0.1);
+      border: 1px solid rgba(124,58,237,0.2);
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+    }
+
+    .services-hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+      margin-bottom: 1.25rem;
+    }
+
+    .gradient-text {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .services-hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    /* ── QUICK NAV PILLS ── */
+    .quick-nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0 2rem 5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quick-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.22s;
+      backdrop-filter: blur(8px);
+    }
+
+    .quick-pill:hover {
+      border-color: rgba(124,58,237,0.4);
+      color: var(--text);
+      background: rgba(124,58,237,0.08);
+    }
+
+    .quick-pill .pill-icon { font-size: 1rem; line-height: 1; }
+
+    /* ── SERVICE SECTIONS ── */
+    .service-section {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .service-section:nth-child(even) {
+      background: rgba(13,13,26,0.5);
+    }
+
+    .service-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Service header */
+    .service-header {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2rem;
+      align-items: flex-start;
+      margin-bottom: 3rem;
+    }
+
+    .service-icon-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: rgba(124,58,237,0.1);
+      border: 1px solid rgba(124,58,237,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+    }
+
+    .service-section:nth-child(3n+2) .service-icon-wrap {
+      background: rgba(37,99,235,0.1);
+      border-color: rgba(37,99,235,0.2);
+    }
+
+    .service-section:nth-child(3n+3) .service-icon-wrap {
+      background: rgba(6,182,212,0.1);
+      border-color: rgba(6,182,212,0.2);
+    }
+
+    .service-meta { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .service-number {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .service-section h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+    }
+
+    /* Service body — 2 col layout */
+    .service-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .service-desc p {
+      color: var(--muted);
+      font-size: 0.97rem;
+      line-height: 1.85;
+      margin-bottom: 1rem;
+    }
+    .service-desc p:last-child { margin-bottom: 0; }
+
+    /* Techniques */
+    .service-techniques { margin-top: 2rem; }
+    .service-techniques h3 {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent1);
+      margin-bottom: 0.9rem;
+    }
+
+    .techniques-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .techniques-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .techniques-list li::before {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gradient);
+      margin-top: 0.45rem;
+      flex-shrink: 0;
+    }
+
+    /* Right column */
+    .service-right { display: flex; flex-direction: column; gap: 2rem; }
+
+    /* Tools */
+    .service-tools h3 {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent3);
+      margin-bottom: 0.9rem;
+    }
+
+    .tools-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .tool-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.9rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text);
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .tool-pill:hover {
+      border-color: rgba(124,58,237,0.3);
+      background: rgba(124,58,237,0.06);
+    }
+
+    .tool-icon {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Strategies */
+    .service-strategies h3 {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 0.9rem;
+    }
+
+    .strategies-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .strategy-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.22s, background 0.22s, transform 0.22s;
+    }
+
+    .strategy-card:hover {
+      border-color: rgba(124,58,237,0.25);
+      background: rgba(124,58,237,0.04);
+      transform: translateX(4px);
+    }
+
+    .strategy-card h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+
+    .strategy-card p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* Section accent line */
+    .service-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(37,99,235,0.3), transparent);
+    }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      position: relative;
+      z-index: 1;
+      padding: 7rem 2rem 8rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .cta-inner h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .cta-inner p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 2.25rem;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 2.2rem;
+      background: var(--gradient);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 0 32px rgba(124,58,237,0.3);
+    }
+
+    .cta-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-2px);
+    }
+
+    .cta-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(124,58,237,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-left { font-size: 0.875rem; color: var(--muted); }
+
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.875rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    #easter-trigger {
+      color: inherit;
+      text-decoration: none;
+      font-size: 0.75rem;
+      opacity: 0.15;
+      padding: 0 0 0 0.4rem;
+      transition: opacity 0.3s;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    #easter-trigger:hover { opacity: 0.6; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .service-body {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .service-header {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .service-icon-wrap { width: 56px; height: 56px; font-size: 1.5rem; border-radius: 14px; }
+
+      .service-section { padding: 4rem 1.25rem; }
+
+      .quick-nav { gap: 0.5rem; }
+      .quick-pill { font-size: 0.78rem; padding: 0.45rem 0.9rem; }
+
+      .cta-section { padding: 5rem 1.25rem 6rem; }
+
+      footer { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .footer-links { flex-wrap: wrap; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Glow orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-logo" aria-label="carpuro.ai">
+      <img src="/assets/carpuro-logo-dark.svg" alt="carpuro.ai" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="/#stack">Stack</a></li>
+      <li><a href="/#projects">Projects</a></li>
+      <li><a href="/services/" class="active">Services</a></li>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/about/">About</a></li>
+      <li><a href="/contact/" class="nav-cta">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="services-hero">
+    <span class="section-label">What I do</span>
+    <h1>
+      <span class="gradient-text">Services</span>
+    </h1>
+    <p>End-to-end data engineering — from raw ingestion to business insight.</p>
+  </section>
+
+  <!-- QUICK NAV PILLS -->
+  <div class="quick-nav">
+    <a href="#pipeline" class="quick-pill">
+      <span class="pill-icon">🔧</span> Pipeline Design
+    </a>
+    <a href="#warehouse" class="quick-pill">
+      <span class="pill-icon">❄️</span> Data Warehouse
+    </a>
+    <a href="#multicloud" class="quick-pill">
+      <span class="pill-icon">🌐</span> Multicloud
+    </a>
+    <a href="#consulting" class="quick-pill">
+      <span class="pill-icon">🔍</span> Audits & Consulting
+    </a>
+  </div>
+
+  <!-- ─────────────────────────────────────────── -->
+  <!-- SERVICE 1: Pipeline Design & Implementation -->
+  <!-- ─────────────────────────────────────────── -->
+  <section class="service-section" id="pipeline">
+    <div class="service-inner">
+
+      <div class="service-header">
+        <div class="service-icon-wrap">🔧</div>
+        <div class="service-meta">
+          <span class="service-number">Service 01</span>
+          <h2>Pipeline Design &amp; Implementation</h2>
+        </div>
+      </div>
+
+      <div class="service-body">
+
+        <!-- Left: description + techniques -->
+        <div class="service-left">
+          <div class="service-desc">
+            <p>Design and build robust, scalable ETL/ELT pipelines from raw data sources all the way to the warehouse. Every pipeline is treated as a production system — not a script — with reliability, observability, and cost efficiency baked in from the start.</p>
+            <p>Whether you're ingesting from REST APIs, CDC streams, or flat files, the goal is the same: data that arrives complete, on time, and trustworthy — every run.</p>
+            <p>Pipelines are built to be debuggable, recoverable, and maintainable by the next engineer, not just the one who wrote them.</p>
+          </div>
+
+          <div class="service-techniques">
+            <h3>Techniques</h3>
+            <ul class="techniques-list">
+              <li>Medallion architecture (Bronze / Silver / Gold)</li>
+              <li>Incremental loading &amp; Change Data Capture (CDC)</li>
+              <li>Schema evolution &amp; data contracts</li>
+              <li>Idempotent pipeline design</li>
+              <li>SLA monitoring &amp; alerting</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right: tools + strategies -->
+        <div class="service-right">
+
+          <div class="service-tools">
+            <h3>Tools</h3>
+            <div class="tools-row">
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/apachespark/ffffff" alt="Spark" class="tool-icon" />
+                Apache Spark
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/apacheairflow/ffffff" alt="Airflow" class="tool-icon" />
+                Apache Airflow
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/apachekafka/ffffff" alt="Kafka" class="tool-icon" />
+                Apache Kafka
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/dbt/ffffff" alt="dbt" class="tool-icon" />
+                dbt
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/python/ffffff" alt="Python" class="tool-icon" />
+                Python
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/postgresql/ffffff" alt="PostgreSQL" class="tool-icon" />
+                PostgreSQL
+              </div>
+            </div>
+          </div>
+
+          <div class="service-strategies">
+            <h3>Strategies</h3>
+            <div class="strategies-grid">
+              <div class="strategy-card">
+                <h4>Data Quality First</h4>
+                <p>Validate at ingestion, transform with confidence using Great Expectations and dbt tests — bad data never reaches the warehouse.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>Observability by Default</h4>
+                <p>Every pipeline ships with lineage, structured logging, and alerting from day one — not as an afterthought.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>Cost-Aware Design</h4>
+                <p>Partition strategies and incremental loads minimize compute costs without sacrificing freshness or throughput.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────── -->
+  <!-- SERVICE 2: Data Warehouse Setup -->
+  <!-- ───────────────────────────── -->
+  <section class="service-section" id="warehouse">
+    <div class="service-inner">
+
+      <div class="service-header">
+        <div class="service-icon-wrap">❄️</div>
+        <div class="service-meta">
+          <span class="service-number">Service 02</span>
+          <h2>Data Warehouse Setup</h2>
+        </div>
+      </div>
+
+      <div class="service-body">
+
+        <div class="service-left">
+          <div class="service-desc">
+            <p>Design and implement modern cloud data warehouses optimized for analytics at scale. From schema design to query optimization and cost governance — built to serve both analysts and automated reporting without constant engineering intervention.</p>
+            <p>A well-modeled warehouse means analysts can answer their own questions. The right modeling layer removes the bottleneck between data and decisions.</p>
+            <p>Every warehouse engagement includes documentation, semantic layer setup, and a governance model that scales as the team grows.</p>
+          </div>
+
+          <div class="service-techniques">
+            <h3>Techniques</h3>
+            <ul class="techniques-list">
+              <li>Dimensional modeling (Kimball methodology)</li>
+              <li>Data Vault 2.0</li>
+              <li>Slowly changing dimensions (SCD Types 1–3)</li>
+              <li>Clustering &amp; partitioning strategies</li>
+              <li>Role-based access control (RBAC)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="service-right">
+
+          <div class="service-tools">
+            <h3>Tools</h3>
+            <div class="tools-row">
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/snowflake/ffffff" alt="Snowflake" class="tool-icon" />
+                Snowflake
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/googlebigquery/ffffff" alt="BigQuery" class="tool-icon" />
+                BigQuery
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/databricks/ffffff" alt="Databricks" class="tool-icon" />
+                Databricks
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/dbt/ffffff" alt="dbt" class="tool-icon" />
+                dbt
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/terraform/ffffff" alt="Terraform" class="tool-icon" />
+                Terraform
+              </div>
+            </div>
+          </div>
+
+          <div class="service-strategies">
+            <h3>Strategies</h3>
+            <div class="strategies-grid">
+              <div class="strategy-card">
+                <h4>Model for the Business</h4>
+                <p>Star schemas and semantic layers that analysts can query without engineering help — self-service analytics by design.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>Automate Governance</h4>
+                <p>Column-level security, data masking, and audit logs built in from the start — compliance that doesn't require manual effort.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>Performance &amp; Cost Balance</h4>
+                <p>Clustering keys, materialized views, and warehouse auto-suspend configured to optimize spend without sacrificing query speed.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── -->
+  <!-- SERVICE 3: Multicloud Architecture -->
+  <!-- ─────────────────────────────── -->
+  <section class="service-section" id="multicloud">
+    <div class="service-inner">
+
+      <div class="service-header">
+        <div class="service-icon-wrap">🌐</div>
+        <div class="service-meta">
+          <span class="service-number">Service 03</span>
+          <h2>Multicloud Architecture</h2>
+        </div>
+      </div>
+
+      <div class="service-body">
+
+        <div class="service-left">
+          <div class="service-desc">
+            <p>Design and deploy resilient data infrastructure across AWS, Azure, and GCP. Infrastructure as Code, CI/CD pipelines, and unified governance across clouds — so the architecture outlasts any vendor relationship or pricing change.</p>
+            <p>Multicloud doesn't have to mean complexity. The right abstractions keep your team productive while keeping options open at the infrastructure level.</p>
+            <p>Every deployment is version-controlled, peer-reviewed, and automatically validated before it touches production.</p>
+          </div>
+
+          <div class="service-techniques">
+            <h3>Techniques</h3>
+            <ul class="techniques-list">
+              <li>Infrastructure as Code (IaC)</li>
+              <li>GitOps &amp; CI/CD for data infrastructure</li>
+              <li>Cross-cloud data replication</li>
+              <li>Cost tagging &amp; FinOps</li>
+              <li>Zero-trust network design</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="service-right">
+
+          <div class="service-tools">
+            <h3>Tools</h3>
+            <div class="tools-row">
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/terraform/ffffff" alt="Terraform" class="tool-icon" />
+                Terraform
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/docker/ffffff" alt="Docker" class="tool-icon" />
+                Docker
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/amazonaws/ffffff" alt="AWS" class="tool-icon" />
+                AWS
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/microsoftazure/ffffff" alt="Azure" class="tool-icon" />
+                Microsoft Azure
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/googlecloud/ffffff" alt="GCP" class="tool-icon" />
+                Google Cloud
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/githubactions/ffffff" alt="GitHub Actions" class="tool-icon" />
+                GitHub Actions
+              </div>
+            </div>
+          </div>
+
+          <div class="service-strategies">
+            <h3>Strategies</h3>
+            <div class="strategies-grid">
+              <div class="strategy-card">
+                <h4>Cloud-Agnostic Core</h4>
+                <p>Abstract vendor-specific services behind interfaces so switching clouds doesn't mean rewriting everything from scratch.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>GitOps Everything</h4>
+                <p>All infrastructure changes go through pull requests, with automated validation and rollback — no manual snowflake configs.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>FinOps from Day 1</h4>
+                <p>Tagging strategy, budget alerts, and rightsizing reviews built into the deployment process — not added when the bill arrives.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────── -->
+  <!-- SERVICE 4: Data Audits & Consulting -->
+  <!-- ─────────────────────────────────── -->
+  <section class="service-section" id="consulting">
+    <div class="service-inner">
+
+      <div class="service-header">
+        <div class="service-icon-wrap">🔍</div>
+        <div class="service-meta">
+          <span class="service-number">Service 04</span>
+          <h2>Data Audits &amp; Consulting</h2>
+        </div>
+      </div>
+
+      <div class="service-body">
+
+        <div class="service-left">
+          <div class="service-desc">
+            <p>Review your existing data stack, identify bottlenecks and risks, and define a clear roadmap to a modern, scalable architecture. Before recommending anything new, I map what already exists — so the advice is grounded in your actual constraints, not a generic playbook.</p>
+            <p>Audits surface the issues that are costing your team the most time and money, and prioritize fixes by impact rather than technical elegance.</p>
+            <p>The output is a concrete, phased roadmap — not a slide deck full of buzzwords — with business context for every recommendation.</p>
+          </div>
+
+          <div class="service-techniques">
+            <h3>Techniques</h3>
+            <ul class="techniques-list">
+              <li>Data maturity assessment</li>
+              <li>Pipeline profiling &amp; bottleneck analysis</li>
+              <li>Data quality scoring</li>
+              <li>Cost breakdown &amp; optimization review</li>
+              <li>Team skills gap analysis</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="service-right">
+
+          <div class="service-tools">
+            <h3>Tools Reviewed</h3>
+            <div class="tools-row">
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/python/ffffff" alt="Python" class="tool-icon" />
+                Python
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/dbt/ffffff" alt="dbt" class="tool-icon" />
+                dbt
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/snowflake/ffffff" alt="Snowflake" class="tool-icon" />
+                Snowflake
+              </div>
+              <div class="tool-pill">
+                <img src="https://cdn.simpleicons.org/googlebigquery/ffffff" alt="BigQuery" class="tool-icon" />
+                BigQuery
+              </div>
+            </div>
+          </div>
+
+          <div class="service-strategies">
+            <h3>Strategies</h3>
+            <div class="strategies-grid">
+              <div class="strategy-card">
+                <h4>Assess Before You Build</h4>
+                <p>Map what exists before recommending changes — avoids costly over-engineering and ensures new solutions fit the real environment.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>Quick Wins First</h4>
+                <p>Identify high-impact, low-effort improvements that show value immediately and build momentum for larger changes.</p>
+              </div>
+              <div class="strategy-card">
+                <h4>Roadmap with Priorities</h4>
+                <p>A phased plan with business context for every recommendation — not just a technical wishlist sorted by complexity.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-glow"></div>
+    <div class="cta-inner">
+      <span class="section-label">Let's work together</span>
+      <h2>Ready to get started?</h2>
+      <p>Whether you need a full pipeline rebuild, a warehouse from scratch, or a second opinion on your current stack — let's talk through it.</p>
+      <a href="/contact/" class="cta-btn">
+        Get in touch
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-left">© 2026 Carlos Pulido Rosas · carpuro.ai <a id="easter-trigger" href="/mon/" aria-label="secret" title="">💜</a></span>
+    <div class="footer-links">
+      <a href="https://github.com/Carpuro" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/carlos-pulido-489700132/" target="_blank">LinkedIn</a>
+      <a href="/about/">About</a>
+      <a href="/contact/">Contact</a>
+    </div>
+  </footer>
+
+</body>
+</html>
