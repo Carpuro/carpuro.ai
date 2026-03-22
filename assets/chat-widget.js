@@ -336,7 +336,7 @@
     const typing = addMsg('Mon is typing…', 'bot typing');
 
     try {
-      const res = await fetch('https://carpuro-chat.carpuro.workers.dev', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg, history: chatHistory.slice(0, -1) }),
