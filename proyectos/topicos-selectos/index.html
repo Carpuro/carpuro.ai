@@ -100,6 +100,23 @@ body{font-family:"Inter",Arial,sans-serif;background:var(--bg);color:var(--text)
 .comp-table tr:hover td{background:#f4f7fc}
 .comp-table tr:last-child td{border-bottom:none}
 
+/* SKU selector buttons */
+.sku-btns{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.sku-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);
+  font-size:.78rem;font-weight:600;cursor:pointer;background:var(--white);
+  color:var(--navy);transition:all .15s}
+.sku-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* Decision table */
+.dec-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:16px}
+.dec-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.dec-table th{background:var(--navy);color:#fff;padding:9px 14px;text-align:left;white-space:nowrap}
+.dec-table td{padding:8px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5}
+.dec-table tr:last-child td{border-bottom:none}
+.dec-table tr:nth-child(even) td{background:#f8f9fb}
+.dec-action{font-weight:600;color:var(--navy)}
+.dec-plazo{font-weight:700;color:#c00000}
+
 /* Prompt */
 .prompt-box{background:#1e2a3a;color:#a8d1ff;border-radius:8px;padding:18px 20px;
   font-family:"Courier New",monospace;font-size:.82rem;line-height:1.7;
@@ -133,11 +150,17 @@ body{font-family:"Inter",Arial,sans-serif;background:var(--bg);color:var(--text)
     <a href="#" onclick="show('cobertura',this)">
       <span>&#9632;</span> Cobertura de inventario
     </a>
+    <a href="#" onclick="show('tendencia',this)">
+      <span>&#9632;</span> Tendencia de ventas
+    </a>
     <a href="#" onclick="show('analisis',this)">
       <span>&#9632;</span> Análisis por SKU
     </a>
     <a href="#" onclick="show('comparativa',this)">
       <span>&#9632;</span> IA vs Análisis propio
+    </a>
+    <a href="#" onclick="show('decision',this)">
+      <span>&#9632;</span> Decisión ejecutiva
     </a>
     <a href="#" onclick="show('prompt',this)">
       <span>&#9632;</span> Prompt utilizado
@@ -269,6 +292,19 @@ body{font-family:"Inter",Arial,sans-serif;background:var(--bg);color:var(--text)
     </div>
     <div class="panel"><div id="chart-coverage"></div></div>
     <div class="panel"><div id="chart-stockout"></div></div>
+  </div>
+
+  <!-- ══════════════ TENDENCIA ══════════════ -->
+  <div id="tendencia" class="section">
+    <div class="sec-title">Tendencia de ventas 2025 vs 2026</div>
+    <div class="infobox">
+      Comparativa de unidades vendidas por mes. <strong>2025</strong> = año completo (12 meses).
+      <strong>2026</strong> = enero–abril (datos reales disponibles).
+      La caída interanual confirma los YoY negativos del modelo de IA para 4 de los 5 SKUs.
+    </div>
+    <div class="sku-btns" id="trend-btns"></div>
+    <div class="panel"><div id="chart-trend" style="height:340px"></div></div>
+    <div class="panel"><div id="chart-yoy" style="height:260px"></div></div>
   </div>
 
   <!-- ══════════════ ANÁLISIS ══════════════ -->
@@ -557,6 +593,83 @@ body{font-family:"Inter",Arial,sans-serif;background:var(--bg);color:var(--text)
 
     <div class="panel"><div id="chart-scatter"></div></div>
     <div class="panel"><div id="chart-risk"></div></div>
+    <div class="sec-sub" style="margin-top:20px">Matriz de riesgo — Quiebre vs Sobrestock</div>
+    <div class="infobox">
+      Cada SKU se posiciona según su <strong>urgencia de stockout físico</strong> (eje X, mayor = más urgente)
+      y su <strong>cobertura total acumulada</strong> (eje Y, mayor = más sobrestock).
+      Los cuadrantes definen el tipo de problema y la acción recomendada.
+    </div>
+    <div class="panel"><div id="chart-matrix"></div></div>
+  </div>
+
+  <!-- ══════════════ DECISIÓN EJECUTIVA ══════════════ -->
+  <div id="decision" class="section">
+    <div class="sec-title">Decisión ejecutiva consolidada</div>
+    <div class="infobox">
+      Resumen ejecutivo de las 5 decisiones. Cada acción está orientada a un <strong>responsable concreto</strong>
+      con un <strong>plazo máximo</strong>. El riesgo indica el impacto si no se actúa a tiempo.
+    </div>
+    <div class="dec-table-wrap">
+      <table class="dec-table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Problema</th>
+            <th>Acción inmediata</th>
+            <th>Responsable</th>
+            <th>Plazo</th>
+            <th>Riesgo si no actúas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>LED06/10W.</strong><br><span class="badge badge-CRITICAL" style="font-size:.68rem">CRITICAL</span></td>
+            <td>Stock físico agota en 22d pero SC = 4.2m total</td>
+            <td class="dec-action">Acelerar arribo del SC existente (3.5 meses en tránsito). NO emitir nueva OC.</td>
+            <td>Planeador logístico</td>
+            <td class="dec-plazo">Hoy</td>
+            <td>Quiebre físico en 22 días. Si se compra: sobreinventario de 6+ meses con YoY −49%.</td>
+          </tr>
+          <tr>
+            <td><strong>REFLED/300W</strong><br><span class="badge badge-HIGH" style="font-size:.68rem">HIGH</span></td>
+            <td>Stockout en 7 días, demanda cayó −64% YoY</td>
+            <td class="dec-action">Emitir OC de emergencia por 1 mes (~260 pzas). Acelerar SC. Revisar forecast.</td>
+            <td>Compras + Planeación</td>
+            <td class="dec-plazo">Hoy</td>
+            <td>Quiebre en 7 días con pérdida directa de ventas y clientes.</td>
+          </tr>
+          <tr>
+            <td><strong>SUBSOL/60W</strong><br><span class="badge badge-HIGH" style="font-size:.68rem">HIGH</span></td>
+            <td>Clase A con cobertura 3.6m y YoY −59%</td>
+            <td class="dec-action">No comprar. Reducir forecast. Considerar promoción para rotar stock actual.</td>
+            <td>Planeación + Comercial</td>
+            <td class="dec-plazo">15 días</td>
+            <td>Capital inmovilizado en 5+ meses de sobreinventario si se compran las 2,250 pzas propuestas.</td>
+          </tr>
+          <tr>
+            <td><strong>REFLED/200W</strong><br><span class="badge badge-MEDIUM" style="font-size:.68rem">MEDIUM</span></td>
+            <td>SC saturado 4.76m, cobertura total 6.32m, YoY −60%</td>
+            <td class="dec-action">Congelar compras. Evaluar cancelación de OC en tránsito si es posible.</td>
+            <td>Compras + Finanzas</td>
+            <td class="dec-plazo">30 días</td>
+            <td>Obsolescencia del inventario en SC, pérdida de margen por liquidación forzada.</td>
+          </tr>
+          <tr>
+            <td><strong>T-SUBFOT/100W-A</strong><br><span class="badge badge-MEDIUM" style="font-size:.68rem">MEDIUM</span></td>
+            <td>SC saturado 7.1m, quiebre físico en 26d pese a STRONG GROWTH</td>
+            <td class="dec-action">Congelar nueva OC. Coordinar con proveedor para adelantar primer embarque disponible.</td>
+            <td>Logística</td>
+            <td class="dec-plazo">10 días</td>
+            <td>Quiebre físico en 26 días en SKU Clase A con crecimiento. Impacto en clientes clave.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warnbox" style="margin-top:4px">
+      <strong>Síntesis:</strong> De los 5 SKUs, solo 1 requiere compra inmediata (REFLED/300W, emergencia reducida).
+      Los 4 restantes requieren congelar o revisar compras. La IA sobreestimó la urgencia en 4 de 5 casos
+      al no penalizar el sobreinventario en tránsito ni el YoY negativo sostenido.
+    </div>
   </div>
 
   <!-- ══════════════ PROMPT ══════════════ -->
@@ -841,6 +954,123 @@ const MYRISK_COLOR = {
     margin:{t:45,l:80,r:20,b:60}
   },{responsive:true});
 })();
+
+// ── Sales data 2025 vs 2026 ────────────────────────────────────────────
+const MONTHS_LBL = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const SALES = {
+  "LED06/10W.":     { "2025":[183012,145841,144969,132632,129811,135077,122927,174345,192372,241474,184210,208203], "2026":[196239,188692,176691,379951,0,0,0,0,0,0,0,0] },
+  "REFLED/300W":    { "2025":[311,228,189,299,195,164,165,88,270,347,395,363],                                      "2026":[205,118,160,320,0,0,0,0,0,0,0,0] },
+  "SUBSOL/60W":     { "2025":[980,749,874,640,1020,906,595,651,654,1051,732,762],                                   "2026":[1297,288,1377,743,0,0,0,0,0,0,0,0] },
+  "REFLED/200W":    { "2025":[1242,1070,1024,693,731,619,852,808,1013,1598,1090,1331],                              "2026":[1380,1046,1135,766,0,0,0,0,0,0,0,0] },
+  "T-SUBFOT/100W-A":{ "2025":[0,0,0,0,0,1601,515,379,1658,19,13,497],                                              "2026":[322,659,3446,1861,0,0,0,0,0,0,0,0] }
+};
+
+let activeSku = "LED06/10W.";
+
+function buildTrendBtns() {
+  const wrap = document.getElementById("trend-btns");
+  SKUS.forEach(s => {
+    const btn = document.createElement("button");
+    btn.className = "sku-btn" + (s.item === activeSku ? " active" : "");
+    btn.textContent = s.item;
+    btn.onclick = () => {
+      activeSku = s.item;
+      wrap.querySelectorAll(".sku-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTrendChart(s.item);
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderTrendChart(sku) {
+  const d25 = SALES[sku]["2025"];
+  const d26 = SALES[sku]["2026"].slice(0,4);
+  const lbl26 = MONTHS_LBL.slice(0,4);
+  const color25 = NAVY, color26 = "#e35205";
+
+  Plotly.newPlot("chart-trend", [
+    {
+      name:"2025 (12 meses)", x:MONTHS_LBL, y:d25, type:"scatter", mode:"lines+markers",
+      line:{color:color25, width:2.5}, marker:{size:5},
+      fill:"tozeroy", fillcolor:"rgba(31,73,125,0.08)"
+    },
+    {
+      name:"2026 (ene–abr)", x:lbl26, y:d26, type:"scatter", mode:"lines+markers",
+      line:{color:color26, width:2.5, dash:"dash"}, marker:{size:7, symbol:"circle"}
+    }
+  ], {
+    title:{text:`Ventas mensuales — ${sku}`, font:{size:13,color:NAVY}},
+    xaxis:{title:"Mes"},
+    yaxis:{title:"Unidades vendidas"},
+    legend:{orientation:"h", y:-0.2},
+    plot_bgcolor:"#f8f9fb", paper_bgcolor:"#fff",
+    height:320, margin:{t:45,l:60,r:20,b:60}
+  }, {responsive:true});
+}
+
+// ── Chart YoY bar (all SKUs, jan-apr comparable) ────────────────────────
+(function(){
+  const items = SKUS.map(s=>s.item);
+  const yoy_vals = SKUS.map(s=>{
+    const t25 = SALES[s.item]["2025"].slice(0,4).reduce((a,b)=>a+b,0);
+    const t26 = SALES[s.item]["2026"].slice(0,4).reduce((a,b)=>a+b,0);
+    return t25>0 ? Math.round((t26-t25)/t25*100) : 0;
+  });
+  const colors = yoy_vals.map(v=>v>=0?"#00703c":"#c00000");
+
+  Plotly.newPlot("chart-yoy",[{
+    x:items, y:yoy_vals, type:"bar",
+    marker:{color:colors},
+    text:yoy_vals.map(v=>(v>0?"+":"")+v+"%"), textposition:"outside"
+  },{
+    x:items, y:[0,0,0,0,0], type:"scatter", mode:"lines",
+    line:{color:"#888",width:1,dash:"dot"}, hoverinfo:"skip", showlegend:false
+  }],{
+    title:{text:"YoY ventas ene–abr 2025 vs ene–abr 2026 (%)", font:{size:13,color:NAVY}},
+    xaxis:{title:"SKU"}, yaxis:{title:"%"},
+    plot_bgcolor:"#f8f9fb", paper_bgcolor:"#fff",
+    height:240, margin:{t:45,l:55,r:20,b:60}, showlegend:false
+  },{responsive:true});
+})();
+
+// ── Risk matrix ───────────────────────────────────────────────────────
+(function(){
+  const urgency = SKUS.map(s=>Math.max(0, 60 - s.stockout_days));
+  const cover   = SKUS.map(s=>s.total_cover);
+  const labels  = SKUS.map(s=>s.item);
+  const colors  = SKUS.map(s=>URGENCY_COLOR[s.ai_urgency]);
+  const htext   = SKUS.map(s=>
+    `<b>${s.item}</b><br>Stockout: ${s.stockout_days}d<br>Cobertura: ${s.total_cover}m<br>IA: ${s.ai_urgency}<br>Problema: ${s.problem}`
+  );
+
+  Plotly.newPlot("chart-matrix",[
+    {
+      x:urgency, y:cover, type:"scatter", mode:"markers+text",
+      text:labels, textposition:"top center",
+      marker:{size:18, color:colors, opacity:0.85, line:{color:"#fff",width:2}},
+      hovertext:htext, hoverinfo:"text"
+    },
+    // Quadrant lines
+    {x:[30,30],y:[0,9],type:"scatter",mode:"lines",line:{color:"#ddd",dash:"dash",width:1},hoverinfo:"skip",showlegend:false},
+    {x:[0,60],y:[3,3],type:"scatter",mode:"lines",line:{color:"#ddd",dash:"dash",width:1},hoverinfo:"skip",showlegend:false}
+  ],{
+    title:{text:"Matriz de riesgo: Urgencia de quiebre vs Cobertura total", font:{size:13,color:NAVY}},
+    xaxis:{title:"Urgencia de quiebre físico (60 − días a stockout)", range:[0,65]},
+    yaxis:{title:"Cobertura total (meses)", range:[0,9.5]},
+    annotations:[
+      {x:15,y:6.5,text:"Sobrestock<br>bajo riesgo",showarrow:false,font:{size:10,color:"#888"}},
+      {x:50,y:6.5,text:"Quiebre + sobrestock<br>(problema logístico)",showarrow:false,font:{size:10,color:"#888"}},
+      {x:50,y:1,text:"Quiebre urgente<br>(comprar ahora)",showarrow:false,font:{size:10,color:"#888"}},
+      {x:15,y:1,text:"Inventario<br>saludable",showarrow:false,font:{size:10,color:"#888"}}
+    ],
+    plot_bgcolor:"#f8f9fb", paper_bgcolor:"#fff",
+    height:380, margin:{t:45,l:65,r:20,b:60}, showlegend:false
+  },{responsive:true});
+})();
+
+buildTrendBtns();
+renderTrendChart(activeSku);
 
 // ── Navigation ──────────────────────────────────────────────────────────
 function show(id, el) {
