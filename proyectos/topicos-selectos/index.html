@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planeación con IA — Tópicos Selectos I</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root{--navy:#1F497D;--amber:#D48C00;--bg:#f2f4f8;--white:#fff;--border:#dde3ec;--text:#2c3e50;--sidebar:230px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter",Arial,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+#sidebar{width:var(--sidebar);min-height:100vh;background:var(--navy);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;
+  border-right:3px solid var(--amber)}
+#sidebar .logo{padding:16px 18px 14px;border-bottom:1px solid rgba(255,255,255,.12)}
+#sidebar .logo h2{color:#fff;font-size:.9rem;font-weight:700;line-height:1.3;margin-top:6px}
+#sidebar .logo p{color:rgba(255,255,255,.6);font-size:.7rem;margin-top:3px}
+.back-link{display:inline-flex;align-items:center;gap:5px;color:rgba(255,255,255,.55);
+  font-size:.7rem;font-weight:600;text-decoration:none;letter-spacing:.03em;transition:color .15s}
+.back-link:hover{color:#fff}
+#sidebar nav{flex:1;padding:10px 0}
+#sidebar nav a{display:flex;align-items:center;gap:9px;padding:10px 18px;
+  color:rgba(255,255,255,.72);font-size:.82rem;cursor:pointer;
+  border-left:3px solid transparent;transition:all .15s;text-decoration:none;white-space:nowrap}
+#sidebar nav a:hover{color:#fff;background:rgba(255,255,255,.07)}
+#sidebar nav a.active{color:#fff;background:rgba(255,255,255,.12);
+  border-left-color:var(--amber);font-weight:600}
+#sidebar .footer{padding:12px 18px;font-size:.65rem;color:rgba(255,255,255,.35);
+  border-top:1px solid rgba(255,255,255,.1)}
+
+#main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--navy);color:#fff;padding:16px 28px 12px;border-bottom:3px solid var(--amber)}
+.topbar h1{font-size:1.35rem;font-weight:700}
+.topbar p{font-size:.78rem;opacity:.7;margin-top:3px}
+
+.section{display:none;padding:24px 28px;animation:fadeIn .2s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sec-title{font-size:1.05rem;font-weight:700;color:var(--navy);
+  border-left:4px solid var(--amber);padding-left:10px;margin:0 0 18px}
+.sec-sub{font-size:.9rem;font-weight:600;color:var(--navy);margin:20px 0 10px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--white);border-radius:9px;border:1px solid var(--border);
+  padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.cv{font-size:1.5rem;font-weight:800;line-height:1.1}
+.cl{font-size:.7rem;font-weight:700;color:#666;margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+.cs{font-size:.68rem;color:#999;margin-top:2px}
+
+.panel{background:var(--white);border-radius:9px;border:1px solid var(--border);
+  padding:6px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:960px){.grid2{grid-template-columns:1fr}}
+
+.infobox{background:#eef6ff;border:1px solid #c5ddf5;border-radius:8px;
+  padding:12px 16px;font-size:.82rem;line-height:1.6;margin-bottom:14px;color:#1a3a65}
+.warnbox{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;
+  padding:12px 16px;font-size:.82rem;line-height:1.6;margin-bottom:14px;color:#5d4037}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:.72rem;font-weight:700;color:#fff;white-space:nowrap}
+.badge-CRITICAL{background:#c00000}
+.badge-HIGH{background:#e35205}
+.badge-MEDIUM{background:#c08500;color:#fff}
+.badge-LOW{background:#0070c0}
+
+.prob-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600;white-space:nowrap}
+
+/* SKU cards */
+.sku-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.sku-card{background:var(--white);border-radius:10px;border:1px solid var(--border);
+  box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden}
+.sku-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.sku-name{font-size:1rem;font-weight:800;color:var(--navy)}
+.sku-body{padding:10px 16px 14px;font-size:.82rem;line-height:1.6}
+.sku-body .row{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0}
+.sku-body .row:last-child{border-bottom:none}
+.sku-body .row .lbl{color:#666;font-weight:600}
+.sku-body .row .val{font-weight:700;color:var(--navy)}
+
+/* Analysis cards */
+.analysis-card{background:var(--white);border-radius:10px;border:1px solid var(--border);
+  padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.analysis-card h3{font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:12px;
+  display:flex;align-items:center;gap:10px}
+.rubric-item{margin-bottom:12px}
+.rubric-q{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--amber);margin-bottom:4px}
+.rubric-a{font-size:.85rem;line-height:1.6;color:var(--text);
+  background:#f8f9fb;border-left:3px solid var(--border);padding:8px 12px;border-radius:4px}
+.rubric-a.ai-block{border-left-color:#0070c0;background:#f0f6ff}
+.rubric-a.agree{border-left-color:#00703c;background:#f0fff6}
+.rubric-a.disagree{border-left-color:#c00000;background:#fff5f5}
+
+/* Comparison table */
+.comp-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:14px}
+.comp-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.comp-table th{background:var(--navy);color:#fff;padding:8px 12px;text-align:left;white-space:nowrap}
+.comp-table td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.comp-table tr:hover td{background:#f4f7fc}
+.comp-table tr:last-child td{border-bottom:none}
+
+/* Prompt */
+.prompt-box{background:#1e2a3a;color:#a8d1ff;border-radius:8px;padding:18px 20px;
+  font-family:"Courier New",monospace;font-size:.82rem;line-height:1.7;
+  white-space:pre-wrap;word-break:break-word;margin-bottom:14px}
+.prompt-section{margin-bottom:18px}
+.prompt-section h4{font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+
+/* KPI summary row */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.kpi-card{background:var(--white);border-radius:9px;border:1px solid var(--border);
+  padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center}
+.kpi-card .kpi-val{font-size:1.4rem;font-weight:800;color:var(--navy);line-height:1.1}
+.kpi-card .kpi-lbl{font-size:.68rem;font-weight:700;color:#888;text-transform:uppercase;
+  letter-spacing:.04em;margin-top:3px}
+.kpi-card .kpi-sku{font-size:.72rem;font-weight:600;color:var(--amber);margin-top:2px}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="logo">
+    <a href="/" class="back-link">&#8592; carpuro.ai</a>
+    <h2>Planeación con IA</h2>
+    <p>Tópicos Selectos I — MCD CUCEA</p>
+  </div>
+  <nav>
+    <a href="#" class="active" onclick="show('resumen',this)">
+      <span>&#9632;</span> Resumen ejecutivo
+    </a>
+    <a href="#" onclick="show('cobertura',this)">
+      <span>&#9632;</span> Cobertura de inventario
+    </a>
+    <a href="#" onclick="show('analisis',this)">
+      <span>&#9632;</span> Análisis por SKU
+    </a>
+    <a href="#" onclick="show('comparativa',this)">
+      <span>&#9632;</span> IA vs Análisis propio
+    </a>
+    <a href="#" onclick="show('prompt',this)">
+      <span>&#9632;</span> Prompt utilizado
+    </a>
+  </nav>
+  <div class="footer">Carlos Pulido Rosas · MCD 2026</div>
+</div>
+
+<div id="main">
+  <div class="topbar">
+    <h1>Análisis de Inventario con Inteligencia Artificial</h1>
+    <p>Examen 2 — Tópicos Selectos I (ASP28) · 5 SKUs seleccionados de la categoría iluminación</p>
+  </div>
+
+  <!-- ══════════════ RESUMEN ══════════════ -->
+  <div id="resumen" class="section active">
+    <div class="sec-title">Resumen ejecutivo</div>
+    <div class="infobox">
+      Se analizaron <strong>5 SKUs</strong> de la lista del profesor, seleccionados para maximizar diversidad de tipos de problema:
+      riesgo de quiebre, forecast incorrecto, compra excesiva, exceso de inventario en SC y problema logístico.
+      El lead time de toda la cadena es <strong>120 días</strong>. El objetivo de cobertura operativa es <strong>2 meses</strong>.
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#c00000">21.9d</div>
+        <div class="kpi-lbl">Stockout más urgente</div>
+        <div class="kpi-sku">LED06/10W.</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#e35205">6.6d</div>
+        <div class="kpi-lbl">Stockout crítico</div>
+        <div class="kpi-sku">REFLED/300W</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#c00000">−64%</div>
+        <div class="kpi-lbl">Caída YoY mayor</div>
+        <div class="kpi-sku">REFLED/300W</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#6b4ca5">7.99m</div>
+        <div class="kpi-lbl">Cobertura máxima</div>
+        <div class="kpi-sku">T-SUBFOT/100W-A</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val" style="color:#0070c0">76</div>
+        <div class="kpi-lbl">Momentum más alto</div>
+        <div class="kpi-sku">T-SUBFOT/100W-A</div>
+      </div>
+    </div>
+
+    <div class="sku-grid">
+      <div class="sku-card">
+        <div class="sku-header" style="background:#fff0f0;border-bottom:2px solid #c00000">
+          <span class="sku-name">LED06/10W.</span>
+          <span class="badge badge-CRITICAL">CRITICAL</span>
+        </div>
+        <div class="sku-body">
+          <div class="row"><span class="lbl">Problema</span><span class="val" style="color:#c00000">Riesgo de quiebre</span></div>
+          <div class="row"><span class="lbl">Stockout físico</span><span class="val">22 días</span></div>
+          <div class="row"><span class="lbl">Cobertura total</span><span class="val">4.23 meses</span></div>
+          <div class="row"><span class="lbl">YoY ventas</span><span class="val" style="color:#c00000">−49%</span></div>
+          <div class="row"><span class="lbl">Mi decisión</span><span class="val" style="color:#0070c0">No comprar</span></div>
+        </div>
+      </div>
+      <div class="sku-card">
+        <div class="sku-header" style="background:#fff5f0;border-bottom:2px solid #e35205">
+          <span class="sku-name">REFLED/300W</span>
+          <span class="badge badge-HIGH">HIGH</span>
+        </div>
+        <div class="sku-body">
+          <div class="row"><span class="lbl">Problema</span><span class="val" style="color:#e35205">Forecast incorrecto</span></div>
+          <div class="row"><span class="lbl">Stockout físico</span><span class="val" style="color:#c00000">7 días</span></div>
+          <div class="row"><span class="lbl">Cobertura total</span><span class="val">2.36 meses</span></div>
+          <div class="row"><span class="lbl">YoY ventas</span><span class="val" style="color:#c00000">−64%</span></div>
+          <div class="row"><span class="lbl">Mi decisión</span><span class="val" style="color:#c00000">Compra mínima urgente</span></div>
+        </div>
+      </div>
+      <div class="sku-card">
+        <div class="sku-header" style="background:#fffbf0;border-bottom:2px solid #d48c00">
+          <span class="sku-name">SUBSOL/60W</span>
+          <span class="badge badge-HIGH">HIGH</span>
+        </div>
+        <div class="sku-body">
+          <div class="row"><span class="lbl">Problema</span><span class="val" style="color:#c08500">Compra excesiva</span></div>
+          <div class="row"><span class="lbl">Stockout físico</span><span class="val">44 días</span></div>
+          <div class="row"><span class="lbl">Cobertura total</span><span class="val">3.58 meses</span></div>
+          <div class="row"><span class="lbl">YoY ventas</span><span class="val" style="color:#c00000">−59%</span></div>
+          <div class="row"><span class="lbl">Mi decisión</span><span class="val" style="color:#0070c0">No comprar</span></div>
+        </div>
+      </div>
+      <div class="sku-card">
+        <div class="sku-header" style="background:#f8f0ff;border-bottom:2px solid #6b4ca5">
+          <span class="sku-name">REFLED/200W</span>
+          <span class="badge badge-MEDIUM">MEDIUM</span>
+        </div>
+        <div class="sku-body">
+          <div class="row"><span class="lbl">Problema</span><span class="val" style="color:#6b4ca5">Exceso inventario SC</span></div>
+          <div class="row"><span class="lbl">Stockout físico</span><span class="val">47 días</span></div>
+          <div class="row"><span class="lbl">Cobertura total</span><span class="val">6.32 meses</span></div>
+          <div class="row"><span class="lbl">YoY ventas</span><span class="val" style="color:#c00000">−60%</span></div>
+          <div class="row"><span class="lbl">Mi decisión</span><span class="val" style="color:#0070c0">Congelar compras</span></div>
+        </div>
+      </div>
+      <div class="sku-card">
+        <div class="sku-header" style="background:#f0fafa;border-bottom:2px solid #008080">
+          <span class="sku-name">T-SUBFOT/100W-A</span>
+          <span class="badge badge-MEDIUM">MEDIUM</span>
+        </div>
+        <div class="sku-body">
+          <div class="row"><span class="lbl">Problema</span><span class="val" style="color:#008080">Problema logístico</span></div>
+          <div class="row"><span class="lbl">Stockout físico</span><span class="val">26 días</span></div>
+          <div class="row"><span class="lbl">Cobertura total</span><span class="val">7.99 meses</span></div>
+          <div class="row"><span class="lbl">YoY ventas</span><span class="val" style="color:#888">−7%</span></div>
+          <div class="row"><span class="lbl">Mi decisión</span><span class="val" style="color:#0070c0">Congelar compras</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel"><div id="chart-overview"></div></div>
+  </div>
+
+  <!-- ══════════════ COBERTURA ══════════════ -->
+  <div id="cobertura" class="section">
+    <div class="sec-title">Cobertura de inventario por SKU</div>
+    <div class="infobox">
+      La línea roja marca el <strong>objetivo operativo de 2 meses</strong> de cobertura total (stock físico + SC).
+      Un SKU por encima de 3 meses con tendencia negativa indica sobrestock; por debajo de 1 mes indica riesgo de quiebre físico.
+    </div>
+    <div class="panel"><div id="chart-coverage"></div></div>
+    <div class="panel"><div id="chart-stockout"></div></div>
+  </div>
+
+  <!-- ══════════════ ANÁLISIS ══════════════ -->
+  <div id="analisis" class="section">
+    <div class="sec-title">Análisis por SKU — Rubric completo</div>
+
+    <!-- LED06/10W. -->
+    <div class="analysis-card">
+      <h3>
+        <span class="badge badge-CRITICAL">CRITICAL</span>
+        LED06/10W.
+        <span class="prob-badge" style="background:#fff0f0;color:#c00000;border:1px solid #c00000">Riesgo de quiebre</span>
+      </h3>
+      <div class="rubric-item">
+        <div class="rubric-q">1. Problema principal</div>
+        <div class="rubric-a">El stock físico se agota en <strong>22 días</strong> pero la cobertura total (stock + SC) es de <strong>4.23 meses</strong>,
+        superando el objetivo operativo de 2 meses. El SC acumula 3.5 meses de inventario en tránsito.
+        El riesgo real no es comprar más, sino sincronizar el arribo del SC para cubrir la brecha de 22 días.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">2. Evidencia</div>
+        <div class="rubric-a">
+          Stock físico: <strong>0.73 meses</strong> · Stock en SC: <strong>3.50 meses</strong> · Cobertura total: <strong>4.23 meses</strong><br>
+          Stockout físico: <strong>22 días</strong> · Lead time: 120 días · YoY ventas: <strong>−49%</strong><br>
+          Tendencia: GROWING · Clase ABC: B · Propuesta IA: 578,100 pzas (2 meses adicionales)
+        </div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">3. Decisión</div>
+        <div class="rubric-a"><strong>No comprar.</strong> Acelerar el arribo del inventario en SC para cubrir los 22 días de quiebre físico.
+        Con 4.23 meses de cobertura total y YoY −49%, añadir 578,100 unidades generaría sobreinventario severo.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">4. Riesgo si no se actúa</div>
+        <div class="rubric-a">Si no se acelera el SC: quiebre técnico en los próximos 22 días con impacto directo a clientes.
+        Si se compra según lo propuesto por la IA: sobreinventario de 6+ meses con capital detenido en producto de baja rotación (YoY −49%).</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">5. ¿Qué recomendó la IA? ¿Coincides?</div>
+        <div class="rubric-a ai-block"><strong>IA:</strong> "Comprar urgentemente 578,100 piezas (~2.0 meses) y acelerar booking inmediato."</div>
+        <div class="rubric-a disagree"><strong>No coincido en la acción.</strong> La IA prioriza el stockout físico de 22 días sin considerar que el SC ya cubre 3.5 meses.
+        Comprar 578,100 pzas adicionales llevaría la cobertura total a más de 6 meses.
+        Coincido en la urgencia de acelerar el SC, pero la nueva OC no está justificada.</div>
+      </div>
+    </div>
+
+    <!-- REFLED/300W -->
+    <div class="analysis-card">
+      <h3>
+        <span class="badge badge-HIGH">HIGH</span>
+        REFLED/300W
+        <span class="prob-badge" style="background:#fff5f0;color:#e35205;border:1px solid #e35205">Forecast incorrecto</span>
+      </h3>
+      <div class="rubric-item">
+        <div class="rubric-q">1. Problema principal</div>
+        <div class="rubric-a">Stockout físico en <strong>7 días</strong> con demanda cayendo <strong>−64% YoY</strong> y tendencia DECLINING.
+        El forecast no refleja la caída real de la demanda: se mantiene una propuesta de compra de 520 pzas (1.5 meses)
+        cuando la venta actual apenas sostiene el mínimo histórico. El quiebre es inminente pero el volumen a comprar debe ajustarse a la realidad de la demanda.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">2. Evidencia</div>
+        <div class="rubric-a">
+          Stock físico: <strong>0.22 meses</strong> · Stock en SC: <strong>2.14 meses</strong> · Cobertura total: <strong>2.36 meses</strong><br>
+          Stockout físico: <strong>7 días</strong> · Lead time: 120 días · Gap: −113 días (stockout antes de que llegue nueva OC)<br>
+          YoY ventas: <strong>−64%</strong> · Tendencia: DECLINING · Momentum: 12/100 · Clase ABC: B
+        </div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">3. Decisión</div>
+        <div class="rubric-a"><strong>Compra de emergencia reducida:</strong> emitir OC por 1 mes (260 pzas aprox.) en lugar de 1.5 meses propuesto por la IA,
+        dado el YoY −64%. Simultáneamente, acelerar el arribo del SC existente (2.14 meses) para cubrir la brecha de 7 días.
+        Revisar el forecast para ajustarlo a la demanda real actual.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">4. Riesgo si no se actúa</div>
+        <div class="rubric-a">Quiebre de stock en <strong>7 días</strong>, con pérdida directa de ventas y posible migración de clientes a sustitutos.
+        El SC (2.14 meses) está en tránsito y no puede llegar en 7 días — la única solución es compra de emergencia o
+        reasignación de inventario de otras ubicaciones.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">5. ¿Qué recomendó la IA? ¿Coincides?</div>
+        <div class="rubric-a ai-block"><strong>IA:</strong> "Comprar urgentemente 520 piezas (~1.5 meses) y acelerar booking inmediato."</div>
+        <div class="rubric-a disagree"><strong>Coincido en la urgencia, no en el volumen.</strong> La IA acierta en la necesidad de compra inmediata
+        (stockout en 7 días con lead time 120 días). Sin embargo, 1.5 meses con tendencia DECLINING y YoY −64% es excesivo.
+        Propongo 1 mes para cubrir el quiebre sin agrandar el sobreinventario latente en SC.</div>
+      </div>
+    </div>
+
+    <!-- SUBSOL/60W -->
+    <div class="analysis-card">
+      <h3>
+        <span class="badge badge-HIGH">HIGH</span>
+        SUBSOL/60W
+        <span class="prob-badge" style="background:#fffbf0;color:#c08500;border:1px solid #d48c00">Compra excesiva</span>
+      </h3>
+      <div class="rubric-item">
+        <div class="rubric-q">1. Problema principal</div>
+        <div class="rubric-a">SKU Clase <strong>A</strong> con cobertura total de <strong>3.58 meses</strong> y caída de <strong>−59% YoY</strong>.
+        La demanda real ha caído a la mitad pero el plan de compras sigue proyectando reposición de 2 meses adicionales.
+        Esto indica que el forecast no fue revisado a pesar de la señal negativa sostenida de ventas.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">2. Evidencia</div>
+        <div class="rubric-a">
+          Stock físico: <strong>1.48 meses</strong> · Stock en SC: <strong>2.10 meses</strong> · Cobertura total: <strong>3.58 meses</strong><br>
+          Stockout físico: <strong>44 días</strong> · YoY ventas: <strong>−59%</strong> · Tendencia: STABLE<br>
+          Propuesta de compra: 2,250 pzas (2.0 meses) · Clase ABC: A · Momentum: 30/100
+        </div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">3. Decisión</div>
+        <div class="rubric-a"><strong>No comprar.</strong> La cobertura total de 3.58 meses supera el objetivo operativo de 2 meses.
+        Con YoY −59%, la adición de 2 meses más de inventario generaría sobrestock de 5+ meses.
+        Acción: revisar forecast, considerar promoción para acelerar la rotación del stock actual.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">4. Riesgo si no se actúa</div>
+        <div class="rubric-a">Si se compra según la IA: sobreinventario severo en un SKU con demanda cayendo —
+        capital inmovilizado de al menos 5 meses. Si no se hace nada sobre el forecast erróneo:
+        el sistema seguirá generando propuestas de compra incorrectas en los próximos ciclos.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">5. ¿Qué recomendó la IA? ¿Coincides?</div>
+        <div class="rubric-a ai-block"><strong>IA:</strong> "Comprar urgentemente 2,250 piezas (~2.0 meses) por riesgo de stockout en 44 días."</div>
+        <div class="rubric-a disagree"><strong>No coincido.</strong> La IA clasifica HIGH basándose únicamente en el stockout físico de 44 días,
+        ignorando que la cobertura total ya es 3.58 meses y el YoY es −59%.
+        Un Director de Supply Chain priorizaría evitar el sobreinventario sobre proteger 44 días de cobertura adicional que el SC ya provee.</div>
+      </div>
+    </div>
+
+    <!-- REFLED/200W -->
+    <div class="analysis-card">
+      <h3>
+        <span class="badge badge-MEDIUM">MEDIUM</span>
+        REFLED/200W
+        <span class="prob-badge" style="background:#f8f0ff;color:#6b4ca5;border:1px solid #6b4ca5">Exceso inventario SC</span>
+      </h3>
+      <div class="rubric-item">
+        <div class="rubric-q">1. Problema principal</div>
+        <div class="rubric-a">Supply chain saturado con <strong>4.76 meses</strong> en tránsito mientras la demanda cae <strong>−60% YoY</strong>.
+        La cobertura total es de 6.32 meses — más del triple del objetivo.
+        Se compraron cantidades que correspondían a una demanda que ya no existe, generando capital detenido en tránsito.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">2. Evidencia</div>
+        <div class="rubric-a">
+          Stock físico: <strong>1.56 meses</strong> · Stock en SC: <strong>4.76 meses</strong> · Cobertura total: <strong>6.32 meses</strong><br>
+          Stockout físico: <strong>47 días</strong> · YoY ventas: <strong>−60%</strong> · Tendencia: DECLINING<br>
+          Propuesta de compra: 1,960 pzas (1.3 meses) · Clase ABC: B · Momentum: 25/100
+        </div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">3. Decisión</div>
+        <div class="rubric-a"><strong>Congelar compras completamente.</strong> Con 6.32 meses de cobertura total y demanda en caída libre (−60%),
+        no hay justificación para ninguna nueva OC.
+        Acción: monitorear el consumo del SC; si la tendencia continúa, evaluar cancelación de órdenes en tránsito si es posible.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">4. Riesgo si no se actúa</div>
+        <div class="rubric-a">Riesgo de obsolescencia del inventario en SC si la demanda continúa bajando.
+        Pérdida de margen por necesidad de liquidación.
+        Capital inmovilizado en tránsito que podría asignarse a SKUs con escasez real.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">5. ¿Qué recomendó la IA? ¿Coincides?</div>
+        <div class="rubric-a ai-block"><strong>IA:</strong> "Comprar normal 1,960 piezas para sostener cobertura objetivo de 1.3 meses."</div>
+        <div class="rubric-a disagree"><strong>No coincido.</strong> La IA recomienda "compra normal" sin considerar que la cobertura total ya es 6.32 meses.
+        Su lógica busca mantener el "cobertura objetivo" de 1.3 meses de stock físico sin penalizar el SC acumulado.
+        Con YoY −60%, añadir 1.3 meses más agudiza el problema de capital detenido.</div>
+      </div>
+    </div>
+
+    <!-- T-SUBFOT/100W-A -->
+    <div class="analysis-card">
+      <h3>
+        <span class="badge badge-MEDIUM">MEDIUM</span>
+        T-SUBFOT/100W-A
+        <span class="prob-badge" style="background:#f0fafa;color:#008080;border:1px solid #008080">Problema logístico</span>
+      </h3>
+      <div class="rubric-item">
+        <div class="rubric-q">1. Problema principal</div>
+        <div class="rubric-a">SC saturado con <strong>7.12 meses</strong> de inventario acumulado en tránsito,
+        a pesar de que la tendencia es <strong>STRONG GROWTH</strong>.
+        El stock físico se agota en 26 días pero hay suficiente inventario en la cadena para cubrir casi 8 meses.
+        El problema es de <strong>sincronización logística</strong>: se compraron cantidades por adelantado sin
+        coordinar los tiempos de arribo, creando una brecha entre el stock disponible y el inventario en tránsito.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">2. Evidencia</div>
+        <div class="rubric-a">
+          Stock físico: <strong>0.87 meses</strong> · Stock en SC: <strong>7.12 meses</strong> · Cobertura total: <strong>7.99 meses</strong><br>
+          Stockout físico: <strong>26 días</strong> · YoY ventas: <strong>−7%</strong> · Tendencia: STRONG GROWTH<br>
+          Propuesta de compra IA: 2,360 pzas (N/D meses) · Clase ABC: A · Momentum: 76/100
+        </div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">3. Decisión</div>
+        <div class="rubric-a"><strong>Congelar nueva OC. Acelerar el arribo del SC para cubrir los 26 días de quiebre físico.</strong>
+        Con 7.12 meses en tránsito, el problema no es de volumen sino de timing logístico.
+        Coordinar con el proveedor para adelantar el primer embarque disponible.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">4. Riesgo si no se actúa</div>
+        <div class="rubric-a">Stock físico se agota en 26 días generando quiebre temporal en un SKU Clase A con STRONG GROWTH.
+        Si se emite nueva OC: el SC llega a 9+ meses con crecimiento moderado, comprometiendo capital en exceso.
+        Riesgo operativo: el SC acumulado podría llegar de golpe y generar problemas de espacio en almacén.</div>
+      </div>
+      <div class="rubric-item">
+        <div class="rubric-q">5. ¿Qué recomendó la IA? ¿Coincides?</div>
+        <div class="rubric-a ai-block"><strong>IA:</strong> "Acelerar booking de 2,360 piezas y priorizar carga marítima; existe atraso operativo en supply chain."</div>
+        <div class="rubric-a agree"><strong>Coincido en el diagnóstico, divergo en la acción.</strong> La IA identifica correctamente el problema logístico
+        y la necesidad de acelerar la carga marítima. No coincido en la emisión de nueva OC de 2,360 pzas:
+        con 7.12 meses en SC, la solución es acelerar lo que ya existe, no añadir más volumen.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ COMPARATIVA ══════════════ -->
+  <div id="comparativa" class="section">
+    <div class="sec-title">IA vs Análisis propio — Comparativa</div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Urgencia IA</th>
+            <th>Mi Riesgo</th>
+            <th>Decisión IA</th>
+            <th>Mi Decisión</th>
+            <th>¿Coincides?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>LED06/10W.</strong></td>
+            <td><span class="badge badge-CRITICAL">CRITICAL</span></td>
+            <td><span class="badge badge-LOW">LOW</span></td>
+            <td>Comprar 578,100 pzas</td>
+            <td>No comprar — acelerar SC</td>
+            <td style="color:#c00000;font-weight:600">No — SC ya cubre 3.5m</td>
+          </tr>
+          <tr>
+            <td><strong>REFLED/300W</strong></td>
+            <td><span class="badge badge-HIGH">HIGH</span></td>
+            <td><span class="badge badge-CRITICAL">CRITICAL</span></td>
+            <td>Comprar 520 pzas (1.5m)</td>
+            <td>Comprar ≈260 pzas (1m)</td>
+            <td style="color:#c08500;font-weight:600">Parcial — urgencia sí, volumen no</td>
+          </tr>
+          <tr>
+            <td><strong>SUBSOL/60W</strong></td>
+            <td><span class="badge badge-HIGH">HIGH</span></td>
+            <td><span class="badge badge-LOW">LOW</span></td>
+            <td>Comprar 2,250 pzas (2m)</td>
+            <td>No comprar — revisión forecast</td>
+            <td style="color:#c00000;font-weight:600">No — YoY −59%, total 3.58m</td>
+          </tr>
+          <tr>
+            <td><strong>REFLED/200W</strong></td>
+            <td><span class="badge badge-MEDIUM">MEDIUM</span></td>
+            <td><span class="badge badge-LOW">LOW</span></td>
+            <td>Comprar 1,960 pzas (1.3m)</td>
+            <td>Congelar compras</td>
+            <td style="color:#c00000;font-weight:600">No — SC 4.76m, total 6.32m</td>
+          </tr>
+          <tr>
+            <td><strong>T-SUBFOT/100W-A</strong></td>
+            <td><span class="badge badge-MEDIUM">MEDIUM</span></td>
+            <td><span class="badge badge-LOW">LOW</span></td>
+            <td>Acelerar booking + nueva OC</td>
+            <td>Congelar OC, acelerar SC</td>
+            <td style="color:#c08500;font-weight:600">Parcial — diagnóstico sí, nueva OC no</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warnbox">
+      <strong>Patrón clave de divergencia:</strong> La IA optimiza para evitar el stockout físico inmediato
+      sin penalizar suficientemente el sobreinventario en SC. Mi modelo prioriza la cobertura total
+      (stock + SC) y el YoY, congelando compras cuando la cobertura supera 3 meses o el SC supera 4 meses,
+      independientemente del stockout físico. En 4 de 5 SKUs mi recomendación es más conservadora;
+      solo coincido parcialmente en REFLED/300W (el único con quiebre verdaderamente inminente a 7 días sin cobertura suficiente).
+    </div>
+
+    <div class="panel"><div id="chart-scatter"></div></div>
+    <div class="panel"><div id="chart-risk"></div></div>
+  </div>
+
+  <!-- ══════════════ PROMPT ══════════════ -->
+  <div id="prompt" class="section">
+    <div class="sec-title">Prompt utilizado en IA</div>
+
+    <div class="infobox">
+      El análisis fue generado con Claude Sonnet 4.6 mediante el siguiente prompt estructurado.
+      La IA recibió los datos del archivo <code>FACT_AI_RECOMENDATION.xlsx</code> (hoja AI_ENRICHED, 172 SKUs activos)
+      y produjo las recomendaciones en la columna <code>AI_EXECUTIVE_ACTION</code>.
+    </div>
+
+    <div class="prompt-section">
+      <h4>Prompt de selección y análisis</h4>
+      <div class="prompt-box">Eres un experto en planeación de inventarios y cadena de suministro.
+
+Tengo un dataset de 172 SKUs activos con las siguientes variables por SKU:
+- MONTHS_IN_STOCK: meses de cobertura en stock físico
+- MONTHS_IN_SUPPLY_CHAIN: meses de cobertura en tránsito (SC)
+- SC_DAYS_UNTIL_STOCKOUT: días hasta agotamiento del stock físico
+- SC_LEAD_TIME_TOTAL_DAYS: lead time total de la cadena (120 días)
+- PURCHASE_PROPOSAL / PURCHASE_PROPOSAL_MONTHS: propuesta de compra de la IA
+- YOY_SALES_GROWTH: crecimiento interanual de ventas
+- SALES_TREND_STATUS: tendencia (GROWING, STABLE, DECLINING, STRONG GROWTH, STRONG DECLINE)
+- ABC_CLASS: clasificación ABC (A = mayor valor)
+- URGENCY_STATUS / URGENCY_SCORE: clasificación de urgencia del sistema
+- AI_EXECUTIVE_ACTION: recomendación ejecutiva del modelo
+
+Contexto empresarial:
+- La empresa es distribuidora de iluminación
+- El objetivo de cobertura operativa es 2 meses (stock + SC)
+- El lead time de toda la cadena es 120 días
+- Los problemas identificados incluyen: quiebre de stock, sobrestock, forecast incorrecto, compra excesiva, problema logístico
+
+Para los siguientes 5 SKUs seleccionados (LED06/10W., REFLED/300W, SUBSOL/60W, REFLED/200W, T-SUBFOT/100W-A):
+
+1. ¿Cuál es el problema principal? (quiebre, sobrestock, forecast incorrecto, compra excesiva, problema logístico)
+2. ¿Qué evidencia lo demuestra? (usa los KPIs del dataset)
+3. ¿Qué decisión tomarías? (comprar, no comprar, acelerar booking, frenar, liquidar, revisar forecast)
+4. ¿Qué riesgo existe si no se actúa?
+5. Indica en qué coincides o no con la recomendación del campo AI_EXECUTIVE_ACTION
+
+Sé específico con números y justifica cada decisión con al menos 2 KPIs.</div>
+    </div>
+
+    <div class="prompt-section">
+      <h4>Prompt de construcción del modelo propio de recomendación</h4>
+      <div class="prompt-box">Basándome en el análisis anterior, construye en Python un árbol de decisión
+con el siguiente framework:
+
+Marco: ACCION + MAGNITUD + POR QUE + RIESGO
+Prioridad: Proteger flujo > Evitar sobrestock > Cobertura saludable > Reducir SC saturado > Evitar stockout
+Objetivo de cobertura: 1.5–2.0 meses total. Máx 2.5 solo para Clase A + crecimiento fuerte + momentum positivo.
+
+Reglas del árbol (en orden de prioridad):
+1. Si SC > 4 meses: congelar compras (independiente de tendencia)
+2. Si stockout inminente (≤7d) Y lead time no puede cubrir el gap: compra de emergencia
+3. Si stockout < 30d Y cobertura total ya supera objetivo (>2m): acelerar SC, NO nueva OC
+4. Si sobrestock total > 3m Y (SC elevado O YoY malo): frenar compras
+5. En otros casos: compra escalonada ajustada por tendencia y YoY
+
+Aplica el árbol a los 5 SKUs seleccionados y compara con AI_EXECUTIVE_ACTION.
+Indica en cada caso si coincides o no y por qué.</div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+const SKUS = [
+  {
+    item:"LED06/10W.", abc:"B", trend:"GROWING", ai_urgency:"CRITICAL",
+    months_stock:0.73, months_sc:3.50, total_cover:4.23,
+    stockout_days:21.9, purchase_proposal:578100, purchase_months:2.0,
+    yoy:-49, momentum:51, my_risk:"LOW",
+    problem:"Riesgo de quiebre",
+    my_action:"Frenar OC — acelerar SC existente",
+    ai_action:"Comprar 578,100 pzas urgente"
+  },
+  {
+    item:"REFLED/300W", abc:"B", trend:"DECLINING", ai_urgency:"HIGH",
+    months_stock:0.22, months_sc:2.14, total_cover:2.36,
+    stockout_days:6.6, purchase_proposal:520, purchase_months:1.5,
+    yoy:-64, momentum:12, my_risk:"CRITICAL",
+    problem:"Forecast incorrecto",
+    my_action:"Compra mínima (1 mes) + acelerar SC",
+    ai_action:"Comprar 520 pzas urgente (1.5m)"
+  },
+  {
+    item:"SUBSOL/60W", abc:"A", trend:"STABLE", ai_urgency:"HIGH",
+    months_stock:1.48, months_sc:2.10, total_cover:3.58,
+    stockout_days:44.4, purchase_proposal:2250, purchase_months:2.0,
+    yoy:-59, momentum:30, my_risk:"LOW",
+    problem:"Compra excesiva",
+    my_action:"No comprar — revisar forecast",
+    ai_action:"Comprar 2,250 pzas urgente (2m)"
+  },
+  {
+    item:"REFLED/200W", abc:"B", trend:"DECLINING", ai_urgency:"MEDIUM",
+    months_stock:1.56, months_sc:4.76, total_cover:6.32,
+    stockout_days:46.8, purchase_proposal:1960, purchase_months:1.3,
+    yoy:-60, momentum:25, my_risk:"LOW",
+    problem:"Exceso inventario SC",
+    my_action:"Congelar compras",
+    ai_action:"Comprar 1,960 pzas normal (1.3m)"
+  },
+  {
+    item:"T-SUBFOT/100W-A", abc:"A", trend:"STRONG GROWTH", ai_urgency:"MEDIUM",
+    months_stock:0.87, months_sc:7.12, total_cover:7.99,
+    stockout_days:26.1, purchase_proposal:0, purchase_months:0,
+    yoy:-7, momentum:76, my_risk:"LOW",
+    problem:"Problema logístico",
+    my_action:"Congelar OC — acelerar SC",
+    ai_action:"Acelerar booking + nueva OC"
+  }
+];
+
+const NAVY  = "#1F497D";
+const AMBER = "#D48C00";
+
+const URGENCY_COLOR = {
+  CRITICAL:"#c00000", HIGH:"#e35205", MEDIUM:"#c08500", LOW:"#0070c0"
+};
+const MYRISK_COLOR = {
+  CRITICAL:"#c00000", HIGH:"#e35205", MEDIUM:"#c08500", LOW:"#0070c0"
+};
+
+// ── Chart 1: Stacked bar overview ─────────────────────────────────────────
+(function(){
+  const items  = SKUS.map(s=>s.item);
+  const stock  = SKUS.map(s=>s.months_stock);
+  const sc     = SKUS.map(s=>s.months_sc);
+
+  Plotly.newPlot("chart-overview", [
+    {name:"Stock físico", x:items, y:stock, type:"bar", marker:{color:NAVY}},
+    {name:"Stock en SC",  x:items, y:sc,    type:"bar", marker:{color:AMBER}},
+    {
+      name:"Objetivo 2 meses", x:items,
+      y:[2,2,2,2,2], type:"scatter", mode:"lines",
+      line:{color:"#c00000",dash:"dash",width:2}
+    }
+  ], {
+    barmode:"stack",
+    title:{text:"Cobertura por SKU: Stock físico + Supply Chain (meses)",font:{size:13,color:NAVY}},
+    xaxis:{title:"SKU"},
+    yaxis:{title:"Meses de cobertura"},
+    legend:{orientation:"h",y:-0.2},
+    plot_bgcolor:"#f8f9fb",
+    paper_bgcolor:"#fff",
+    height:300,
+    margin:{t:45,l:50,r:20,b:60}
+  },{responsive:true});
+})();
+
+// ── Chart 2: Coverage comparison ─────────────────────────────────────────
+(function(){
+  const items = SKUS.map(s=>s.item);
+  const cover = SKUS.map(s=>s.total_cover);
+  const colors = SKUS.map(s=>s.total_cover>3?"#c00000":s.total_cover>2?"#e35205":"#00703c");
+
+  Plotly.newPlot("chart-coverage", [
+    {
+      name:"Cobertura total", x:items, y:cover, type:"bar",
+      marker:{color:colors},
+      text:cover.map(v=>v.toFixed(2)+"m"), textposition:"outside"
+    },
+    {
+      name:"Objetivo mínimo (2m)", x:items, y:[2,2,2,2,2],
+      type:"scatter", mode:"lines", line:{color:AMBER,dash:"dot",width:2}
+    },
+    {
+      name:"Límite máximo (3m)", x:items, y:[3,3,3,3,3],
+      type:"scatter", mode:"lines", line:{color:"#c00000",dash:"dash",width:2}
+    }
+  ], {
+    title:{text:"Cobertura total vs límites operativos",font:{size:13,color:NAVY}},
+    xaxis:{title:"SKU"},
+    yaxis:{title:"Meses de cobertura"},
+    legend:{orientation:"h",y:-0.2},
+    plot_bgcolor:"#f8f9fb",
+    paper_bgcolor:"#fff",
+    height:300,
+    margin:{t:45,l:50,r:20,b:60}
+  },{responsive:true});
+})();
+
+// ── Chart 3: Stockout days ─────────────────────────────────────────────
+(function(){
+  const items   = SKUS.map(s=>s.item);
+  const days    = SKUS.map(s=>s.stockout_days);
+  const colors  = days.map(d=>d<=7?"#c00000":d<=30?"#e35205":d<=60?"#c08500":"#0070c0");
+
+  Plotly.newPlot("chart-stockout", [
+    {
+      name:"Días hasta stockout físico", x:items, y:days, type:"bar",
+      marker:{color:colors},
+      text:days.map(v=>v+"d"), textposition:"outside"
+    },
+    {
+      name:"Límite crítico (7d)", x:items, y:[7,7,7,7,7],
+      type:"scatter", mode:"lines", line:{color:"#c00000",dash:"dash",width:2}
+    },
+    {
+      name:"Límite alerta (30d)", x:items, y:[30,30,30,30,30],
+      type:"scatter", mode:"lines", line:{color:AMBER,dash:"dot",width:2}
+    }
+  ], {
+    title:{text:"Días hasta agotamiento del stock físico",font:{size:13,color:NAVY}},
+    xaxis:{title:"SKU"},
+    yaxis:{title:"Días"},
+    legend:{orientation:"h",y:-0.2},
+    plot_bgcolor:"#f8f9fb",
+    paper_bgcolor:"#fff",
+    height:280,
+    margin:{t:45,l:50,r:20,b:60}
+  },{responsive:true});
+})();
+
+// ── Chart 4: Scatter — YoY vs Cobertura, bubble = momentum ────────────
+(function(){
+  const x      = SKUS.map(s=>s.total_cover);
+  const y      = SKUS.map(s=>s.yoy);
+  const sz     = SKUS.map(s=>s.momentum/5+10);
+  const colors = SKUS.map(s=>URGENCY_COLOR[s.ai_urgency]);
+  const labels = SKUS.map(s=>s.item);
+  const text   = SKUS.map(s=>
+    `${s.item}<br>Cobertura: ${s.total_cover}m<br>YoY: ${s.yoy}%<br>Urgencia IA: ${s.ai_urgency}<br>Momentum: ${s.momentum}`
+  );
+
+  Plotly.newPlot("chart-scatter",[{
+    x, y, type:"scatter", mode:"markers+text",
+    text:labels, textposition:"top center",
+    marker:{size:sz,color:colors,opacity:0.85,line:{color:"#fff",width:1}},
+    hovertext:text, hoverinfo:"text"
+  },{
+    x:[2,2],y:[-70,5],type:"scatter",mode:"lines",
+    line:{color:AMBER,dash:"dash",width:1.5},
+    name:"Objetivo 2m",hoverinfo:"skip"
+  },{
+    x:[0,8],y:[0,0],type:"scatter",mode:"lines",
+    line:{color:"#888",dash:"dot",width:1},
+    name:"YoY = 0%",hoverinfo:"skip"
+  }],{
+    title:{text:"Cobertura total vs Crecimiento YoY (tamaño = momentum)",font:{size:13,color:NAVY}},
+    xaxis:{title:"Cobertura total (meses)",range:[0,9]},
+    yaxis:{title:"YoY ventas (%)"},
+    plot_bgcolor:"#f8f9fb",
+    paper_bgcolor:"#fff",
+    height:340,
+    margin:{t:45,l:55,r:20,b:55},
+    showlegend:false
+  },{responsive:true});
+})();
+
+// ── Chart 5: IA vs Propio risk comparison ──────────────────────────────
+(function(){
+  const items   = SKUS.map(s=>s.item);
+  const order   = {CRITICAL:4,HIGH:3,MEDIUM:2,LOW:1};
+  const ai_vals = SKUS.map(s=>order[s.ai_urgency]);
+  const my_vals = SKUS.map(s=>order[s.my_risk]);
+
+  Plotly.newPlot("chart-risk",[
+    {
+      name:"Urgencia IA", x:items, y:ai_vals, type:"bar",
+      marker:{color:SKUS.map(s=>URGENCY_COLOR[s.ai_urgency])},
+      opacity:0.85
+    },
+    {
+      name:"Mi riesgo", x:items, y:my_vals, type:"bar",
+      marker:{color:SKUS.map(s=>MYRISK_COLOR[s.my_risk])},
+      opacity:0.85
+    }
+  ],{
+    barmode:"group",
+    title:{text:"Comparativa de urgencia: IA vs Análisis propio",font:{size:13,color:NAVY}},
+    xaxis:{title:"SKU"},
+    yaxis:{title:"Nivel de urgencia",tickvals:[1,2,3,4],ticktext:["LOW","MEDIUM","HIGH","CRITICAL"]},
+    legend:{orientation:"h",y:-0.2},
+    plot_bgcolor:"#f8f9fb",
+    paper_bgcolor:"#fff",
+    height:280,
+    margin:{t:45,l:80,r:20,b:60}
+  },{responsive:true});
+})();
+
+// ── Navigation ──────────────────────────────────────────────────────────
+function show(id, el) {
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("#sidebar nav a").forEach(a=>a.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  el.classList.add("active");
+  window.dispatchEvent(new Event("resize"));
+  return false;
+}
+</script>
+</body>
+</html>
