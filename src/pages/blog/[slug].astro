@@ -1,0 +1,72 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title={`${post.data.title} — Carlos Pulido Rosas`} description={post.data.description}>
+  <article>
+    <section class="section post-hero">
+      <div class="container narrow">
+        <a href="/blog" class="back">← All writing</a>
+        <div class="post-meta">
+          <span class="rtag">{post.data.tag}</span>
+          <span class="dot">·</span>
+          <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+        </div>
+        <h1>{post.data.title}</h1>
+        <p class="lead">{post.data.description}</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container narrow prose">
+        <Content />
+      </div>
+    </section>
+  </article>
+
+  <section class="cta-section">
+    <div class="container cta-inner">
+      <h2>Working on something similar?</h2>
+      <p>I build data systems and study how AI reshapes work — happy to talk.</p>
+      <a href="/contact" class="btn btn-primary">Get in touch<span class="arrow">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow { max-width: 720px; }
+  .post-hero { padding-top: var(--s-12); }
+  .back { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-subtle); }
+  .back:hover { color: var(--accent); }
+  .post-meta { display: flex; align-items: center; gap: var(--s-3); margin: var(--s-8) 0 var(--s-4); font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); }
+  .post-meta .rtag { color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+  .post-meta .dot { color: var(--text-subtle); }
+  .post-hero h1 { margin-bottom: var(--s-6); }
+  .post-hero .lead { max-width: 60ch; }
+
+  .prose { font-size: 1.12rem; line-height: 1.75; color: var(--text-muted); }
+  .prose :global(h2) { font-size: 1.6rem; color: var(--text); margin: var(--s-12) 0 var(--s-4); letter-spacing: -0.01em; }
+  .prose :global(p) { margin-bottom: var(--s-6); }
+  .prose :global(ul) { margin: 0 0 var(--s-6) var(--s-6); display: grid; gap: var(--s-3); }
+  .prose :global(li) { padding-left: var(--s-2); }
+  .prose :global(strong) { color: var(--text); font-weight: 600; }
+  .prose :global(a) { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  .prose :global(a:hover) { color: var(--accent-hover); }
+  .prose :global(em) { color: var(--text-subtle); }
+
+  .cta-section { background: var(--text); color: #fff; padding: var(--s-24) 0; text-align: center; }
+  .cta-section h2 { color: #fff; }
+  .cta-inner { display: grid; justify-items: center; gap: var(--s-4); }
+  .cta-inner p { color: rgba(255,255,255,0.7); max-width: 44ch; }
+  .cta-inner .btn { margin-top: var(--s-4); }
+</style>

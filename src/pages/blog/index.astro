@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+---
+
+<Base title="Writing — Carlos Pulido Rosas" description="Notes on data engineering, pipelines, and applied data science from Carlos Pulido Rosas.">
+  <section class="section page-hero">
+    <div class="container">
+      <span class="eyebrow">Writing</span>
+      <h1>Notes on <span class="hero-accent">data &amp; AI.</span></h1>
+      <p class="lead">Essays on data engineering, pipeline design, and what I'm learning building
+        models of how AI reshapes work.</p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="post-list">
+        {posts.map((p) => (
+          <a class="post-row" href={`/blog/${p.id}`}>
+            <div class="post-meta">
+              <span class="rtag">{p.data.tag}</span>
+              <time datetime={p.data.date.toISOString()}>{fmt(p.data.date)}</time>
+            </div>
+            <div class="post-main">
+              <h2>{p.data.title}</h2>
+              <p>{p.data.description}</p>
+              <span class="read">Read <span class="arrow">→</span></span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .page-hero h1 { margin: var(--s-4) 0 var(--s-6); }
+
+  .post-list { display: grid; gap: 0; border-top: 1px solid var(--border); }
+  .post-row {
+    display: grid; gap: var(--s-3) var(--s-8); padding: var(--s-10) var(--s-3);
+    border-bottom: 1px solid var(--border); color: var(--text);
+    transition: background .18s ease, padding-left .18s ease;
+  }
+  .post-row:hover { background: var(--surface); padding-left: var(--s-6); }
+  .post-meta { display: flex; align-items: baseline; gap: var(--s-4); font-family: var(--font-mono); font-size: 0.75rem; }
+  .post-meta .rtag { color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+  .post-meta time { color: var(--text-subtle); }
+  .post-main h2 { font-size: 1.6rem; margin-bottom: var(--s-2); }
+  .post-main p { max-width: 64ch; color: var(--text-muted); margin-bottom: var(--s-3); }
+  .read { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+  .post-row:hover .read { color: var(--accent); }
+  .read .arrow { transition: transform .18s ease; display: inline-block; }
+  .post-row:hover .read .arrow { transform: translateX(4px); }
+  @media (min-width: 820px) { .post-row { grid-template-columns: 180px 1fr; align-items: start; } }
+</style>
