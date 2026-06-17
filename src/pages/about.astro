@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+
+const skills = [
+  { group: 'Languages', items: ['Python', 'SQL', 'HCL (Terraform)', 'Bash'] },
+  { group: 'Warehouses & platforms', items: ['Snowflake', 'BigQuery', 'Databricks', 'PostgreSQL'] },
+  { group: 'Apache ecosystem', items: ['Spark / PySpark', 'Airflow', 'Kafka'] },
+  { group: 'Cloud & infra', items: ['AWS', 'Azure', 'GCP', 'Docker', 'Terraform', 'CI/CD'] },
+  { group: 'Data science & ML', items: ['Machine Learning', 'Predictive Modeling', 'Data Analysis', 'Jupyter'] },
+];
+
+const stats = [
+  { n: '3+', l: 'Cloud platforms (AWS · Azure · GCP)' },
+  { n: '4+', l: 'Open-source projects on GitHub' },
+  { n: 'MSc', l: "Master's research — AI & labor economics" },
+  { n: 'MX', l: 'Zapopan, Jalisco · working remotely' },
+];
+
+const timeline = [
+  { date: '2025 — Present', title: "Master's research — AI & labor markets", org: 'Posgrado · Jalisco, Mexico', desc: 'Predictive modeling of AI-driven labor displacement risk across industries in Jalisco (2025–2030), using PySpark, ML classification, and economic indicators.' },
+  { date: '2024 — Present', title: 'Data Engineer', org: 'Open source & freelance', desc: 'End-to-end data pipelines, multicloud architectures, and ETL systems. Key projects: crypto analytics pipeline and multicloud data infrastructure.' },
+  { date: '2023 — 2024', title: 'Data Analyst → Data Scientist path', org: 'Self-directed learning & projects', desc: 'Transition from analysis to engineering. Built automation tools, SQL analytics, and Excel macro systems for business operations.' },
+  { date: 'Earlier', title: 'Economist', org: 'University · Jalisco, Mexico', desc: 'Degree in Economics — quantitative methods, statistical modeling, and economic systems. The foundation for data-driven thinking.' },
+];
+---
+
+<Base title="About — Carlos Pulido Rosas" description="Economist turned data engineer in Zapopan, Jalisco. The full modern data stack: Python, Snowflake, Spark, Airflow, multicloud.">
+  <section class="section page-hero">
+    <div class="container">
+      <span class="eyebrow">About</span>
+      <h1>Economist turned<br /><span class="hero-accent">data engineer.</span></h1>
+      <p class="lead">
+        I'm Carlos Pulido Rosas — based in Zapopan, Jalisco. I bridge economic analysis and
+        modern data infrastructure: systems that scale, and insights that matter.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container bio-grid">
+      <div class="bio-text">
+        <p>My path started in <strong>economics</strong>, where I learned to think in systems, incentives, and data. That foundation pushed me toward data engineering — building the infrastructure that makes analysis possible at scale.</p>
+        <p>Today I work across the full modern data stack: ingesting raw data with <strong>Python pipelines</strong>, transforming it in <strong>Snowflake, BigQuery, or Databricks</strong>, orchestrating with <strong>Airflow</strong>, and deploying across multiple clouds.</p>
+        <p>I'm currently pursuing a <strong>master's degree</strong> focused on how AI and automation are reshaping labor markets — combining ML, PySpark, and economic modeling.</p>
+      </div>
+      <dl class="stats">
+        {stats.map((s) => (<div><dt>{s.n}</dt><dd>{s.l}</dd></div>))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-label"><span class="sec-num">01</span><span>Technical skills</span></div>
+        <h2>The toolkit</h2>
+      </div>
+      <div class="skills">
+        {skills.map((s) => (
+          <div class="skill-row">
+            <h4>{s.group}</h4>
+            <ul>{s.items.map((i) => <li>{i}</li>)}</ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-label"><span class="sec-num">02</span><span>Journey</span></div>
+        <h2>How I got here</h2>
+      </div>
+      <ol class="timeline">
+        {timeline.map((t) => (
+          <li>
+            <span class="t-date">{t.date}</span>
+            <div class="t-body">
+              <h3>{t.title}</h3>
+              <span class="t-org">{t.org}</span>
+              <p>{t.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container cta-inner">
+      <h2>Ready to collaborate?</h2>
+      <p>Open to data engineering projects, consulting, and genuinely interesting problems.</p>
+      <a href="/contact" class="btn btn-primary">Get in touch<span class="arrow">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .page-hero h1 { margin: var(--s-4) 0 var(--s-6); }
+
+  .bio-grid { display: grid; gap: var(--s-12); }
+  .bio-text p { font-size: 1.1rem; margin-bottom: var(--s-4); color: var(--text-muted); }
+  .bio-text strong { color: var(--text); font-weight: 600; }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-6); align-content: start; }
+  .stats div { border-top: 2px solid var(--text); padding-top: var(--s-3); }
+  .stats dt { font-family: var(--font-display); font-size: 2rem; font-weight: 500; letter-spacing: -0.02em; }
+  .stats dd { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+  @media (min-width: 880px) { .bio-grid { grid-template-columns: 1.4fr 1fr; } }
+
+  .skills { display: grid; gap: 0; }
+  .skill-row { display: grid; gap: var(--s-4); padding: var(--s-6) 0; border-top: 1px solid var(--border); }
+  .skill-row:last-child { border-bottom: 1px solid var(--border); }
+  .skill-row h4 { font-size: 0.95rem; color: var(--text-subtle); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+  .skill-row ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .skill-row li { font-size: 0.9rem; font-weight: 500; padding: 6px 14px; border: 1px solid var(--border); border-radius: var(--r-full); background: var(--surface); }
+  @media (min-width: 760px) { .skill-row { grid-template-columns: 240px 1fr; align-items: center; } }
+
+  .timeline { list-style: none; }
+  .timeline li { display: grid; gap: var(--s-2); padding: var(--s-8) 0; border-top: 1px solid var(--border); }
+  .timeline li:last-child { border-bottom: 1px solid var(--border); }
+  .t-date { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); }
+  .t-body h3 { font-size: 1.3rem; }
+  .t-org { font-size: 0.85rem; color: var(--text-subtle); display: block; margin: 2px 0 var(--s-3); }
+  .t-body p { max-width: 64ch; }
+  @media (min-width: 760px) { .timeline li { grid-template-columns: 220px 1fr; gap: var(--s-8); } }
+
+  .cta-section { background: var(--text); color: #fff; padding: var(--s-24) 0; text-align: center; }
+  .cta-section h2 { color: #fff; }
+  .cta-inner { display: grid; justify-items: center; gap: var(--s-4); }
+  .cta-inner p { color: rgba(255,255,255,0.7); max-width: 44ch; }
+  .cta-inner .btn { margin-top: var(--s-4); }
+</style>

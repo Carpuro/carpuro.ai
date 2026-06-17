@@ -8,9 +8,12 @@ Live site: [carpuro.ai](https://carpuro.ai)
 
 ## About
 
-Static site built with vanilla HTML, CSS, and JavaScript. No frameworks, no build step — just files served via GitHub Pages with a custom domain.
+Static site built with [Astro](https://astro.build). Pages render to plain HTML at build time
+(zero JS by default); the few interactive pieces ship as client scripts. The site showcases my
+work in data engineering — pipelines, multicloud architectures, Snowflake, Apache Spark,
+BigQuery, dbt — and is designed with a future SaaS direction in mind.
 
-The site showcases my work in data engineering: pipelines, multicloud architectures, Snowflake, Apache Spark, BigQuery, dbt, and more. It's also designed with a future SaaS direction in mind.
+> Migrated from the original hand-written HTML/CSS/JS site (preserved under [`legacy/`](legacy/)).
 
 ---
 
@@ -18,32 +21,28 @@ The site showcases my work in data engineering: pipelines, multicloud architectu
 
 | Layer | Tech |
 |-------|------|
-| Hosting | GitHub Pages |
+| Framework | Astro 6 (`output: 'static'`) |
+| Hosting | Vercel |
+| Serverless API | Vercel functions in `api/` (Supabase-backed) |
 | Domain | Dynadot → `carpuro.ai` |
 | Fonts | Inter + Playfair Display (Google Fonts) |
-| Styling | Vanilla CSS with custom properties |
-| Interactivity | Vanilla JavaScript |
+| Styling | Vanilla CSS with custom properties (`src/styles/tokens.css`) |
 
 ---
 
 ## Pages
 
-| Route | Description |
-|-------|-------------|
-| `/` | Landing page — hero, tech stack marquee, projects, services, case studies, newsletter |
-| `/about/` | Bio, skills, career timeline |
-| `/contact/` | Contact form + social links |
-| `/blog/` | Blog (coming soon) |
+| Route | Source | Description |
+|-------|--------|-------------|
+| `/` | `src/pages/index.astro` | Landing — hero, tech stack, featured projects, services |
+| `/about/` | `src/pages/about.astro` | Bio, skills, career timeline |
+| `/services/` | `src/pages/services.astro` | Consulting and engagement offerings |
+| `/contact/` | `src/pages/contact.astro` | Contact form (`POST /api/contact`) + social links |
+| `/blog/` | `src/pages/blog.astro` | Blog (coming soon) |
+| `/work/<slug>/` | `src/pages/work/[slug].astro` | Case-study pages, generated from `src/data/projects.ts` |
 
----
-
-## Visual Features
-
-- Dark SaaS aesthetic — `#080810` background, purple/blue/cyan gradient accents
-- Multi-layer parallax hero that reacts to mouse movement
-- Infinite scrolling tech stack marquee
-- Glassmorphism cards with backdrop blur
-- CSS grid background + animated glow orbs
+Standalone analysis dashboards are served as static files from `public/` (e.g. `/mon/`,
+`/proyectos/marginacion/`, `/proyectos/topicos-selectos/`).
 
 ---
 
@@ -51,42 +50,40 @@ The site showcases my work in data engineering: pipelines, multicloud architectu
 
 ```
 carpuro.ai/
-├── index.html          # Landing page
-├── about/
-│   └── index.html      # About page
-├── contact/
-│   └── index.html      # Contact page
-├── blog/
-│   └── index.html      # Blog page
-├── assets/             # Images and static files
-└── CNAME               # Custom domain config
+├── src/
+│   ├── pages/          # Routes (.astro → HTML)
+│   │   └── work/[slug].astro   # Case studies from projects.ts
+│   ├── layouts/Base.astro      # Shared <head> + page shell
+│   ├── components/             # Nav, Footer, Wordmark
+│   ├── data/projects.ts        # Project / case-study content
+│   └── styles/tokens.css       # Design tokens (CSS custom properties)
+├── public/             # Served as-is: brand assets + static dashboards
+├── api/                # Vercel serverless functions (contact, chat)
+├── supabase/           # Database schema
+├── worker/             # Cloudflare worker (chat backend)
+├── legacy/             # Original vanilla-HTML site (archived)
+├── astro.config.mjs
+└── vercel.json
 ```
 
 ---
 
 ## Local Development
 
-No build step required. Just open any `.html` file in a browser, or serve locally:
-
 ```bash
-# Python
-python -m http.server 8000
-
-# Node
-npx serve .
+npm install
+npm run dev      # or: npx astro dev   → http://localhost:4321
+npx astro build  # production build into dist/
+npx astro preview
 ```
-
-Then visit `http://localhost:8000`.
 
 ---
 
 ## Deployment
 
-Pushes to `main` deploy automatically via GitHub Pages.
-
-DNS is configured on Dynadot with:
-- 4 A records pointing to GitHub Pages IPs (`185.199.108-111.153`)
-- CNAME record: `www` → `carpuro.github.io`
+Pushes to `main` deploy automatically via Vercel (`framework: "astro"` in `vercel.json`).
+Serverless functions under `api/` require `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`
+environment variables configured in the Vercel project settings.
 
 ---
 

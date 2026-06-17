@@ -1,0 +1,266 @@
+---
+import Base from '../layouts/Base.astro';
+
+const stack = ['Snowflake', 'Apache Spark', 'BigQuery', 'dbt', 'Airflow', 'Python', 'SQL', 'Supabase'];
+
+const products = [
+  {
+    name: 'In development',
+    status: 'Building',
+    tagline: 'The first carpuro.ai SaaS product.',
+    desc: 'A focused tool that turns the data-engineering patterns below into a product teams can use without a data team. Launching soon.',
+  },
+];
+
+const work = [
+  { tag: 'Pipelines', title: 'Multicloud data pipelines', desc: 'Ingestion-to-warehouse flows across cloud providers with orchestration, testing, and lineage.' },
+  { tag: 'Analytics', title: 'Crypto analytics pipeline', desc: 'Streaming market data into a modeled warehouse with dbt transformations and dashboards.' },
+  { tag: 'Research', title: 'AI automation risk — Jalisco', desc: 'A two-axis occupational-exposure model over Mexican labor microdata, built end to end.' },
+  { tag: 'BI', title: 'Inventory & risk dashboard', desc: 'Sales trends, risk matrices, and an executive decision layer over operational data.' },
+];
+
+const services = [
+  { title: 'Data pipelines', desc: 'Reliable ingestion, transformation, and orchestration — built to be observable and tested.' },
+  { title: 'Cloud architecture', desc: 'Warehouse and lakehouse design on Snowflake, BigQuery, and Spark that scales with cost in mind.' },
+  { title: 'Analytics & dbt', desc: 'Modeled, documented data your team can trust, from raw sources to decision-ready marts.' },
+];
+---
+
+<Base>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow reveal" style="animation-delay:.05s">Data engineer · Guadalajara, MX</span>
+        <h1 class="reveal" style="animation-delay:.12s">
+          Data infrastructure<br />that <span class="hero-accent">earns its keep.</span>
+        </h1>
+        <p class="lead reveal" style="animation-delay:.2s">
+          Production pipelines, multicloud warehouses, and the SaaS tools built on top of
+          them — data systems teams actually rely on.
+        </p>
+        <div class="hero-cta reveal" style="animation-delay:.28s">
+          <a href="#products" class="btn btn-primary">See what I'm building<span class="arrow">→</span></a>
+          <a href="#work" class="btn btn-ghost">View selected work</a>
+        </div>
+        <p class="avail reveal" style="animation-delay:.36s"><i></i> Available for new projects · Q3 2026</p>
+      </div>
+
+      <!-- Product-style visual: a live pipeline run (HTML/CSS, no stock art) -->
+      <aside class="hero-visual reveal" style="animation-delay:.36s" aria-hidden="true">
+        <div class="pcard">
+          <div class="pcard-head">
+            <span class="pcard-title">pipeline · daily_revenue</span>
+            <span class="pcard-live"><i></i>live</span>
+          </div>
+          <ol class="pcard-stages">
+            <li><span class="dot ok"></span>extract<span class="src">stripe · postgres</span></li>
+            <li><span class="dot ok"></span>transform<span class="src">dbt · 38 models</span></li>
+            <li><span class="dot run"></span>load<span class="src">snowflake</span></li>
+          </ol>
+          <div class="pcard-metrics">
+            <div><b>1.2M</b><span>rows / run</span></div>
+            <div><b>42s</b><span>runtime</span></div>
+            <div><b>100%</b><span>tests pass</span></div>
+          </div>
+          <div class="pcard-chart">
+            {[38,52,44,61,57,72,66,80].map((h) => <span style={`height:${h}%`}></span>)}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- TECH STRIP -->
+  <section class="strip">
+    <div class="container strip-inner">
+      <span class="strip-label">Tools of the trade</span>
+      <ul class="strip-list">
+        {stack.map((t) => <li>{t}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- PRODUCTS / SAAS -->
+  <section id="products" class="section">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-label"><span class="sec-num">01</span><span>Products</span></div>
+        <h2>SaaS, built on real data engineering</h2>
+        <p>The portfolio below is the foundation. These are the products I'm building on top of it — each one solving a problem I've already solved by hand.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-body">
+          <span class="badge">Building</span>
+          <h3>The first carpuro.ai product</h3>
+          <p>A focused tool that turns the data-engineering patterns below into something teams
+            can use without a data team of their own. Launching soon.</p>
+          <a href="/contact" class="feature-link">Get notified at launch <span class="arrow">→</span></a>
+        </div>
+        <dl class="feature-meta">
+          <div><dt>Status</dt><dd>In development</dd></div>
+          <div><dt>Built on</dt><dd>Snowflake · dbt · Supabase</dd></div>
+          <div><dt>For</dt><dd>Teams without a data team</dd></div>
+        </dl>
+      </div>
+      <p class="roadmap">More on the roadmap. Have a data problem worth productizing?
+        <a href="/contact">Let's talk <span class="arrow">→</span></a></p>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section id="work" class="section section--alt">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-label"><span class="sec-num">02</span><span>Selected work</span></div>
+        <h2>Things I've shipped</h2>
+        <p>Production systems and research projects across pipelines, analytics, and applied data science.</p>
+      </div>
+      <ol class="work-list">
+        {work.map((w, i) => (
+          <li class="work-row">
+            <span class="num">{String(i + 1).padStart(2, '0')}</span>
+            <div class="work-main">
+              <div class="work-titles">
+                <h3>{w.title}</h3>
+                <span class="rtag">{w.tag}</span>
+              </div>
+              <p>{w.desc}</p>
+            </div>
+            <span class="arrow">→</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="section">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-label"><span class="sec-num">03</span><span>Services</span></div>
+        <h2>How I can help</h2>
+      </div>
+      <div class="grid grid-3">
+        {services.map((s, i) => (
+          <article class="service">
+            <span class="service-num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{s.title}</h3>
+            <p>{s.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container cta-inner">
+      <h2>Let's build something that lasts.</h2>
+      <p>Whether it's a pipeline, a warehouse, or a product — I'd like to hear about it.</p>
+      <a href="/contact" class="btn btn-primary">Get in touch<span class="arrow">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding: var(--s-24) 0 var(--s-16); }
+  .hero-grid { display: grid; gap: var(--s-16); align-items: center; }
+  .hero h1 { max-width: 14ch; margin-bottom: var(--s-6); }
+  .hero .lead { margin-bottom: var(--s-8); }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+  @media (min-width: 980px) {
+    .hero-grid { grid-template-columns: 1.05fr 0.95fr; }
+  }
+
+  /* Product-style visual */
+  .hero-visual { perspective: 1200px; }
+  .pcard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--s-6);
+    display: grid;
+    gap: var(--s-6);
+  }
+  .pcard-head { display: flex; align-items: center; justify-content: space-between; }
+  .pcard-title { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text); }
+  .pcard-live { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-hover); }
+  .pcard-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent-ring); animation: ping 2s infinite; }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 var(--accent-ring); } 70% { box-shadow: 0 0 0 6px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+  .pcard-stages { list-style: none; display: grid; gap: var(--s-3); }
+  .pcard-stages li { display: flex; align-items: center; gap: var(--s-3); font-size: 0.92rem; font-weight: 500; color: var(--text); }
+  .pcard-stages .src { margin-left: auto; font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-subtle); font-weight: 400; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot.ok { background: var(--text); }
+  .dot.run { background: var(--accent); animation: ping 1.6s infinite; }
+
+  .pcard-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--s-4); padding: var(--s-4) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .pcard-metrics b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
+  .pcard-metrics span { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .pcard-chart { display: flex; align-items: flex-end; gap: 6px; height: 64px; }
+  .pcard-chart span { flex: 1; background: var(--accent-soft); border-top: 2px solid var(--accent); border-radius: 3px 3px 0 0; }
+
+  .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+  .strip-inner { display: flex; align-items: center; gap: var(--s-8); padding: var(--s-6) var(--s-6); flex-wrap: wrap; }
+  .strip-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-subtle); white-space: nowrap; }
+  .strip-list { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-6); }
+  .strip-list li { font-size: 0.92rem; font-weight: 500; color: var(--text-muted); }
+
+  /* PRODUCTS — single featured callout with an accent spine (not cards) */
+  .feature {
+    position: relative;
+    display: grid;
+    gap: var(--s-8);
+    padding: var(--s-12);
+    padding-left: calc(var(--s-12) + 4px);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .feature::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
+  .feature-body h3 { font-size: 1.85rem; margin: var(--s-3) 0 var(--s-3); }
+  .feature-body p { max-width: 48ch; }
+  .feature-link { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--s-6); font-weight: 600; }
+  .feature-meta { display: grid; gap: var(--s-4); align-content: start; }
+  .feature-meta div { display: grid; gap: 2px; padding-bottom: var(--s-3); border-bottom: 1px solid var(--border); }
+  .feature-meta dt { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); }
+  .feature-meta dd { font-size: 0.95rem; font-weight: 500; color: var(--text); }
+  @media (min-width: 820px) { .feature { grid-template-columns: 1.5fr 1fr; align-items: center; } }
+  .roadmap { margin-top: var(--s-6); font-size: 0.98rem; color: var(--text-subtle); }
+  .roadmap a { font-weight: 600; }
+
+  /* WORK — editorial indexed list (not cards) */
+  .work-list { list-style: none; border-top: 1px solid var(--border); }
+  .work-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--s-4) var(--s-6);
+    padding: var(--s-6) var(--s-3);
+    border-bottom: 1px solid var(--border);
+    transition: background .18s ease, padding-left .18s ease;
+  }
+  .work-row:hover { background: var(--surface); padding-left: var(--s-6); }
+  .work-row .num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-subtle); }
+  .work-titles { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; margin-bottom: 4px; }
+  .work-titles h3 { font-size: 1.3rem; }
+  .work-row .rtag { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+  .work-main p { font-size: 0.95rem; max-width: 60ch; }
+  .work-row > .arrow { color: var(--text-subtle); font-size: 1.1rem; transition: transform .18s ease, color .18s ease; }
+  .work-row:hover > .arrow { color: var(--accent); transform: translateX(5px); }
+
+  .service { padding: var(--s-6) 0; border-top: 2px solid var(--text); }
+  .service-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); display: block; margin-bottom: var(--s-3); }
+  .service h3 { margin-bottom: var(--s-2); }
+
+  .cta-section { background: var(--text); color: #fff; padding: var(--s-24) 0; text-align: center; }
+  .cta-section h2 { color: #fff; }
+  .cta-inner { display: grid; justify-items: center; gap: var(--s-4); }
+  .cta-inner p { color: rgba(255,255,255,0.7); max-width: 42ch; }
+  .cta-inner .btn { margin-top: var(--s-4); }
+</style>

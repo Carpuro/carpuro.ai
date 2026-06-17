@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import { projects } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.map((p) => ({ params: { slug: p.slug }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+const idx = projects.findIndex((p) => p.slug === project.slug);
+const next = projects[(idx + 1) % projects.length];
+---
+
+<Base title={`${project.title} — Carlos Pulido Rosas`} description={project.summary}>
+  <section class="section proj-hero">
+    <div class="container">
+      <a href="/work" class="back">← All work</a>
+      <div class="proj-meta">
+        <span class="rtag">{project.tag}</span>
+        <span class="dot">·</span>
+        <span>{project.year}</span>
+      </div>
+      <h1>{project.title}</h1>
+      <p class="lead">{project.description}</p>
+      <div class="proj-cta">
+        {project.links.map((l) => (
+          <a href={l.href} class="btn btn-primary" target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener">{l.label}<span class="arrow">→</span></a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container proj-grid">
+      <div class="proj-body">
+        <div class="block">
+          <div class="sec-label"><span class="sec-num">01</span><span>The problem</span></div>
+          <p>{project.problem}</p>
+        </div>
+        <div class="block">
+          <div class="sec-label"><span class="sec-num">02</span><span>The approach</span></div>
+          <p>{project.approach}</p>
+        </div>
+        <div class="block">
+          <div class="sec-label"><span class="sec-num">03</span><span>Highlights</span></div>
+          <ul class="hi">{project.highlights.map((h) => <li>{h}</li>)}</ul>
+        </div>
+      </div>
+      <aside class="proj-aside">
+        <h4>Stack</h4>
+        <ul class="stack">{project.stack.map((s) => <li>{s}</li>)}</ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section next-sec">
+    <div class="container">
+      <span class="eyebrow">Next project</span>
+      <a href={`/work/${next.slug}`} class="next-link">
+        <h2>{next.title}</h2>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .proj-hero { padding-top: var(--s-12); }
+  .back { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-subtle); }
+  .back:hover { color: var(--accent); }
+  .proj-meta { display: flex; align-items: center; gap: var(--s-3); margin: var(--s-8) 0 var(--s-4); font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); }
+  .proj-meta .rtag { color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+  .proj-meta .dot { color: var(--text-subtle); }
+  .proj-hero h1 { margin-bottom: var(--s-6); }
+  .proj-hero .lead { max-width: 56ch; }
+  .proj-cta { margin-top: var(--s-8); display: flex; gap: var(--s-3); flex-wrap: wrap; }
+
+  .proj-grid { display: grid; gap: var(--s-12); }
+  .block { padding-bottom: var(--s-8); }
+  .block p { font-size: 1.1rem; max-width: 58ch; }
+  .hi { list-style: none; display: grid; gap: var(--s-3); }
+  .hi li { font-size: 1.05rem; padding-left: var(--s-6); position: relative; }
+  .hi li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  .proj-aside h4 { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); margin-bottom: var(--s-4); }
+  .stack { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .stack li { font-size: 0.9rem; font-weight: 500; padding: 6px 14px; border: 1px solid var(--border); border-radius: var(--r-full); background: var(--surface); }
+  @media (min-width: 880px) { .proj-grid { grid-template-columns: 1.6fr 1fr; align-items: start; } }
+
+  .next-link { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); margin-top: var(--s-4); padding: var(--s-8) 0; border-top: 2px solid var(--text); color: var(--text); }
+  .next-link:hover { color: var(--accent); }
+  .next-link .arrow { font-size: 1.5rem; transition: transform .18s ease; }
+  .next-link:hover .arrow { transform: translateX(6px); }
+</style>

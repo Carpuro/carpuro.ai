@@ -1,0 +1,145 @@
+---
+import Base from '../layouts/Base.astro';
+
+const socials = [
+  { href: 'https://github.com/Carpuro', title: 'GitHub', handle: 'github.com/Carpuro' },
+  { href: 'https://www.linkedin.com/in/carlos-pulido-489700132/', title: 'LinkedIn', handle: 'linkedin.com/in/carlos-pulido-489700132' },
+];
+---
+
+<Base title="Contact — Carlos Pulido Rosas" description="Get in touch about data engineering projects, consulting, or collaboration. Based in Zapopan, Jalisco — working remotely worldwide.">
+  <section class="section page-hero">
+    <div class="container">
+      <span class="eyebrow">Contact</span>
+      <h1>Let's <span class="hero-accent">connect.</span></h1>
+      <p class="lead">A data engineering project, consulting, collaboration, or just a good
+        conversation about data — reach out.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container contact-grid">
+      <form class="contact-form" id="contactForm">
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@company.com" required />
+        </div>
+        <div class="field">
+          <label for="topic">Topic</label>
+          <select id="topic" name="topic">
+            <option value="project">Data engineering project</option>
+            <option value="consulting">Consulting</option>
+            <option value="collaboration">Open-source collaboration</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" placeholder="Tell me about your project or idea…" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Send message<span class="arrow">→</span></button>
+        <p class="form-note" id="formNote" hidden></p>
+      </form>
+
+      <aside class="contact-side">
+        <h2>Find me online</h2>
+        <ul class="links">
+          {socials.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener">
+                <span class="l-text">
+                  <span class="l-title">{s.title}</span>
+                  <span class="l-handle">{s.handle}</span>
+                </span>
+                <span class="arrow">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div class="avail-box">
+          <p class="avail"><i></i> Available for projects</p>
+          <p>Open to data engineering consulting, freelance pipelines, and interesting
+            collaborations. Zapopan, Jalisco — working remotely worldwide.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const form = document.getElementById('contactForm') as HTMLFormElement | null;
+  const btn = document.getElementById('submitBtn') as HTMLButtonElement | null;
+  const note = document.getElementById('formNote') as HTMLParagraphElement | null;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!btn) return;
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+
+    const payload = {
+      name: (document.getElementById('name') as HTMLInputElement).value,
+      email: (document.getElementById('email') as HTMLInputElement).value,
+      topic: (document.getElementById('topic') as HTMLSelectElement).value,
+      message: (document.getElementById('message') as HTMLTextAreaElement).value,
+    };
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error();
+      btn.textContent = 'Message sent ✓';
+      form?.reset();
+      if (note) { note.hidden = false; note.textContent = "Thanks — I'll get back to you soon."; }
+    } catch {
+      btn.textContent = 'Error — try again';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .page-hero h1 { margin: var(--s-4) 0 var(--s-6); }
+
+  .contact-grid { display: grid; gap: var(--s-16); }
+  @media (min-width: 880px) { .contact-grid { grid-template-columns: 1.3fr 1fr; align-items: start; } }
+
+  .field { display: grid; gap: var(--s-2); margin-bottom: var(--s-6); }
+  .field label { font-size: 0.85rem; font-weight: 600; }
+  .field input, .field select, .field textarea {
+    font-family: var(--font-sans); font-size: 1rem; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: var(--r-sm); padding: 0.7rem 0.9rem; width: 100%;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field textarea { resize: vertical; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+  .form-note { margin-top: var(--s-4); color: var(--accent-hover); font-size: 0.92rem; }
+
+  .contact-side h2 { font-size: 1.3rem; margin-bottom: var(--s-6); }
+  .links { list-style: none; display: grid; gap: var(--s-3); margin-bottom: var(--s-8); }
+  .links a {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+    padding: var(--s-4); border: 1px solid var(--border);
+    border-radius: var(--r-md); background: var(--surface); color: var(--text);
+    transition: border-color .18s ease, transform .18s ease;
+  }
+  .links a:hover { border-color: var(--text); transform: translateX(2px); }
+  .l-text { display: grid; gap: 2px; }
+  .l-title { font-weight: 600; }
+  .l-handle { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-subtle); }
+  .links .arrow { color: var(--text-subtle); flex-shrink: 0; }
+
+  .avail-box { padding: var(--s-6); border: 1px solid var(--border); border-left: 4px solid #16a34a; border-radius: var(--r-md); background: var(--surface); }
+  .avail-box p:last-child { font-size: 0.9rem; margin-top: var(--s-3); }
+</style>

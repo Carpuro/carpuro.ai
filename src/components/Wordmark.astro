@@ -1,0 +1,19 @@
+---
+interface Props { size?: number; muted?: boolean }
+const { size = 21, muted = false } = Astro.props;
+---
+<span class={`wm${muted ? ' wm--muted' : ''}`} style={`font-size:${size}px`}>carpuro<span class="wm-dot">.ai</span></span>
+
+<style>
+  .wm {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    color: var(--text);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .wm-dot { color: var(--accent); }
+  .wm--muted { color: var(--text-subtle); }
+  .wm--muted .wm-dot { color: var(--text-muted); }
+</style>

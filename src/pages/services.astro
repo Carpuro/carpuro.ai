@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+
+const services = [
+  { title: 'Data pipelines', desc: 'Reliable ingestion, transformation, and orchestration — built to be observable and tested.', points: ['Batch & streaming ingestion', 'Airflow / orchestration', 'Data quality tests & alerting', 'Lineage and documentation'] },
+  { title: 'Cloud architecture', desc: 'Warehouse and lakehouse design on Snowflake, BigQuery, and Spark that scales with cost in mind.', points: ['Snowflake / BigQuery / Databricks', 'Multicloud (AWS · Azure · GCP)', 'Infrastructure as code (Terraform)', 'Cost & performance tuning'] },
+  { title: 'Analytics & dbt', desc: 'Modeled, documented data your team can trust — from raw sources to decision-ready marts.', points: ['dbt modeling & testing', 'Semantic layers & metrics', 'BI dashboards', 'Self-serve analytics enablement'] },
+];
+
+const process = [
+  { t: 'Understand', d: 'A discovery call to map the data, the constraints, and what success looks like.' },
+  { t: 'Design', d: 'A concrete architecture and plan — scoped, costed, and reviewed with you before any build.' },
+  { t: 'Build & hand off', d: 'Tested, documented systems delivered incrementally, with knowledge transfer so your team owns them.' },
+];
+---
+
+<Base title="Services — Carlos Pulido Rosas" description="Data engineering services: pipelines, cloud architecture, and analytics with dbt. Scoped, tested, documented.">
+  <section class="section page-hero">
+    <div class="container">
+      <span class="eyebrow">Services</span>
+      <h1>How I can <span class="hero-accent">help.</span></h1>
+      <p class="lead">From a single pipeline to a full warehouse — practical data engineering,
+        scoped and delivered so your team can own it.</p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <ol class="svc-list">
+        {services.map((s, i) => (
+          <li>
+            <span class="num">{String(i + 1).padStart(2, '0')}</span>
+            <div class="svc-main">
+              <h3>{s.title}</h3>
+              <p>{s.desc}</p>
+            </div>
+            <ul class="svc-points">{s.points.map((p) => <li>{p}</li>)}</ul>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-label"><span class="sec-num">01</span><span>How I work</span></div>
+        <h2>A simple, honest process</h2>
+      </div>
+      <div class="grid grid-3">
+        {process.map((p, i) => (
+          <div class="proc">
+            <span class="proc-num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{p.t}</h3>
+            <p>{p.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container cta-inner">
+      <h2>Have a data problem worth solving?</h2>
+      <p>Tell me what you're working on — I'll tell you honestly whether I can help.</p>
+      <a href="/contact" class="btn btn-primary">Start a conversation<span class="arrow">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .page-hero h1 { margin: var(--s-4) 0 var(--s-6); }
+
+  .svc-list { list-style: none; border-top: 1px solid var(--border); }
+  .svc-list > li { display: grid; gap: var(--s-4) var(--s-8); padding: var(--s-12) var(--s-3); border-bottom: 1px solid var(--border); }
+  .svc-list .num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-subtle); }
+  .svc-main h3 { font-size: 1.6rem; margin-bottom: var(--s-2); }
+  .svc-main p { max-width: 48ch; }
+  .svc-points { list-style: none; display: grid; gap: var(--s-2); align-content: start; }
+  .svc-points li { font-size: 0.92rem; color: var(--text-muted); padding-left: var(--s-4); position: relative; }
+  .svc-points li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  @media (min-width: 820px) { .svc-list > li { grid-template-columns: auto 1.3fr 1fr; align-items: start; } }
+
+  .proc { border-top: 2px solid var(--text); padding-top: var(--s-4); }
+  .proc-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); display: block; margin-bottom: var(--s-3); }
+  .proc h3 { margin-bottom: var(--s-2); }
+
+  .cta-section { background: var(--text); color: #fff; padding: var(--s-24) 0; text-align: center; }
+  .cta-section h2 { color: #fff; }
+  .cta-inner { display: grid; justify-items: center; gap: var(--s-4); }
+  .cta-inner p { color: rgba(255,255,255,0.7); max-width: 44ch; }
+  .cta-inner .btn { margin-top: var(--s-4); }
+</style>

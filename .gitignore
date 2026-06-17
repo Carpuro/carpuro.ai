@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# astro build output
+dist/
+.astro/
+
+# vercel
+.vercel/
+
+# dev tooling (screenshots; keep the script)
+.tooling/*.png
+
+# os / misc
+.DS_Store
+*.log
+npm-debug.log*

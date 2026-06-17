@@ -1,0 +1,67 @@
+---
+import Wordmark from './Wordmark.astro';
+const year = new Date().getFullYear();
+const cols = [
+  { title: 'Site', links: [
+    { href: '/#products', label: 'Products' },
+    { href: '/#work', label: 'Work' },
+    { href: '/services', label: 'Services' },
+    { href: '/about', label: 'About' },
+    { href: '/blog', label: 'Writing' },
+  ]},
+  { title: 'Connect', links: [
+    { href: 'https://github.com/Carpuro', label: 'GitHub' },
+    { href: 'https://www.linkedin.com/in/carlos-pulido-489700132/', label: 'LinkedIn' },
+    { href: '/contact', label: 'Contact' },
+  ]},
+];
+---
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="/" aria-label="carpuro.ai home"><Wordmark size={24} /></a>
+      <p>Data engineering & the SaaS tools built on top of it. Guadalajara, Mexico.</p>
+    </div>
+    <div class="footer-cols">
+      {cols.map((c) => (
+        <div>
+          <h5>{c.title}</h5>
+          <ul>
+            {c.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© {year} Carlos Pulido Rosas</span>
+    <span>Built with Astro · hosted on Vercel</span>
+  </div>
+</footer>
+
+<style>
+  .footer { border-top: 1px solid var(--border); background: var(--bg-alt); padding-top: var(--s-16); }
+  .footer-inner {
+    display: grid; gap: var(--s-12);
+    grid-template-columns: 1fr; padding-bottom: var(--s-12);
+  }
+  .footer-brand a { display: inline-block; margin-bottom: var(--s-4); }
+  .footer-brand p { max-width: 32ch; font-size: 0.95rem; }
+  .footer-cols { display: flex; gap: var(--s-16); }
+  .footer-cols h5 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); margin-bottom: var(--s-4); }
+  .footer-cols ul { list-style: none; display: grid; gap: var(--s-2); }
+  .footer-cols a { color: var(--text-muted); font-size: 0.95rem; }
+  .footer-cols a:hover { color: var(--accent); }
+  .footer-bottom {
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s-2);
+    padding: var(--s-6) var(--s-6) var(--s-8);
+    border-top: 1px solid var(--border);
+    margin-top: var(--s-4);
+    font-size: 0.82rem; color: var(--text-subtle);
+    font-family: var(--font-mono);
+  }
+  @media (min-width: 880px) {
+    .footer-inner { grid-template-columns: 1.4fr 1fr; align-items: start; }
+  }
+</style>
