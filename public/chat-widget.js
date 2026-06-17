@@ -43,24 +43,35 @@
   }
 
   // ── Inject CSS ───────────────────────────────────────────────
+  // Tracks the site's light theme (tokens.css): warm off-white surfaces,
+  // near-black text, single electric-blue accent, IBM Plex type.
   const style = document.createElement('style');
   style.textContent = `
+    :root {
+      --cw-accent: #2563eb; --cw-accent-hover: #1d4ed8;
+      --cw-accent-soft: #eef3ff; --cw-accent-ring: rgba(37,99,235,0.18);
+      --cw-bg: #ffffff; --cw-bg-alt: #f4f4f2;
+      --cw-text: #16161a; --cw-muted: #55555f; --cw-subtle: #8a8a93;
+      --cw-border: #e6e6e3;
+      --cw-font: 'IBM Plex Sans', system-ui, sans-serif;
+    }
     #chat-btn {
       position: fixed; bottom: 1.8rem; right: 1.8rem; z-index: 1000;
       width: 54px; height: 54px; border-radius: 50%;
-      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      background: var(--cw-accent); color: #fff;
       border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; box-shadow: 0 4px 24px rgba(124,58,237,0.5);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 24px var(--cw-accent-ring);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
     }
-    #chat-btn:hover { transform: scale(1.08); box-shadow: 0 6px 32px rgba(124,58,237,0.7); }
+    #chat-btn:hover { transform: translateY(-2px); background: var(--cw-accent-hover); box-shadow: 0 10px 32px rgba(37,99,235,0.32); }
+    #chat-btn svg { width: 24px; height: 24px; }
     #chat-box {
       position: fixed; bottom: 5.5rem; right: 1.8rem; z-index: 1000;
       width: min(370px, calc(100vw - 2rem));
-      background: #0d0d1a; border: 1px solid rgba(124,58,237,0.3);
+      background: var(--cw-bg); border: 1px solid var(--cw-border);
       border-radius: 16px; display: flex; flex-direction: column;
-      overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      overflow: hidden; box-shadow: 0 16px 48px rgba(22,22,26,0.16);
       transform: scale(0.92) translateY(12px); opacity: 0;
       pointer-events: none;
       transition: transform 0.22s cubic-bezier(.34,1.4,.64,1), opacity 0.18s;
@@ -68,73 +79,74 @@
     #chat-box.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
     #chat-header {
       padding: 0.85rem 1.1rem;
-      background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(37,99,235,0.15));
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: var(--cw-accent-soft);
+      border-bottom: 1px solid var(--cw-border);
       display: flex; align-items: center; gap: 0.65rem;
     }
     .chat-avatar {
       width: 32px; height: 32px; border-radius: 50%;
-      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      background: var(--cw-accent); color: #fff;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
+      font-size: 0.9rem; font-weight: 700; flex-shrink: 0;
+      font-family: var(--cw-font);
     }
     .chat-header-info { display: flex; flex-direction: column; gap: 1px; flex: 1; }
-    .chat-header-info strong { font-size: 0.85rem; font-weight: 600; color: #e2e2f0; }
-    .chat-header-info small { font-size: 0.7rem; color: #6b6b8a; }
+    .chat-header-info strong { font-size: 0.85rem; font-weight: 600; color: var(--cw-text); font-family: var(--cw-font); }
+    .chat-header-info small { font-size: 0.7rem; color: var(--cw-subtle); font-family: var(--cw-font); }
     .chat-status { display: flex; align-items: center; gap: 4px; }
-    .chat-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse-dot 2s infinite; }
+    .chat-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; animation: pulse-dot 2s infinite; }
     @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
     #chat-close-btn {
-      background: none; border: none; color: #6b6b8a; cursor: pointer;
+      background: none; border: none; color: var(--cw-subtle); cursor: pointer;
       font-size: 1.1rem; line-height: 1; padding: 0.2rem 0.3rem;
       border-radius: 6px; transition: color 0.2s, background 0.2s;
       margin-left: auto; flex-shrink: 0;
     }
-    #chat-close-btn:hover { color: #e2e2f0; background: rgba(255,255,255,0.06); }
+    #chat-close-btn:hover { color: var(--cw-text); background: rgba(22,22,26,0.06); }
     #chat-messages {
       flex: 1; overflow-y: auto; padding: 1rem;
       display: flex; flex-direction: column; gap: 0.7rem;
       max-height: 320px; min-height: 200px;
     }
     #chat-messages::-webkit-scrollbar { width: 4px; }
-    #chat-messages::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 4px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: var(--cw-border); border-radius: 4px; }
     .chat-msg {
       max-width: 88%; padding: 0.55rem 0.85rem;
       border-radius: 12px; font-size: 0.82rem; line-height: 1.55;
-      font-family: 'Inter', sans-serif;
+      font-family: var(--cw-font);
     }
-    .chat-msg.bot { background: rgba(255,255,255,0.06); color: #c4c4d8; align-self: flex-start; border-bottom-left-radius: 4px; }
-    .chat-msg.user { background: linear-gradient(135deg, #7c3aed, #2563eb); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .chat-msg.typing { color: #6b6b8a; font-style: italic; }
-    .chat-msg.system { color: #6b6b8a; font-size: 0.75rem; font-style: italic; align-self: center; background: none; padding: 0.2rem 0; }
+    .chat-msg.bot { background: var(--cw-bg-alt); color: var(--cw-text); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .chat-msg.user { background: var(--cw-accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .chat-msg.typing { color: var(--cw-subtle); font-style: italic; }
+    .chat-msg.system { color: var(--cw-subtle); font-size: 0.75rem; font-style: italic; align-self: center; background: none; padding: 0.2rem 0; }
     #chat-menu { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.75rem; }
     .chat-quick {
-      background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.3);
-      border-radius: 20px; color: #a78bfa; font-size: 0.75rem;
+      background: var(--cw-accent-soft); border: 1px solid var(--cw-accent-ring);
+      border-radius: 20px; color: var(--cw-accent-hover); font-size: 0.75rem;
       padding: 0.3rem 0.7rem; cursor: pointer;
-      transition: background 0.18s, color 0.18s; font-family: 'Inter', sans-serif;
+      transition: background 0.18s, color 0.18s; font-family: var(--cw-font);
     }
-    .chat-quick:hover { background: rgba(124,58,237,0.25); color: #c4b5fd; }
+    .chat-quick:hover { background: #dde8ff; color: var(--cw-accent-hover); }
     #chat-form {
       display: flex; gap: 0.5rem; padding: 0.75rem;
-      border-top: 1px solid rgba(255,255,255,0.06);
+      border-top: 1px solid var(--cw-border);
     }
     #chat-input {
-      flex: 1; background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
-      padding: 0.5rem 0.75rem; color: #e2e2f0;
-      font-size: 0.82rem; font-family: 'Inter', sans-serif;
-      outline: none; transition: border-color 0.2s;
+      flex: 1; background: var(--cw-bg);
+      border: 1px solid var(--cw-border); border-radius: 8px;
+      padding: 0.5rem 0.75rem; color: var(--cw-text);
+      font-size: 0.82rem; font-family: var(--cw-font);
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
     }
-    #chat-input:focus { border-color: rgba(124,58,237,0.5); }
-    #chat-input::placeholder { color: #6b6b8a; }
+    #chat-input:focus { border-color: var(--cw-accent); box-shadow: 0 0 0 3px var(--cw-accent-ring); }
+    #chat-input::placeholder { color: var(--cw-subtle); }
     #chat-send {
-      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      background: var(--cw-accent);
       border: none; border-radius: 8px; color: #fff;
       padding: 0.5rem 0.85rem; font-size: 0.85rem;
-      cursor: pointer; transition: opacity 0.2s;
+      cursor: pointer; transition: background 0.2s;
     }
-    #chat-send:hover { opacity: 0.85; }
+    #chat-send:hover { background: var(--cw-accent-hover); }
     #chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
     .chat-bot-btns { display: flex; flex-wrap: wrap; gap: 0.4rem; align-self: flex-start; max-width: 100%; }
   `;
@@ -142,10 +154,12 @@
 
   // ── Inject HTML ──────────────────────────────────────────────
   document.body.insertAdjacentHTML('beforeend', `
-    <button id="chat-btn" aria-label="Chat con Mon">💬</button>
+    <button id="chat-btn" aria-label="Chat with Mon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+    </button>
     <div id="chat-box">
       <div id="chat-header">
-        <div class="chat-avatar">🤖</div>
+        <div class="chat-avatar">M</div>
         <div class="chat-header-info">
           <strong>Mon</strong>
           <div class="chat-status">
@@ -157,10 +171,10 @@
       </div>
       <div id="chat-messages"></div>
       <div id="chat-menu">
-        <button class="chat-quick" data-msg="What's Carlos' tech stack?">🛠 Tech Stack</button>
-        <button class="chat-quick" data-msg="Tell me about Carlos' projects">📂 Projects</button>
-        <button class="chat-quick" data-msg="What services does Carlos offer?">💼 Services</button>
-        <button class="chat-quick" data-msg="How can I contact Carlos?">📬 Contact</button>
+        <button class="chat-quick" data-msg="What's Carlos' tech stack?">Tech stack</button>
+        <button class="chat-quick" data-msg="Tell me about Carlos' projects">Projects</button>
+        <button class="chat-quick" data-msg="What services does Carlos offer?">Services</button>
+        <button class="chat-quick" data-msg="How can I contact Carlos?">Contact</button>
       </div>
       <form id="chat-form">
         <input id="chat-input" type="text" placeholder="Ask Mon something..." autocomplete="off" maxlength="300" />
@@ -313,7 +327,7 @@
     welcomed = true;
     sessionStorage.setItem('chatWelcomed', '1');
     setTimeout(() => {
-      addMsg(`👋 Hi! I'm **Mon**, Carlos' AI sales assistant.\n\nI'm here to understand your data challenges and connect you with the right solution.\n\n🔧 **What I can help you with:**\n- Pipeline design & ETL/ELT architecture\n- Data warehouse setup (Snowflake, BigQuery, Databricks)\n- Multicloud infrastructure (AWS, Azure, GCP)\n- Data stack audits & consulting\n\n💬 **What's the biggest data challenge you're facing right now?**`, 'bot');
+      addMsg(`Hi! I'm **Mon**, Carlos' AI assistant.\n\nI'm here to understand your data challenges and connect you with the right solution.\n\n**What I can help with:**\n- Pipeline design & ETL/ELT architecture\n- Data warehouse setup (Snowflake, BigQuery, Databricks)\n- Multicloud infrastructure (AWS, Azure, GCP)\n- Data stack audits & consulting\n\nWhat's the biggest data challenge you're facing right now?`, 'bot');
     }, 300);
   }
 
