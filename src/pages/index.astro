@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { projects } from '../data/projects';
 
 const stack = ['Snowflake', 'Apache Spark', 'BigQuery', 'dbt', 'Airflow', 'Python', 'SQL', 'Supabase'];
 
@@ -10,13 +11,6 @@ const products = [
     tagline: 'The first carpuro.ai SaaS product.',
     desc: 'A focused tool that turns the data-engineering patterns below into a product teams can use without a data team. Launching soon.',
   },
-];
-
-const work = [
-  { tag: 'Pipelines', title: 'Multicloud data pipelines', desc: 'Ingestion-to-warehouse flows across cloud providers with orchestration, testing, and lineage.' },
-  { tag: 'Analytics', title: 'Crypto analytics pipeline', desc: 'Streaming market data into a modeled warehouse with dbt transformations and dashboards.' },
-  { tag: 'Research', title: 'AI automation risk — Jalisco', desc: 'A two-axis occupational-exposure model over Mexican labor microdata, built end to end.' },
-  { tag: 'BI', title: 'Inventory & risk dashboard', desc: 'Sales trends, risk matrices, and an executive decision layer over operational data.' },
 ];
 
 const services = [
@@ -116,21 +110,22 @@ const services = [
         <h2>Things I've shipped</h2>
         <p>Production systems and research projects across pipelines, analytics, and applied data science.</p>
       </div>
-      <ol class="work-list">
-        {work.map((w, i) => (
-          <li class="work-row">
+      <div class="work-list">
+        {projects.map((p, i) => (
+          <a class="work-row" href={`/work/${p.slug}`}>
             <span class="num">{String(i + 1).padStart(2, '0')}</span>
             <div class="work-main">
               <div class="work-titles">
-                <h3>{w.title}</h3>
-                <span class="rtag">{w.tag}</span>
+                <h3>{p.title}</h3>
+                <span class="rtag">{p.tag}</span>
               </div>
-              <p>{w.desc}</p>
+              <p>{p.summary}</p>
             </div>
             <span class="arrow">→</span>
-          </li>
+          </a>
         ))}
-      </ol>
+      </div>
+      <a href="/work" class="work-all">View all work <span class="arrow">→</span></a>
     </div>
   </section>
 
@@ -243,6 +238,7 @@ const services = [
     gap: var(--s-4) var(--s-6);
     padding: var(--s-6) var(--s-3);
     border-bottom: 1px solid var(--border);
+    color: var(--text);
     transition: background .18s ease, padding-left .18s ease;
   }
   .work-row:hover { background: var(--surface); padding-left: var(--s-6); }
@@ -253,6 +249,8 @@ const services = [
   .work-main p { font-size: 0.95rem; max-width: 60ch; }
   .work-row > .arrow { color: var(--text-subtle); font-size: 1.1rem; transition: transform .18s ease, color .18s ease; }
   .work-row:hover > .arrow { color: var(--accent); transform: translateX(5px); }
+  .work-all { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--s-8); font-weight: 600; color: var(--text); }
+  .work-all:hover { color: var(--accent); }
 
   .service { padding: var(--s-6) 0; border-top: 2px solid var(--text); }
   .service-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); display: block; margin-bottom: var(--s-3); }

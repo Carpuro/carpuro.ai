@@ -1,0 +1,76 @@
+---
+import Base from '../../layouts/Base.astro';
+import { projects } from '../../data/projects';
+---
+
+<Base title="Work — Carlos Pulido Rosas" description="Selected data engineering and applied data science projects: pipelines, multicloud architectures, BI dashboards, and research.">
+  <section class="section page-hero">
+    <div class="container">
+      <span class="eyebrow">Work</span>
+      <h1>Things I've <span class="hero-accent">shipped.</span></h1>
+      <p class="lead">Production systems and research projects across pipelines, analytics,
+        and applied data science — each with the problem, the approach, and the stack.</p>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="work-list">
+        {projects.map((p, i) => (
+          <a class="work-row" href={`/work/${p.slug}`}>
+            <span class="num">{String(i + 1).padStart(2, '0')}</span>
+            <div class="work-main">
+              <div class="work-titles">
+                <h3>{p.title}</h3>
+                <span class="rtag">{p.tag}</span>
+                <span class="yr">{p.year}</span>
+              </div>
+              <p>{p.summary}</p>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container cta-inner">
+      <h2>Have a project worth building?</h2>
+      <p>Tell me what you're working on — I'll tell you honestly whether I can help.</p>
+      <a href="/contact" class="btn btn-primary">Start a conversation<span class="arrow">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .page-hero h1 { margin: var(--s-4) 0 var(--s-6); }
+
+  .work-list { list-style: none; border-top: 1px solid var(--border); }
+  .work-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--s-4) var(--s-6);
+    padding: var(--s-6) var(--s-3);
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    transition: background .18s ease, padding-left .18s ease;
+  }
+  .work-row:hover { background: var(--surface); padding-left: var(--s-6); }
+  .work-row .num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-subtle); }
+  .work-titles { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; margin-bottom: 4px; }
+  .work-titles h3 { font-size: 1.3rem; }
+  .work-row .rtag { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+  .work-row .yr { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-subtle); }
+  .work-main p { font-size: 0.95rem; max-width: 60ch; color: var(--text-muted); }
+  .work-row > .arrow { color: var(--text-subtle); font-size: 1.1rem; transition: transform .18s ease, color .18s ease; }
+  .work-row:hover > .arrow { color: var(--accent); transform: translateX(5px); }
+
+  .cta-section { background: var(--text); color: #fff; padding: var(--s-24) 0; text-align: center; }
+  .cta-section h2 { color: #fff; }
+  .cta-inner { display: grid; justify-items: center; gap: var(--s-4); }
+  .cta-inner p { color: rgba(255,255,255,0.7); max-width: 44ch; }
+  .cta-inner .btn { margin-top: var(--s-4); }
+</style>
