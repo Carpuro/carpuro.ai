@@ -51,6 +51,10 @@ const services = [
           <a href="/contact" class="btn btn-primary" data-cal-link="carpuro/discovery-call" data-cal-config='{"layout":"month_view","theme":"light"}'>Book a 30-min call<span class="arrow">→</span></a>
           <a href="#work" class="btn btn-ghost">View selected work</a>
         </div>
+        <p class="pipeline-line reveal" style="animation-delay:.36s" aria-label="pipeline: extract, transform, load">
+          <span class="pl-label">pipeline&nbsp;›</span>
+          <span class="pl-text">extract&nbsp;→&nbsp;transform&nbsp;→&nbsp;load</span><span class="pl-cursor" aria-hidden="true"></span>
+        </p>
       </div>
     </div>
   </section>
@@ -207,6 +211,14 @@ const services = [
   .hero .lead { margin-bottom: var(--s-8); max-width: 52ch; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); }
 
+  /* Typed pipeline-stages line */
+  .pipeline-line { margin-top: var(--s-8); font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); display: inline-flex; align-items: baseline; gap: 0.5rem; white-space: nowrap; }
+  .pl-label { color: var(--text-subtle); }
+  .pl-text { color: var(--text); }
+  .pl-cursor { display: inline-block; width: 7px; height: 1.05em; background: var(--accent); transform: translateY(2px); animation: cursorBlink 1.05s step-end infinite; }
+  @keyframes cursorBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .pl-cursor { display: none; } }
+
   /* Stack strip */
   .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: var(--s-8) 0; }
   .strip-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: var(--s-4); }
@@ -302,4 +314,28 @@ const services = [
       panels.forEach((p) => p.classList.toggle('is-active', p.dataset.panel === idx));
     });
   });
+
+  // Hero pipeline line — type "extract → transform → load" stage by stage, loop.
+  // The full text is in the HTML for SEO / no-JS / reduced-motion; we only animate
+  // the visual reveal.
+  (() => {
+    const el = document.querySelector<HTMLElement>('.pl-text');
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const full = el.textContent ?? '';
+    let i = 0;
+    let dir = 1; // 1 = typing, -1 = deleting
+    el.textContent = '';
+    const step = () => {
+      el.textContent = full.slice(0, i);
+      if (dir > 0) {
+        if (i >= full.length) { dir = -1; setTimeout(step, 2400); return; }
+        i++; setTimeout(step, 55);
+      } else {
+        if (i <= 0) { dir = 1; setTimeout(step, 600); return; }
+        i--; setTimeout(step, 22);
+      }
+    };
+    step();
+  })();
 </script>
