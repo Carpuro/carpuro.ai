@@ -1,7 +1,5 @@
 // Mon Chat Widget — shared across all pages
 (function () {
-  const INACTIVITY_MS = 30 * 60 * 1000; // 30 minutes
-
   // ── Load Cal.com embed script ────────────────────────────────
   (function (C, A, L) {
     let p = function (a, ar) { a.q.push(ar); };
@@ -19,30 +17,34 @@
   const CAL_LINK = "carpuro/discovery-call";
 
   // ── Session helpers ──────────────────────────────────────────
+  // Perpetual conversation: the session id lives in localStorage so it survives
+  // reloads, tab close, and future visits on this browser/device. The DB
+  // (Supabase) is the source of truth for the messages themselves; we rehydrate
+  // from it on return. The conversation only resets when the visitor explicitly
+  // ends it (the ✕ button). Returning visitors continue the same thread.
+  const STORE = window.localStorage;
+
   function newSessionId() {
     const id = crypto.randomUUID();
-    sessionStorage.setItem('chatSessionId', id);
-    sessionStorage.setItem('chatHistory', '[]');
-    sessionStorage.setItem('chatWelcomed', '0');
-    sessionStorage.setItem('chatSessionStatus', 'active');
-    sessionStorage.setItem('chatLastActivity', Date.now().toString());
+    STORE.setItem('chatSessionId', id);
+    STORE.setItem('chatHistory', '[]');
+    STORE.setItem('chatWelcomed', '0');
+    STORE.setItem('chatSessionStatus', 'active');
+    STORE.setItem('chatLastActivity', Date.now().toString());
     return id;
   }
 
   function getSessionId() {
-    const status   = sessionStorage.getItem('chatSessionStatus');
-    const lastActivity = parseInt(sessionStorage.getItem('chatLastActivity') || '0');
-    const timedOut = Date.now() - lastActivity > INACTIVITY_MS;
-
-    // Start fresh if session was closed, abandoned, or timed out
-    if (!sessionStorage.getItem('chatSessionId') || status === 'closed' || status === 'abandoned' || timedOut) {
+    // Reuse the existing conversation unless the visitor explicitly closed it.
+    if (!STORE.getItem('chatSessionId') || STORE.getItem('chatSessionStatus') === 'closed') {
       return newSessionId();
     }
-    return sessionStorage.getItem('chatSessionId');
+    STORE.setItem('chatSessionStatus', 'active'); // re-open if it had been parked
+    return STORE.getItem('chatSessionId');
   }
 
   function touchActivity() {
-    sessionStorage.setItem('chatLastActivity', Date.now().toString());
+    STORE.setItem('chatLastActivity', Date.now().toString());
   }
 
   // ── Inject CSS ───────────────────────────────────────────────
@@ -187,14 +189,32 @@
   `);
 
   // ── State ────────────────────────────────────────────────────
-  // Restore session if still active, otherwise start fresh
+  // Resume the perpetual conversation (localStorage cache; DB is source of truth)
   let chatSessionId = getSessionId();
-  let chatHistory   = JSON.parse(sessionStorage.getItem('chatHistory') || '[]');
-  let welcomed      = sessionStorage.getItem('chatWelcomed') === '1';
-  let inactivityTimer = null;
+  let chatHistory   = JSON.parse(STORE.getItem('chatHistory') || '[]');
+  let welcomed      = STORE.getItem('chatWelcomed') === '1';
+  let rehydrated    = false;
 
   function saveHistory() {
-    sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    STORE.setItem('chatHistory', JSON.stringify(chatHistory));
+  }
+
+  // Pull the conversation back from the DB if the local cache was cleared but the
+  // session id survived (or to reconcile across tabs). DB is the source of truth.
+  async function rehydrateFromDb() {
+    if (rehydrated || chatHistory.length > 0) return;
+    rehydrated = true;
+    try {
+      const res = await fetch('/api/chat-history?sessionId=' + encodeURIComponent(chatSessionId));
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data.messages) && data.messages.length > 0) {
+        chatHistory = data.messages;
+        saveHistory();
+        welcomed = true;
+        STORE.setItem('chatWelcomed', '1');
+      }
+    } catch { /* non-blocking — fall back to a fresh welcome */ }
   }
 
   // ── DOM refs ─────────────────────────────────────────────────
@@ -209,8 +229,7 @@
 
   // ── Session lifecycle ────────────────────────────────────────
   async function closeSession(status = 'closed') {
-    sessionStorage.setItem('chatSessionStatus', status);
-    clearTimeout(inactivityTimer);
+    STORE.setItem('chatSessionStatus', status);
     try {
       // Use sendBeacon for reliability on page unload
       const payload = JSON.stringify({ sessionId: chatSessionId, status });
@@ -227,17 +246,11 @@
     } catch { /* non-blocking */ }
   }
 
+  // Perpetual model: we no longer auto-expire the conversation. Just record
+  // activity so the DB's updated_at reflects engagement. (Name kept so existing
+  // call sites don't need to change.)
   function resetInactivityTimer() {
-    clearTimeout(inactivityTimer);
     touchActivity();
-    inactivityTimer = setTimeout(async () => {
-      // Close old session silently, start new one — user never notices
-      await closeSession('abandoned');
-      chatSessionId = newSessionId();
-      chatHistory   = [];
-      welcomed      = false;
-      messages.innerHTML = '';
-    }, INACTIVITY_MS);
   }
 
   function startNewConversation() {
@@ -355,22 +368,23 @@
   function showWelcome() {
     if (welcomed) return;
     welcomed = true;
-    sessionStorage.setItem('chatWelcomed', '1');
+    STORE.setItem('chatWelcomed', '1');
     setTimeout(() => {
       addMsg(`Hi! I'm **Mon**, Carlos' AI assistant.\n\nI'm here to understand your data challenges and connect you with the right solution.\n\n**What I can help with:**\n- Pipeline design & ETL/ELT architecture\n- Data warehouse setup (Snowflake, BigQuery, Databricks)\n- Multicloud infrastructure (AWS, Azure, GCP)\n- Data stack audits & consulting\n\nWhat's the biggest data challenge you're facing right now?`, 'bot');
     }, 300);
   }
 
   // ── Events ───────────────────────────────────────────────────
-  chatBtn.addEventListener('click', () => {
+  chatBtn.addEventListener('click', async () => {
     chatBox.classList.toggle('open');
     if (chatBox.classList.contains('open')) {
       chatInput.disabled = false;
       chatSend.disabled  = false;
-      if (!welcomed) {
-        showWelcome();
-      } else if (messages.children.length === 0 && chatHistory.length > 0) {
-        restoreHistory();
+      if (messages.children.length === 0) {
+        // Recover the conversation from the DB if the local cache is empty.
+        if (chatHistory.length === 0) await rehydrateFromDb();
+        if (chatHistory.length > 0) restoreHistory();
+        else showWelcome();
       }
       chatInput.focus();
       resetInactivityTimer();
@@ -383,15 +397,15 @@
       await closeSession('closed');
     }
     chatBox.classList.remove('open');
-    // Start fresh next time
+    // Start a brand-new conversation next time.
     chatSessionId = newSessionId();
     chatHistory   = [];
     welcomed      = false;
+    rehydrated    = false;
     messages.innerHTML = '';
     chatInput.disabled = false;
     chatSend.disabled  = false;
     chatMenu.style.display = '';
-    clearTimeout(inactivityTimer);
   });
 
   chatMenu.querySelectorAll('.chat-quick').forEach(btn => {
@@ -442,13 +456,11 @@
     sendMessage(chatInput.value.trim());
   });
 
-  // Close session as abandoned when tab/browser closes
-  window.addEventListener('pagehide', () => {
-    if (chatHistory.length > 0 && sessionStorage.getItem('chatSessionStatus') === 'active') {
-      closeSession('abandoned');
-    }
-  });
+  // Perpetual model: we intentionally do NOT mark the session abandoned on
+  // pagehide. This is a multi-page site, so navigating between pages fires
+  // pagehide constantly; the conversation must survive those. The session only
+  // ends when the visitor clicks ✕ (closeSession('closed')).
 
-  // Start inactivity timer on load if there's an active session
-  if (chatHistory.length > 0) resetInactivityTimer();
+  // Record activity on load if there's an existing conversation.
+  if (chatHistory.length > 0) touchActivity();
 })();

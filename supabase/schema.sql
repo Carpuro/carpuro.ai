@@ -30,6 +30,11 @@ ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS utm_source    TEXT;
 ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS utm_medium    TEXT;
 ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS utm_campaign  TEXT;
 ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS user_agent    TEXT;
+-- Coarse geo from Vercel edge headers (x-vercel-ip-*). For lead analytics only;
+-- the raw IP is never stored (it's an unreliable + privacy-sensitive identifier).
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS country       TEXT;
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS region        TEXT;
+ALTER TABLE chat_sessions ADD COLUMN IF NOT EXISTS city          TEXT;
 
 DO $$ BEGIN
   ALTER TABLE chat_sessions ADD CONSTRAINT chat_sessions_stage_chk

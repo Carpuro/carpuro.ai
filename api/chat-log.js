@@ -50,6 +50,10 @@ export default async function handler(req, res) {
   const newStage = stage || detectStage(role, content, currentStage);
   const newCount = (session?.message_count || 0) + 1;
 
+  // Coarse geo from Vercel edge headers — analytics only, never the raw IP.
+  const h = req.headers;
+  const city = h['x-vercel-ip-city'];
+
   await supabase.from('chat_sessions').upsert(
     {
       session_id: sessionId,
@@ -58,6 +62,9 @@ export default async function handler(req, res) {
       lead_stage: newStage,
       message_count: newCount,
       lead_score: scoreSession(newStage, newCount),
+      country: h['x-vercel-ip-country'] || null,
+      region: h['x-vercel-ip-country-region'] || null,
+      city: city ? decodeURIComponent(city) : null,
     },
     { onConflict: 'session_id', ignoreDuplicates: false }
   );
