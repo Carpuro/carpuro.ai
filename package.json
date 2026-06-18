@@ -3,12 +3,22 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
+    "@astrojs/cloudflare": "^13.7.0",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.3",
     "@supabase/supabase-js": "^2.49.1",
     "astro": "^6.4.6"
   },
   "devDependencies": {
-    "playwright": "^1.60.0"
+    "playwright": "^1.60.0",
+    "wrangler": "^4.101.0"
+  },
+  "scripts": {
+    "generate-types": "wrangler types",
+    "deploy": "npx astro build && wrangler deploy",
+    "preview": "npx astro build && wrangler dev"
+  },
+  "overrides": {
+    "vite": "^7"
   }
 }

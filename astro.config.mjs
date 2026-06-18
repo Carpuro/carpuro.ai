@@ -2,6 +2,8 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // Static output: zero JS by default, ideal for a fast, SEO-friendly
 // portfolio + SaaS landing. Interactive pieces (chat) ship as islands.
 export default defineConfig({
@@ -9,4 +11,5 @@ export default defineConfig({
   output: 'static',
   build: { format: 'directory' },
   integrations: [sitemap()],
+  adapter: cloudflare(),
 });
