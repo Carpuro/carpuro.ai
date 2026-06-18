@@ -448,8 +448,19 @@
     btn.addEventListener('click', () => sendMessage(btn.dataset.msg));
   });
 
+  let sending = false;
+
+  function showChatFallback() {
+    addMsg("I couldn't reach the model for a moment. You can book a free call with Carlos using the button below, or reach him on the contact page — he'll get straight back to you.", 'bot');
+    addButtons([
+      { label: 'Book a free call', action: 'cal:discovery-call' },
+      { label: 'Contact Carlos', action: '/contact/' },
+    ]);
+  }
+
   async function sendMessage(msg) {
-    if (!msg.trim()) return;
+    if (!msg.trim() || sending) return; // guard against double-sends
+    sending = true;
     chatMenu.style.display = 'none';
     addMsg(msg, 'user');
     chatHistory.push({ role: 'user', content: msg });
@@ -468,22 +479,29 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg, history: chatHistory.slice(0, -1) }),
       });
-      const data = await res.json();
+      // The server may be behind a proxy that returns a non-JSON error page;
+      // parse defensively and always degrade gracefully rather than dead-end.
+      let data = {};
+      try { data = await res.json(); } catch { data = {}; }
       typing.remove();
       if (data.reply && data.reply.trim()) {
         addMsg(data.reply, 'bot');
-        chatHistory.push({ role: 'assistant', content: data.reply });
-        saveHistory();
-        logMessage('assistant', data.reply);
+        // Don't store the canned fallback in history (it shouldn't feed the model).
+        if (!data.fallback) {
+          chatHistory.push({ role: 'assistant', content: data.reply });
+          saveHistory();
+          logMessage('assistant', data.reply);
+        }
+        addButtons(data.buttons);
+      } else {
+        showChatFallback();
       }
-      addButtons(data.buttons);
     } catch {
       typing.remove();
-      addMsg('Something went wrong. Try again in a moment.', 'bot');
-      chatHistory.pop();
-      saveHistory();
+      showChatFallback();
     } finally {
       chatSend.disabled = false;
+      sending = false;
       chatInput.focus();
     }
   }

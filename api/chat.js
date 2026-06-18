@@ -1,5 +1,7 @@
 // Mon — sales assistant chat endpoint (Vercel serverless, Google Gemini).
-const MODEL = 'gemini-2.5-flash';
+// flash-lite has the highest free-tier limits; we add retry/backoff + a graceful
+// fallback so a rate-limit (429) never reaches the user as a hard error.
+const MODEL = 'gemini-2.5-flash-lite';
 
 const SYSTEM_PROMPT = `You are Mon, the AI assistant for carpuro.ai — the data engineering practice of Carlos Pulido Rosas, a data engineer based in Guadalajara, Mexico.
 
@@ -38,43 +40,73 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing message' });
   }
 
+  // Bound input to keep token use, cost, and abuse surface in check.
+  const userMessage = message.slice(0, 1000);
+  const recentHistory = Array.isArray(history) ? history.slice(-12) : [];
+
   // Gemini supports a native system instruction — no need to fake a first turn.
   const contents = [];
-  for (const turn of history) {
+  for (const turn of recentHistory) {
     if (!turn?.content) continue;
     contents.push({
       role: turn.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: String(turn.content) }],
+      parts: [{ text: String(turn.content).slice(0, 2000) }],
     });
   }
-  contents.push({ role: 'user', parts: [{ text: message }] });
+  contents.push({ role: 'user', parts: [{ text: userMessage }] });
 
-  let data;
-  try {
-    const apiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': process.env.GEMINI_API_KEY,
-        },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents,
-          generationConfig: { temperature: 0.7, maxOutputTokens: 800, topP: 0.95 },
-        }),
+  // Graceful fallback: when the model is unreachable or rate-limited, never hand
+  // the user a hard error — steer them to booking / contact instead. Returning
+  // 200 also keeps Cloudflare from rendering its own "error code: 502" page.
+  const FALLBACK_REPLY =
+    "I'm getting a lot of questions right now and couldn't reach the model for a moment. " +
+    "You can book a free 30-minute call with Carlos using the button below, or reach him on the contact page — he'll get straight back to you.";
+  const fallbackButtons = [
+    { label: 'Book a free call', action: 'cal:discovery-call' },
+    { label: 'Contact Carlos', action: '/contact/' },
+  ];
+  const gracefulFallback = () =>
+    res.status(200).json({ reply: FALLBACK_REPLY, buttons: fallbackButtons, fallback: true });
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const requestBody = JSON.stringify({
+    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents,
+    generationConfig: { temperature: 0.7, maxOutputTokens: 800, topP: 0.95 },
+  });
+
+  // Retry transient rate-limit (429) / overload (503) errors with backoff.
+  let data = null;
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const apiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': process.env.GEMINI_API_KEY,
+          },
+          body: requestBody,
+        }
+      );
+      if (apiRes.ok) { data = await apiRes.json(); break; }
+
+      if ((apiRes.status === 429 || apiRes.status === 503) && attempt < MAX_ATTEMPTS) {
+        await sleep(400 * attempt + Math.floor(Math.random() * 300));
+        continue;
       }
-    );
-    data = await apiRes.json();
-    if (!apiRes.ok) {
-      console.error('Gemini API error:', data?.error?.message);
-      return res.status(502).json({ error: data?.error?.message || 'Upstream API error' });
+      const errBody = await apiRes.json().catch(() => ({}));
+      console.error('Gemini API error:', apiRes.status, errBody?.error?.message);
+      return gracefulFallback();
+    } catch (err) {
+      console.error('Gemini fetch failed:', err.message);
+      if (attempt < MAX_ATTEMPTS) { await sleep(400 * attempt); continue; }
+      return gracefulFallback();
     }
-  } catch (err) {
-    console.error('Gemini fetch failed:', err.message);
-    return res.status(502).json({ error: 'Could not reach the model' });
   }
+  if (!data) return gracefulFallback();
 
   const raw = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
 
