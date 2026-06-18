@@ -88,6 +88,27 @@ environment variables configured in the Vercel project settings.
 
 ---
 
+## Chat & lead capture
+
+The "Mon" chat widget (`public/chat-widget.js`) is a sales assistant backed by three Vercel
+functions and a Supabase database:
+
+- `api/chat.js` — generates replies via Google **Gemini** (`gemini-2.5-flash`, free tier).
+  Needs `GEMINI_API_KEY`.
+- `api/chat-log.js` — logs every turn to `chat_messages`, advances the session through the
+  funnel (`browsing → interested → qualified → scheduled → contacted`) and scores it.
+- `api/session-close.js` — marks a session `closed` / `abandoned`.
+- `api/contact.js` — the contact form; creates a row in `leads`. If the visitor arrived from a
+  chat (Mon's "Book a free call" button forwards `?session=&notes=`), the lead is linked back to
+  its conversation and the session is moved to `contacted`.
+
+The schema lives in [`supabase/schema.sql`](supabase/schema.sql) — run it once in the Supabase
+SQL editor (it's idempotent). Tables: `chat_sessions` (intake), `chat_messages`, `leads`
+(unified CRM). RLS is on with no public policies, so PII is only reachable via the service-role
+key. Useful views: `chat_conversations`, `lead_pipeline`, `leads_with_conversation`.
+
+Required env vars in Vercel: `GEMINI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`.
+
 ## Contact
 
 - GitHub: [github.com/Carpuro](https://github.com/Carpuro)

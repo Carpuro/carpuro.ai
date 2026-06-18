@@ -1,77 +1,102 @@
-export default async function handler(req, res) {
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+// Mon — sales assistant chat endpoint (Vercel serverless, Google Gemini).
+const MODEL = 'gemini-2.5-flash';
 
-  const { message, history = [] } = req.body;
-  if (!message) return res.status(400).json({ error: 'Missing message' });
-
-  const SYSTEM_PROMPT = `You are Mon, the AI sales assistant for carpuro.ai — a data engineering consultancy. Always refer to the team as "the carpuro.ai team" or "we/our team". Never mention Carlos by name.
+const SYSTEM_PROMPT = `You are Mon, the AI assistant for carpuro.ai — the data engineering practice of Carlos Pulido Rosas, a data engineer based in Guadalajara, Mexico.
 
 CRITICAL RULES — follow these absolutely, no exceptions:
-1. LANGUAGE: Detect the language of each user message and reply in that EXACT language. If the user writes in English, reply in English. If in Spanish, reply in Spanish. Never switch languages.
-2. GREETING: You already introduced yourself. NEVER say "Hola, soy Mon" or "Hi, I'm Mon" again. Jump straight into helping.
-3. SALES APPROACH: Follow this sequence:
-   a) Ask 1-2 qualifying questions to understand their problem deeply.
-   b) After 2-3 exchanges, mention the relevant service our team offers.
-   c) Always end every reply with a natural offer to book a free 30-min discovery call. Example: "Would it help to jump on a quick call with our team?" or "We offer a free 30-min session to assess this — want to book one right now?"
-4. BOOKING: When the user shows interest in a call, tell them they can book it directly here in the chat using the button below — no need to go anywhere else.
-5. CALL TO ACTION: Every reply must include either a question OR a call invitation — alternate naturally.
-6. SCOPE: Only discuss data engineering, carpuro.ai services, and booking a discovery call. Politely decline unrelated topics.
+1. LANGUAGE: Detect the language of each user message and reply in that EXACT language. If the user writes in English, reply in English. If in Spanish, reply in Spanish. Never switch languages mid-conversation.
+2. GREETING: You already introduced yourself at the start. NEVER say "Hola, soy Mon" or "Hi, I'm Mon" again. Jump straight into helping.
+3. QUALIFY FIRST: Ask one focused question at a time to understand the visitor's problem — what they're building, their current stack, team size, and timeline. Don't interrogate; make it feel like a conversation.
+4. RECOMMEND: After 2-3 exchanges, connect their problem to the relevant service.
+5. CALL TO ACTION: Every reply must include EITHER a qualifying question OR a natural invitation to book a free 30-minute discovery call with Carlos — alternate naturally, never both at once.
+6. BOOKING: When the visitor shows interest in a call, tell them they can book it right here using the button below.
+7. SCOPE: Only discuss data engineering, Carlos' services, and booking a call. Politely decline unrelated topics in one sentence and steer back.
+8. STYLE: Warm, concise, expert. Short paragraphs. No emojis in the prose.
 
-carpuro.ai services:
+Carlos' services:
 - Data Pipeline Engineering (ETL/ELT, Apache Spark, Airflow, dbt, Kafka)
 - Cloud Data Warehousing (Snowflake, BigQuery, Databricks, Redshift)
 - Multicloud Architecture (AWS, Azure, GCP)
 - Analytics Engineering (dashboards, dbt models, Looker, Power BI)
 
 BUTTONS RULE: At the end of EVERY reply, add buttons on a NEW LINE in this exact format:
-BUTTONS:[{"label":"📅 Book a Free Call","action":"cal:discovery-call"},{"label":"View Services","action":"/services/"}]
+BUTTONS:[{"label":"Book a free call","action":"cal:discovery-call"},{"label":"View services","action":"/services/"}]
+Always include the "Book a free call" button. You may add one more relevant button. NEVER start your reply with BUTTONS.`;
 
-Always include the Book a Free Call button. You may add 1 additional button if relevant. NEVER start your reply with BUTTONS.`;
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const contents = [
-    { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
-    { role: 'model', parts: [{ text: 'Understood. I am Mon, ready to help.' }] },
-  ];
+  if (!process.env.GEMINI_API_KEY) {
+    console.error('GEMINI_API_KEY is not set');
+    return res.status(500).json({ error: 'Chat is not configured' });
+  }
 
+  const { message, history = [] } = req.body || {};
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ error: 'Missing message' });
+  }
+
+  // Gemini supports a native system instruction — no need to fake a first turn.
+  const contents = [];
   for (const turn of history) {
+    if (!turn?.content) continue;
     contents.push({
       role: turn.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: turn.content }],
+      parts: [{ text: String(turn.content) }],
     });
   }
   contents.push({ role: 'user', parts: [{ text: message }] });
 
-  const apiRes = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemma-3-4b-it:generateContent?key=${process.env.GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents }),
+  let data;
+  try {
+    const apiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': process.env.GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: { temperature: 0.7, maxOutputTokens: 800, topP: 0.95 },
+        }),
+      }
+    );
+    data = await apiRes.json();
+    if (!apiRes.ok) {
+      console.error('Gemini API error:', data?.error?.message);
+      return res.status(502).json({ error: data?.error?.message || 'Upstream API error' });
     }
-  );
-
-  const data = await apiRes.json();
-
-  if (!apiRes.ok) {
-    return res.status(500).json({ error: data.error?.message || 'API error' });
+  } catch (err) {
+    console.error('Gemini fetch failed:', err.message);
+    return res.status(502).json({ error: 'Could not reach the model' });
   }
 
-  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const raw = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
 
+  // Split the model's reply from the trailing BUTTONS: directive.
   let reply = raw;
   let buttons = [];
   const btnIdx = raw.indexOf('BUTTONS:');
   if (btnIdx !== -1) {
     reply = raw.slice(0, btnIdx).trim();
-    const btnStr = raw.slice(btnIdx + 8).trim();
+    const btnStr = raw.slice(btnIdx + 'BUTTONS:'.length).trim();
     try {
       buttons = JSON.parse(btnStr);
     } catch {
       const match = btnStr.match(/\[.*\]/s);
-      if (match) { try { buttons = JSON.parse(match[0]); } catch {} }
+      if (match) { try { buttons = JSON.parse(match[0]); } catch { /* ignore */ } }
     }
   }
+  if (!Array.isArray(buttons)) buttons = [];
 
-  return res.status(200).json({ reply, buttons });
+  // Always guarantee the booking button even if the model forgot it.
+  if (!buttons.some((b) => b?.action === 'cal:discovery-call')) {
+    buttons.unshift({ label: 'Book a free call', action: 'cal:discovery-call' });
+  }
+
+  return res.status(200).json({ reply: reply || raw, buttons });
 }

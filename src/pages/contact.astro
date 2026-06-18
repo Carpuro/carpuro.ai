@@ -75,6 +75,19 @@ const socials = [
   const btn = document.getElementById('submitBtn') as HTMLButtonElement | null;
   const note = document.getElementById('formNote') as HTMLParagraphElement | null;
 
+  // When Mon's "Book a free call" button sends a visitor here, it appends
+  // ?session=<id>&notes=<conversation summary>. Carry both into the lead.
+  const urlParams = new URLSearchParams(location.search);
+  const chatSession = urlParams.get('session');
+  const chatNotes = urlParams.get('notes');
+  if (chatNotes) {
+    const msg = document.getElementById('message') as HTMLTextAreaElement | null;
+    const topicSel = document.getElementById('topic') as HTMLSelectElement | null;
+    if (msg && !msg.value) msg.value = `Following up on my chat with Mon:\n${chatNotes}`;
+    if (topicSel) topicSel.value = 'project';
+  }
+  if (chatSession || chatNotes) history.replaceState({}, '', location.pathname);
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!btn) return;
@@ -86,6 +99,8 @@ const socials = [
       email: (document.getElementById('email') as HTMLInputElement).value,
       topic: (document.getElementById('topic') as HTMLSelectElement).value,
       message: (document.getElementById('message') as HTMLTextAreaElement).value,
+      sessionId: chatSession || undefined,
+      notes: chatNotes || undefined,
     };
 
     try {

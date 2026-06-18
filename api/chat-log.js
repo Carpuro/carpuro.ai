@@ -5,70 +5,69 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Detect lead stage from conversation content
+// Move a session forward through the funnel based on what was said.
+// Stages only advance, never regress.
+const STAGE_RANK = { browsing: 0, interested: 1, qualified: 2, scheduled: 3, contacted: 4 };
+
 function detectStage(role, content, currentStage) {
-  const text = content.toLowerCase();
+  const text = (content || '').toLowerCase();
+  const cur = currentStage || 'browsing';
 
-  // Already at highest stage — don't downgrade
-  if (currentStage === 'scheduled') return 'scheduled';
-  if (currentStage === 'contacted') return 'contacted';
+  if (role !== 'user') return cur;
 
-  // User mentioned scheduling or wants a call
-  if (role === 'user' && (
-    text.includes('schedule') || text.includes('book') || text.includes('call') ||
-    text.includes('agendar') || text.includes('llamada') || text.includes('reunión')
-  )) return 'qualified';
+  let candidate = cur;
+  if (/\b(schedule|book|call|agendar|llamada|reuni[oó]n|cita)\b/.test(text)) candidate = 'qualified';
+  else if (/\b(pipeline|etl|elt|warehouse|snowflake|bigquery|spark|airflow|dbt|kafka|databricks|data|datos|empresa|company|team|equipo|project|proyecto)\b/.test(text)) candidate = 'interested';
 
-  // Bot asked qualifying questions and user responded with specifics
-  if (role === 'user' && (
-    text.includes('pipeline') || text.includes('etl') || text.includes('warehouse') ||
-    text.includes('snowflake') || text.includes('bigquery') || text.includes('spark') ||
-    text.includes('airflow') || text.includes('dbt') || text.includes('data') ||
-    text.includes('datos') || text.includes('empresa') || text.includes('company')
-  )) return 'interested';
+  // Never downgrade.
+  return STAGE_RANK[candidate] > STAGE_RANK[cur] ? candidate : cur;
+}
 
-  // First user message — browsing
-  if (role === 'user' && currentStage === 'browsing') return 'browsing';
-
-  return currentStage || 'browsing';
+// Lightweight lead score (0-100) from funnel stage + engagement.
+function scoreSession(stage, messageCount) {
+  const base = { browsing: 5, interested: 35, qualified: 65, scheduled: 85, contacted: 90 }[stage] ?? 5;
+  const engagement = Math.min((messageCount || 0) * 2, 15);
+  return Math.min(base + engagement, 100);
 }
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { sessionId, role, content, page, stage } = req.body;
-
+  const { sessionId, role, content, page, stage } = req.body || {};
   if (!sessionId || !role || !content) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Get current session to check existing stage
+  // Current session state (for stage progression + message count).
   const { data: session } = await supabase
     .from('chat_sessions')
-    .select('lead_stage')
+    .select('lead_stage, message_count')
     .eq('session_id', sessionId)
     .single();
 
   const currentStage = session?.lead_stage || 'browsing';
   const newStage = stage || detectStage(role, content, currentStage);
+  const newCount = (session?.message_count || 0) + 1;
 
-  // Upsert session with updated stage
   await supabase.from('chat_sessions').upsert(
     {
       session_id: sessionId,
       page: page || '/',
       updated_at: new Date().toISOString(),
       lead_stage: newStage,
+      message_count: newCount,
+      lead_score: scoreSession(newStage, newCount),
     },
     { onConflict: 'session_id', ignoreDuplicates: false }
   );
 
-  // Insert message
   const { error } = await supabase.from('chat_messages').insert({
     session_id: sessionId,
     role,
     content,
+    page: page || null,
+    stage: newStage,
   });
 
   if (error) {
@@ -76,5 +75,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to save message' });
   }
 
-  return res.status(200).json({ ok: true });
+  return res.status(200).json({ ok: true, stage: newStage });
 }
