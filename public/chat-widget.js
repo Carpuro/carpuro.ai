@@ -31,6 +31,7 @@
     STORE.setItem('chatWelcomed', '0');
     STORE.setItem('chatSessionStatus', 'active');
     STORE.setItem('chatLastActivity', Date.now().toString());
+    STORE.removeItem('chatLeadEmail'); // fresh conversation can capture a new lead
     return id;
   }
 
@@ -276,6 +277,25 @@
     } catch { /* non-blocking */ }
   }
 
+  // When the visitor hands over an email mid-chat, capture it as a chat-sourced
+  // lead so a chatter who never books still becomes a follow-up-able lead.
+  const EMAIL_RE = /[^\s@]+@[^\s@]+\.[^\s@]{2,}/;
+  function maybeCaptureLead(text) {
+    const m = text.match(EMAIL_RE);
+    if (!m) return;
+    const email = m[0].replace(/[.,;:]+$/, '');
+    if (STORE.getItem('chatLeadEmail') === email) return; // already sent this one
+    STORE.setItem('chatLeadEmail', email);
+    let name = null;
+    const nm = text.match(/\b(?:i'?m|i am|this is|my name is|soy|me llamo)\s+([A-Za-zÁ-úÀ-ÿ]+(?:\s+[A-Za-zÁ-úÀ-ÿ]+)?)/i);
+    if (nm) name = nm[1];
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: chatSessionId, email, name, notes: bookingNotes() }),
+    }).catch(() => { /* non-blocking */ });
+  }
+
   function addMsg(text, role) {
     const el = document.createElement('div');
     el.className = `chat-msg ${role}`;
@@ -370,26 +390,42 @@
     welcomed = true;
     STORE.setItem('chatWelcomed', '1');
     setTimeout(() => {
-      addMsg(`Hi! I'm **Mon**, Carlos' AI assistant.\n\nI'm here to understand your data challenges and connect you with the right solution.\n\n**What I can help with:**\n- Pipeline design & ETL/ELT architecture\n- Data warehouse setup (Snowflake, BigQuery, Databricks)\n- Multicloud infrastructure (AWS, Azure, GCP)\n- Data stack audits & consulting\n\nWhat's the biggest data challenge you're facing right now?`, 'bot');
+      addMsg(`Hi, I'm **Mon** — Carlos' AI assistant.\n\nCarlos is a data engineer. I'm here to understand your data challenge and point you to the right fix — and if it's a good fit, connect you with him directly.\n\n**Where Carlos helps:**\n- Pipelines & ETL/ELT architecture\n- Data warehouses (Snowflake, BigQuery, Databricks)\n- Multicloud (AWS, Azure, GCP)\n- Data stack audits & consulting\n\nWhat's the biggest data challenge you're working on right now?`, 'bot');
     }, 300);
   }
 
-  // ── Events ───────────────────────────────────────────────────
-  chatBtn.addEventListener('click', async () => {
-    chatBox.classList.toggle('open');
-    if (chatBox.classList.contains('open')) {
-      chatInput.disabled = false;
-      chatSend.disabled  = false;
-      if (messages.children.length === 0) {
-        // Recover the conversation from the DB if the local cache is empty.
-        if (chatHistory.length === 0) await rehydrateFromDb();
-        if (chatHistory.length > 0) restoreHistory();
-        else showWelcome();
-      }
-      chatInput.focus();
-      resetInactivityTimer();
+  // ── Open / close ─────────────────────────────────────────────
+  async function openChat(focus = true) {
+    if (chatBox.classList.contains('open')) return;
+    chatBox.classList.add('open');
+    chatInput.disabled = false;
+    chatSend.disabled  = false;
+    if (messages.children.length === 0) {
+      // Recover the conversation from the DB if the local cache is empty.
+      if (chatHistory.length === 0) await rehydrateFromDb();
+      if (chatHistory.length > 0) restoreHistory();
+      else showWelcome();
     }
+    if (focus) chatInput.focus();
+    touchActivity();
+  }
+
+  // ── Events ───────────────────────────────────────────────────
+  chatBtn.addEventListener('click', () => {
+    if (chatBox.classList.contains('open')) chatBox.classList.remove('open');
+    else openChat();
   });
+
+  // Proactively open the chat ONCE per visitor (first landing) so it's front and
+  // centre. The flag lives in localStorage, so we never nag on later pages or
+  // return visits, and an explicit dismissal (✕) is respected.
+  function maybeAutoOpen() {
+    if (STORE.getItem('chatAutoOpened') === '1') return;
+    if (STORE.getItem('chatSessionStatus') === 'closed') return;
+    STORE.setItem('chatAutoOpened', '1');
+    setTimeout(() => openChat(false), 2000);
+  }
+  maybeAutoOpen();
 
   // ✕ button — end session explicitly
   chatCloseBtn.addEventListener('click', async () => {
@@ -419,6 +455,7 @@
     chatHistory.push({ role: 'user', content: msg });
     saveHistory();
     logMessage('user', msg);
+    maybeCaptureLead(msg);
     resetInactivityTimer();
     chatInput.value = '';
     chatSend.disabled = true;
