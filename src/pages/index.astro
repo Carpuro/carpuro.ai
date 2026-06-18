@@ -2,45 +2,59 @@
 import Base from '../layouts/Base.astro';
 import { projects } from '../data/projects';
 
-const stack = ['Snowflake', 'Apache Spark', 'BigQuery', 'dbt', 'Airflow', 'Python', 'SQL', 'Supabase'];
-
-const products = [
-  {
-    name: 'In development',
-    status: 'Building',
-    tagline: 'The first carpuro.ai SaaS product.',
-    desc: 'A focused tool that turns the data-engineering patterns below into a product teams can use without a data team. Launching soon.',
-  },
+const stack = [
+  'Snowflake', 'BigQuery', 'Databricks', 'Redshift', 'dbt', 'Airflow',
+  'Apache Spark', 'Kafka', 'AWS', 'Azure', 'GCP', 'Python',
 ];
 
 const services = [
-  { title: 'Data pipelines', desc: 'Reliable ingestion, transformation, and orchestration — built to be observable and tested.' },
-  { title: 'Cloud architecture', desc: 'Warehouse and lakehouse design on Snowflake, BigQuery, and Spark that scales with cost in mind.' },
-  { title: 'Analytics & dbt', desc: 'Modeled, documented data your team can trust, from raw sources to decision-ready marts.' },
+  {
+    title: 'Data pipeline engineering',
+    desc: 'Reliable ETL/ELT that recovers from failure on its own and tells you before a stakeholder finds out.',
+    tools: 'Spark · Airflow · dbt · Kafka',
+  },
+  {
+    title: 'Cloud data warehousing',
+    desc: 'Warehouses modeled for the questions you actually ask, tuned so the bill matches the value.',
+    tools: 'Snowflake · BigQuery · Databricks · Redshift',
+  },
+  {
+    title: 'Multicloud architecture',
+    desc: 'Systems that span providers without becoming a maze — portable, observable, documented.',
+    tools: 'AWS · Azure · GCP',
+  },
+  {
+    title: 'Analytics engineering',
+    desc: 'A trustworthy semantic layer so every dashboard answers from the same numbers.',
+    tools: 'dbt · Looker · Power BI',
+  },
 ];
 ---
 
-<Base>
+<Base
+  title="Carlos Pulido Rosas — Data & Analytics Architect"
+  description="Data & analytics architect in Guadalajara, Mexico. Production data pipelines, multicloud warehouses, and the systems teams rely on."
+>
   <!-- HERO -->
   <section class="hero">
     <div class="container hero-grid">
       <div class="hero-copy">
-        <span class="eyebrow reveal" style="animation-delay:.05s">Data engineer · Guadalajara, MX</span>
+        <span class="eyebrow reveal" style="animation-delay:.05s">Data &amp; Analytics Architect · Guadalajara, MX</span>
         <h1 class="reveal" style="animation-delay:.12s">
           Data infrastructure<br />that <span class="hero-accent">earns its keep.</span>
         </h1>
         <p class="lead reveal" style="animation-delay:.2s">
-          Production pipelines, multicloud warehouses, and the SaaS tools built on top of
+          Production pipelines, multicloud warehouses, and the analytics layers built on top of
           them — data systems teams actually rely on.
         </p>
         <div class="hero-cta reveal" style="animation-delay:.28s">
-          <a href="#products" class="btn btn-primary">See what I'm building<span class="arrow">→</span></a>
+          <a href="/contact" class="btn btn-primary">Book a 30-min call<span class="arrow">→</span></a>
           <a href="#work" class="btn btn-ghost">View selected work</a>
         </div>
         <p class="avail reveal" style="animation-delay:.36s"><i></i> Available for new projects · Q3 2026</p>
       </div>
 
-      <!-- Product-style visual: a live pipeline run (HTML/CSS, no stock art) -->
+      <!-- Decorative: an illustrative pipeline run (HTML/CSS, not a real client) -->
       <aside class="hero-visual reveal" style="animation-delay:.36s" aria-hidden="true">
         <div class="pcard">
           <div class="pcard-head">
@@ -65,66 +79,78 @@ const services = [
     </div>
   </section>
 
-  <!-- TECH STRIP -->
+  <!-- STACK STRIP -->
   <section class="strip">
-    <div class="container strip-inner">
-      <span class="strip-label">Tools of the trade</span>
+    <div class="container">
+      <div class="strip-label">Working in</div>
       <ul class="strip-list">
         {stack.map((t) => <li>{t}</li>)}
       </ul>
     </div>
   </section>
 
-  <!-- PRODUCTS / SAAS -->
-  <section id="products" class="section">
-    <div class="container">
-      <div class="sec-head">
-        <div class="sec-label"><span class="sec-num">01</span><span>Products</span></div>
-        <h2>SaaS, built on real data engineering</h2>
-        <p>The portfolio below is the foundation. These are the products I'm building on top of it — each one solving a problem I've already solved by hand.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-body">
-          <span class="badge">Building</span>
-          <h3>The first carpuro.ai product</h3>
-          <p>A focused tool that turns the data-engineering patterns below into something teams
-            can use without a data team of their own. Launching soon.</p>
-          <a href="/contact" class="feature-link">Get notified at launch <span class="arrow">→</span></a>
-        </div>
-        <dl class="feature-meta">
-          <div><dt>Status</dt><dd>In development</dd></div>
-          <div><dt>Built on</dt><dd>Snowflake · dbt · Supabase</dd></div>
-          <div><dt>For</dt><dd>Teams without a data team</dd></div>
-        </dl>
-      </div>
-      <p class="roadmap">More on the roadmap. Have a data problem worth productizing?
-        <a href="/contact">Let's talk <span class="arrow">→</span></a></p>
-    </div>
-  </section>
-
-  <!-- WORK -->
+  <!-- SELECTED WORK (tabbed) -->
   <section id="work" class="section section--alt">
     <div class="container">
-      <div class="sec-head">
-        <div class="sec-label"><span class="sec-num">02</span><span>Selected work</span></div>
-        <h2>Things I've shipped</h2>
-        <p>Production systems and research projects across pipelines, analytics, and applied data science.</p>
+      <div class="work-head">
+        <h2>Selected work</h2>
+        <span class="work-count">{projects.length} case studies</span>
       </div>
-      <div class="work-list">
-        {projects.map((p, i) => (
-          <a class="work-row" href={`/work/${p.slug}`}>
-            <span class="num">{String(i + 1).padStart(2, '0')}</span>
-            <div class="work-main">
-              <div class="work-titles">
-                <h3>{p.title}</h3>
-                <span class="rtag">{p.tag}</span>
+
+      <div class="cases">
+        <!-- tab list -->
+        <div class="case-list" role="tablist" aria-label="Case studies">
+          {projects.map((p, i) => (
+            <button
+              class={`case-tab${i === 0 ? ' is-active' : ''}`}
+              role="tab"
+              aria-selected={i === 0 ? 'true' : 'false'}
+              data-case={i}
+            >
+              <span class="case-idx">{String(i + 1).padStart(2, '0')} · {p.tag}</span>
+              <span class="case-tab-title">{p.title}</span>
+            </button>
+          ))}
+        </div>
+
+        <!-- detail panels -->
+        <div class="case-detail">
+          {projects.map((p, i) => (
+            <div class={`case-panel${i === 0 ? ' is-active' : ''}`} role="tabpanel" data-panel={i}>
+              <div class="case-tag">{p.tag} · {p.year}</div>
+              <h3 class="case-title">{p.title}</h3>
+
+              <div class="case-cols">
+                <div>
+                  <div class="case-k">Problem</div>
+                  <p>{p.problem}</p>
+                </div>
+                <div>
+                  <div class="case-k">Approach</div>
+                  <p>{p.approach}</p>
+                </div>
               </div>
-              <p>{p.summary}</p>
+
+              <div class="case-arch">
+                <div class="case-k">Stack</div>
+                <div class="case-chips">
+                  {p.stack.map((t) => <span class="case-chip">{t}</span>)}
+                </div>
+              </div>
+
+              <div class="case-foot">
+                <ul class="case-highlights">
+                  {p.highlights.map((h) => <li>{h}</li>)}
+                </ul>
+                {p.links[0] && (
+                  <a class="case-link" href={p.links[0].href}>{p.links[0].label} <span class="arrow">→</span></a>
+                )}
+              </div>
             </div>
-            <span class="arrow">→</span>
-          </a>
-        ))}
+          ))}
+        </div>
       </div>
+
       <a href="/work" class="work-all">View all work <span class="arrow">→</span></a>
     </div>
   </section>
@@ -132,28 +158,69 @@ const services = [
   <!-- SERVICES -->
   <section id="services" class="section">
     <div class="container">
-      <div class="sec-head">
-        <div class="sec-label"><span class="sec-num">03</span><span>Services</span></div>
-        <h2>How I can help</h2>
-      </div>
-      <div class="grid grid-3">
+      <h2 class="services-h">How I can help</h2>
+      <div class="services-grid">
         {services.map((s, i) => (
-          <article class="service">
-            <span class="service-num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="service-cell">
+            <div class="service-idx">{String(i + 1).padStart(2, '0')}</div>
             <h3>{s.title}</h3>
             <p>{s.desc}</p>
-          </article>
+            <div class="service-tools">{s.tools}</div>
+          </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="container cta-inner">
-      <h2>Let's build something that lasts.</h2>
-      <p>Whether it's a pipeline, a warehouse, or a product — I'd like to hear about it.</p>
-      <a href="/contact" class="btn btn-primary">Get in touch<span class="arrow">→</span></a>
+  <!-- ETHOS -->
+  <section class="section ethos-section">
+    <div class="container">
+      <div class="ethos">
+        <div class="ethos-label">How I think</div>
+        <blockquote>
+          Most data problems aren't model problems. They're plumbing problems — and plumbing
+          is what I do.
+        </blockquote>
+        <div class="ethos-by">Carlos Pulido Rosas · Data &amp; Analytics Architect</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section about-section">
+    <div class="container about-grid">
+      <div class="about-portrait" aria-hidden="true">
+        <span>portrait.jpg</span>
+      </div>
+      <div>
+        <h2>A solo practice,<br />not an agency.</h2>
+        <p>
+          You work with me directly — the person who designs the architecture is the person who
+          writes the dbt models and gets paged when something breaks. No account managers, no
+          handoff to juniors.
+        </p>
+        <p>
+          Based in Guadalajara, working with teams across North America. I take on a small number
+          of engagements at a time so each one gets real attention.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section contact-section">
+    <div class="container contact-grid">
+      <div>
+        <h2>Let's see if<br />I can help.</h2>
+        <p>
+          A 30-minute call, no slides. Tell me what's breaking or what you're trying to build,
+          and I'll tell you straight whether I'm the right fit.
+        </p>
+      </div>
+      <div class="contact-actions">
+        <a href="/contact" class="btn btn-primary contact-btn">Book a 30-min call <span class="arrow">→</span></a>
+        <a href="mailto:carlos@carpuro.ai" class="contact-email">carlos@carpuro.ai</a>
+      </div>
     </div>
   </section>
 </Base>
@@ -164,101 +231,121 @@ const services = [
   .hero h1 { max-width: 14ch; margin-bottom: var(--s-6); }
   .hero .lead { margin-bottom: var(--s-8); }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); }
-  @media (min-width: 980px) {
-    .hero-grid { grid-template-columns: 1.05fr 0.95fr; }
-  }
+  @media (min-width: 980px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr; } }
 
-  /* Product-style visual */
+  /* Decorative pipeline card */
   .hero-visual { perspective: 1200px; }
-  .pcard {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    box-shadow: var(--shadow-lg);
-    padding: var(--s-6);
-    display: grid;
-    gap: var(--s-6);
-  }
+  .pcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); padding: var(--s-6); display: grid; gap: var(--s-6); }
   .pcard-head { display: flex; align-items: center; justify-content: space-between; }
   .pcard-title { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text); }
   .pcard-live { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-hover); }
   .pcard-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent-ring); animation: ping 2s infinite; }
   @keyframes ping { 0% { box-shadow: 0 0 0 0 var(--accent-ring); } 70% { box-shadow: 0 0 0 6px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
-
   .pcard-stages { list-style: none; display: grid; gap: var(--s-3); }
   .pcard-stages li { display: flex; align-items: center; gap: var(--s-3); font-size: 0.92rem; font-weight: 500; color: var(--text); }
   .pcard-stages .src { margin-left: auto; font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-subtle); font-weight: 400; }
   .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
   .dot.ok { background: var(--text); }
   .dot.run { background: var(--accent); animation: ping 1.6s infinite; }
-
   .pcard-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--s-4); padding: var(--s-4) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
   .pcard-metrics b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
   .pcard-metrics span { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; }
-
   .pcard-chart { display: flex; align-items: flex-end; gap: 6px; height: 64px; }
   .pcard-chart span { flex: 1; background: var(--accent-soft); border-top: 2px solid var(--accent); border-radius: 3px 3px 0 0; }
 
-  .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
-  .strip-inner { display: flex; align-items: center; gap: var(--s-8); padding: var(--s-6) var(--s-6); flex-wrap: wrap; }
-  .strip-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-subtle); white-space: nowrap; }
-  .strip-list { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-6); }
-  .strip-list li { font-size: 0.92rem; font-weight: 500; color: var(--text-muted); }
+  /* Stack strip */
+  .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: var(--s-8) 0; }
+  .strip-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: var(--s-4); }
+  .strip-list { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
+  .strip-list li { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text); border: 1px solid var(--border-strong); padding: 6px 12px; border-radius: var(--r-sm); background: var(--surface); }
 
-  /* PRODUCTS — single featured callout with an accent spine (not cards) */
-  .feature {
-    position: relative;
-    display: grid;
-    gap: var(--s-8);
-    padding: var(--s-12);
-    padding-left: calc(var(--s-12) + 4px);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    background: var(--surface);
-    overflow: hidden;
-  }
-  .feature::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
-  .feature-body h3 { font-size: 1.85rem; margin: var(--s-3) 0 var(--s-3); }
-  .feature-body p { max-width: 48ch; }
-  .feature-link { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--s-6); font-weight: 600; }
-  .feature-meta { display: grid; gap: var(--s-4); align-content: start; }
-  .feature-meta div { display: grid; gap: 2px; padding-bottom: var(--s-3); border-bottom: 1px solid var(--border); }
-  .feature-meta dt { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); }
-  .feature-meta dd { font-size: 0.95rem; font-weight: 500; color: var(--text); }
-  @media (min-width: 820px) { .feature { grid-template-columns: 1.5fr 1fr; align-items: center; } }
-  .roadmap { margin-top: var(--s-6); font-size: 0.98rem; color: var(--text-subtle); }
-  .roadmap a { font-weight: 600; }
+  /* Selected work — tabbed */
+  .work-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s-8); gap: var(--s-4); }
+  .work-head h2 { margin: 0; }
+  .work-count { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-subtle); white-space: nowrap; }
+  .cases { display: grid; grid-template-columns: 1fr; border: 1px solid var(--border-strong); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+  @media (min-width: 880px) { .cases { grid-template-columns: 320px 1fr; } }
+  .case-list { display: flex; flex-direction: column; border-bottom: 1px solid var(--border); background: var(--bg); }
+  @media (min-width: 880px) { .case-list { border-bottom: none; border-right: 1px solid var(--border); } }
+  .case-tab { display: block; width: 100%; text-align: left; border: none; cursor: pointer; padding: var(--s-4) var(--s-6); background: transparent; border-bottom: 1px solid var(--border); transition: background .15s ease, box-shadow .15s ease; }
+  .case-tab:last-child { border-bottom: none; }
+  .case-tab:hover { background: var(--surface); }
+  .case-tab.is-active { background: var(--surface); box-shadow: inset 3px 0 0 var(--accent); }
+  .case-idx { display: block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-subtle); margin-bottom: 6px; }
+  .case-tab.is-active .case-idx { color: var(--accent); }
+  .case-tab-title { display: block; font-size: 1rem; font-weight: 600; line-height: 1.32; color: var(--text); }
 
-  /* WORK — editorial indexed list (not cards) */
-  .work-list { list-style: none; border-top: 1px solid var(--border); }
-  .work-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: var(--s-4) var(--s-6);
-    padding: var(--s-6) var(--s-3);
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    transition: background .18s ease, padding-left .18s ease;
-  }
-  .work-row:hover { background: var(--surface); padding-left: var(--s-6); }
-  .work-row .num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-subtle); }
-  .work-titles { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; margin-bottom: 4px; }
-  .work-titles h3 { font-size: 1.3rem; }
-  .work-row .rtag { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
-  .work-main p { font-size: 0.95rem; max-width: 60ch; }
-  .work-row > .arrow { color: var(--text-subtle); font-size: 1.1rem; transition: transform .18s ease, color .18s ease; }
-  .work-row:hover > .arrow { color: var(--accent); transform: translateX(5px); }
+  .case-detail { padding: var(--s-8); min-height: 420px; }
+  .case-panel { display: none; }
+  .case-panel.is-active { display: block; animation: rise .4s cubic-bezier(.2,.7,.2,1) both; }
+  .case-tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
+  .case-title { margin: var(--s-3) 0 0; font-size: 1.55rem; line-height: 1.2; max-width: 24ch; }
+  .case-cols { display: grid; grid-template-columns: 1fr; gap: var(--s-6); margin-top: var(--s-6); }
+  @media (min-width: 620px) { .case-cols { grid-template-columns: 1fr 1fr; gap: var(--s-6) var(--s-8); } }
+  .case-k { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; color: var(--text-subtle); text-transform: uppercase; margin-bottom: var(--s-2); }
+  .case-cols p { font-size: 0.95rem; line-height: 1.6; }
+  .case-arch { margin-top: var(--s-6); }
+  .case-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .case-chip { font-family: var(--font-mono); font-size: 0.78rem; background: var(--bg-alt); border: 1px solid var(--border); padding: 6px 10px; border-radius: var(--r-sm); color: var(--text); }
+  .case-foot { margin-top: var(--s-6); border-top: 1px solid var(--border); padding-top: var(--s-6); display: flex; flex-wrap: wrap; gap: var(--s-4) var(--s-8); align-items: center; justify-content: space-between; }
+  .case-highlights { list-style: none; display: grid; gap: var(--s-2); }
+  .case-highlights li { position: relative; padding-left: var(--s-4); font-size: 0.9rem; color: var(--text-muted); }
+  .case-highlights li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); }
+  .case-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
   .work-all { display: inline-flex; align-items: center; gap: 8px; margin-top: var(--s-8); font-weight: 600; color: var(--text); }
   .work-all:hover { color: var(--accent); }
 
-  .service { padding: var(--s-6) 0; border-top: 2px solid var(--text); }
-  .service-num { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); display: block; margin-bottom: var(--s-3); }
-  .service h3 { margin-bottom: var(--s-2); }
+  /* Services */
+  .services-h { margin-bottom: var(--s-12); }
+  .services-grid { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--border-strong); }
+  @media (min-width: 720px) { .services-grid { grid-template-columns: 1fr 1fr; } }
+  .service-cell { padding: var(--s-8) var(--s-6); border-bottom: 1px solid var(--border); }
+  @media (min-width: 720px) { .service-cell:nth-child(odd) { border-right: 1px solid var(--border); } }
+  .service-idx { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); margin-bottom: var(--s-4); }
+  .service-cell h3 { margin-bottom: var(--s-3); font-size: 1.3rem; }
+  .service-cell p { max-width: 42ch; }
+  .service-tools { margin-top: var(--s-4); font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-subtle); }
 
-  .cta-section { background: var(--text); color: #fff; padding: var(--s-24) 0; text-align: center; }
-  .cta-section h2 { color: #fff; }
-  .cta-inner { display: grid; justify-items: center; gap: var(--s-4); }
-  .cta-inner p { color: rgba(255,255,255,0.7); max-width: 42ch; }
-  .cta-inner .btn { margin-top: var(--s-4); }
+  /* Ethos */
+  .ethos-section { padding-top: var(--s-12); padding-bottom: var(--s-12); }
+  .ethos { background: var(--text); border-radius: var(--r-lg); padding: var(--s-24) var(--s-16); }
+  .ethos-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: var(--s-6); }
+  .ethos blockquote { margin: 0; font-family: 'IBM Plex Serif', Georgia, serif; font-style: italic; font-size: clamp(1.6rem, 3.6vw, 2.6rem); line-height: 1.32; letter-spacing: -0.01em; color: var(--bg); max-width: 24ch; }
+  .ethos-by { margin-top: var(--s-8); font-size: 0.95rem; color: rgba(255,255,255,0.66); }
+
+  /* About */
+  .about-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-12); align-items: center; }
+  @media (min-width: 820px) { .about-grid { grid-template-columns: 0.9fr 1.1fr; gap: var(--s-16); } }
+  .about-portrait { aspect-ratio: 4/5; border-radius: var(--r-md); border: 1px solid var(--border); background-image: repeating-linear-gradient(135deg, #efefec 0 12px, #f6f6f4 12px 24px); display: flex; align-items: flex-end; padding: var(--s-4); }
+  .about-portrait span { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-subtle); background: var(--bg); padding: 5px 9px; border-radius: 5px; border: 1px solid var(--border); }
+  .about-section h2 { margin-bottom: var(--s-6); }
+  .about-section p { font-size: 1.15rem; line-height: 1.65; max-width: 52ch; margin-bottom: var(--s-4); }
+
+  /* Contact */
+  .contact-section { padding-bottom: var(--s-32); }
+  .contact-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-12); align-items: end; border-top: 1px solid var(--border-strong); padding-top: var(--s-16); }
+  @media (min-width: 820px) { .contact-grid { grid-template-columns: 1fr auto; } }
+  .contact-section h2 { font-size: clamp(2.6rem, 6vw, 5rem); }
+  .contact-section p { margin-top: var(--s-6); font-size: 1.15rem; max-width: 46ch; }
+  .contact-actions { display: flex; flex-direction: column; gap: var(--s-3); min-width: 240px; }
+  .contact-btn { justify-content: space-between; padding: 1rem 1.4rem; font-size: 1rem; }
+  .contact-email { display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.9rem; color: var(--text); border: 1px solid var(--border-strong); padding: 0.95rem 1.4rem; border-radius: var(--r-sm); }
+  .contact-email:hover { border-color: var(--text); color: var(--text); background: var(--surface); }
 </style>
+
+<script>
+  // Tabbed case studies — swap the active panel on click.
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.case-tab');
+  const panels = document.querySelectorAll<HTMLElement>('.case-panel');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const idx = tab.dataset.case;
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      panels.forEach((p) => p.classList.toggle('is-active', p.dataset.panel === idx));
+    });
+  });
+</script>
