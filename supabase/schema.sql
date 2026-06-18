@@ -104,7 +104,7 @@ CREATE INDEX IF NOT EXISTS idx_leads_email           ON leads(email);
 CREATE OR REPLACE FUNCTION touch_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = '';
 
 DROP TRIGGER IF EXISTS trg_leads_touch ON leads;
 CREATE TRIGGER trg_leads_touch BEFORE UPDATE ON leads
@@ -124,8 +124,12 @@ ALTER TABLE leads         ENABLE ROW LEVEL SECURITY;
 -- 7. VIEWS for the operator (query with the service key / SQL editor)
 -- ───────────────────────────────────────────────────────────────────────────
 
+-- security_invoker: these views run with the *querying* role's permissions, so
+-- they respect RLS. Without it a view is SECURITY DEFINER and would let the anon
+-- (browser) key read lead PII through PostgREST, bypassing the RLS above.
+
 -- Full conversation per session.
-CREATE OR REPLACE VIEW chat_conversations AS
+CREATE OR REPLACE VIEW chat_conversations WITH (security_invoker = true) AS
 SELECT
   s.session_id,
   s.page,
@@ -145,7 +149,7 @@ GROUP BY s.session_id, s.page, s.lead_stage, s.status, s.lead_score, s.message_c
 ORDER BY s.updated_at DESC;
 
 -- Pipeline snapshot: how many leads / what value sit in each stage.
-CREATE OR REPLACE VIEW lead_pipeline AS
+CREATE OR REPLACE VIEW lead_pipeline WITH (security_invoker = true) AS
 SELECT
   stage,
   temperature,
@@ -159,7 +163,7 @@ ORDER BY
   array_position(ARRAY['hot','warm','cold'], temperature);
 
 -- A lead with its originating conversation inlined (for review/follow-up).
-CREATE OR REPLACE VIEW leads_with_conversation AS
+CREATE OR REPLACE VIEW leads_with_conversation WITH (security_invoker = true) AS
 SELECT
   l.*,
   c.messages AS conversation
