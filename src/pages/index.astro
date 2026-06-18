@@ -52,29 +52,6 @@ const services = [
           <a href="#work" class="btn btn-ghost">View selected work</a>
         </div>
       </div>
-
-      <!-- Decorative: an illustrative pipeline run (HTML/CSS, not a real client) -->
-      <aside class="hero-visual reveal" style="animation-delay:.36s" aria-hidden="true">
-        <div class="pcard">
-          <div class="pcard-head">
-            <span class="pcard-title">pipeline · daily_revenue</span>
-            <span class="pcard-live"><i></i>live</span>
-          </div>
-          <ol class="pcard-stages">
-            <li><span class="dot ok"></span>extract<span class="src">stripe · postgres</span></li>
-            <li><span class="dot ok"></span>transform<span class="src">dbt · 38 models</span></li>
-            <li><span class="dot run"></span>load<span class="src">snowflake</span></li>
-          </ol>
-          <div class="pcard-metrics">
-            <div><b>1.2M</b><span>rows / run</span></div>
-            <div><b>42s</b><span>runtime</span></div>
-            <div><b>100%</b><span>tests pass</span></div>
-          </div>
-          <div class="pcard-chart">
-            {[38,52,44,61,57,72,66,80].map((h) => <span style={`height:${h}%`}></span>)}
-          </div>
-        </div>
-      </aside>
     </div>
   </section>
 
@@ -226,31 +203,9 @@ const services = [
 
 <style>
   .hero { padding: var(--s-24) 0 var(--s-16); }
-  .hero-grid { display: grid; gap: var(--s-16); align-items: center; }
-  .hero h1 { max-width: 14ch; margin-bottom: var(--s-6); }
-  .hero .lead { margin-bottom: var(--s-8); }
+  .hero h1 { max-width: 16ch; margin-bottom: var(--s-6); }
+  .hero .lead { margin-bottom: var(--s-8); max-width: 52ch; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); }
-  @media (min-width: 980px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr; } }
-
-  /* Decorative pipeline card */
-  .hero-visual { perspective: 1200px; }
-  .pcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); padding: var(--s-6); display: grid; gap: var(--s-6); }
-  .pcard-head { display: flex; align-items: center; justify-content: space-between; }
-  .pcard-title { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text); }
-  .pcard-live { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-hover); }
-  .pcard-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent-ring); animation: ping 2s infinite; }
-  @keyframes ping { 0% { box-shadow: 0 0 0 0 var(--accent-ring); } 70% { box-shadow: 0 0 0 6px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
-  .pcard-stages { list-style: none; display: grid; gap: var(--s-3); }
-  .pcard-stages li { display: flex; align-items: center; gap: var(--s-3); font-size: 0.92rem; font-weight: 500; color: var(--text); }
-  .pcard-stages .src { margin-left: auto; font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-subtle); font-weight: 400; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-  .dot.ok { background: var(--text); }
-  .dot.run { background: var(--accent); animation: ping 1.6s infinite; }
-  .pcard-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--s-4); padding: var(--s-4) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .pcard-metrics b { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
-  .pcard-metrics span { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.04em; }
-  .pcard-chart { display: flex; align-items: flex-end; gap: 6px; height: 64px; }
-  .pcard-chart span { flex: 1; background: var(--accent-soft); border-top: 2px solid var(--accent); border-radius: 3px 3px 0 0; }
 
   /* Stack strip */
   .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: var(--s-8) 0; }
