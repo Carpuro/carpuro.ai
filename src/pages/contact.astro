@@ -68,7 +68,33 @@ const socials = [
       </aside>
     </div>
   </section>
+
+  <!-- BOOK A CALL — Cal.com inline agenda -->
+  <section class="section book-section" id="book">
+    <div class="container">
+      <h2>Or book a call directly</h2>
+      <p class="lead book-lead">Grab a free 30-minute slot that works for you — no back-and-forth.</p>
+      <div id="cal-inline" class="cal-inline"></div>
+    </div>
+  </section>
 </Base>
+
+<script is:inline>
+  // Self-contained Cal.com loader + inline embed (independent of the chat widget).
+  (function (C, A, L) {
+    let p = function (a, ar) { a.q.push(ar); };
+    let d = C.document;
+    C.Cal = C.Cal || function () {
+      let cal = C.Cal; let ar = arguments;
+      if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; }
+      if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; typeof namespace === "string" ? (cal.ns[namespace] = api) && p(api, ar) : p(cal, ar); return; }
+      p(cal, ar);
+    };
+  })(window, "https://app.cal.com/embed/embed.js", "init");
+  Cal("init", { origin: "https://cal.com" });
+  Cal("inline", { elementOrSelector: "#cal-inline", calLink: "carpuro/discovery-call", layout: "month_view", config: { theme: "light" } });
+  Cal("ui", { styles: { branding: { brandColor: "#2563eb" } }, hideEventTypeDetails: false, layout: "month_view" });
+</script>
 
 <script>
   const form = document.getElementById('contactForm') as HTMLFormElement | null;
@@ -157,4 +183,12 @@ const socials = [
 
   .avail-box { padding: var(--s-6); border: 1px solid var(--border); border-left: 4px solid #16a34a; border-radius: var(--r-md); background: var(--surface); }
   .avail-box p:last-child { font-size: 0.9rem; margin-top: var(--s-3); }
+
+  .book-section { border-top: 1px solid var(--border); }
+  .book-lead { margin: var(--s-3) 0 var(--s-8); }
+  .cal-inline {
+    width: 100%; min-height: 620px; overflow: auto;
+    border: 1px solid var(--border); border-radius: var(--r-md);
+    background: var(--surface);
+  }
 </style>
