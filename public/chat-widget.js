@@ -14,6 +14,9 @@
     };
   })(window, "https://app.cal.com/embed/embed.js", "init");
   Cal("init", { origin: "https://cal.com" });
+  Cal("ui", { styles: { branding: { brandColor: "#2563eb" } }, hideEventTypeDetails: false, layout: "month_view" });
+
+  const CAL_LINK = "carpuro/discovery-call";
 
   // ── Session helpers ──────────────────────────────────────────
   function newSessionId() {
@@ -285,30 +288,7 @@
       if (btn.action.startsWith('msg:')) {
         b.addEventListener('click', () => sendMessage(btn.action.slice(4)));
       } else if (btn.action.startsWith('cal:')) {
-        b.addEventListener('click', async () => {
-          const summary = chatHistory
-            .filter(t => t.role === 'user')
-            .map(t => t.content)
-            .filter(c => !c.startsWith('['))
-            .slice(-5)
-            .join(' | ');
-          try {
-            await fetch('/api/chat-log', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                sessionId: chatSessionId,
-                role: 'user',
-                content: '[User clicked: Book a Call]',
-                page: location.pathname,
-                stage: 'scheduled',
-              }),
-            });
-          } catch {}
-          const params = new URLSearchParams({ session: chatSessionId });
-          if (summary) params.set('notes', summary);
-          window.location.href = '/contact/?' + params.toString();
-        });
+        b.addEventListener('click', () => openBooking());
       } else {
         b.addEventListener('click', () => window.location.href = btn.action);
       }
@@ -320,6 +300,56 @@
 
   function restoreHistory() {
     chatHistory.forEach(turn => addMsg(turn.content, turn.role === 'assistant' ? 'bot' : 'user'));
+  }
+
+  // ── Booking (Cal.com modal, opened inside the chat) ──────────
+  let bookingListenerReady = false;
+
+  function bookingNotes() {
+    return chatHistory
+      .filter(t => t.role === 'user' && !String(t.content).startsWith('['))
+      .map(t => t.content)
+      .slice(-5)
+      .join(' | ');
+  }
+
+  function registerBookingListener() {
+    if (bookingListenerReady) return;
+    bookingListenerReady = true;
+    const onBooked = async (e) => {
+      const d = (e && e.detail && e.detail.data) || {};
+      const r = d.responses || (d.booking && d.booking.responses) || {};
+      const name = (r.name && (r.name.value || r.name)) || d.name || null;
+      const email = (r.email && (r.email.value || r.email)) || d.email || null;
+      const when = d.date || (d.booking && d.booking.startTime) || null;
+      addMsg("You're booked — talk soon. I've shared your chat context with Carlos.", 'bot');
+      try {
+        await fetch('/api/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: chatSessionId, name, email, notes: bookingNotes(), when }),
+        });
+      } catch { /* non-blocking */ }
+    };
+    try { window.Cal('on', { action: 'bookingSuccessful', callback: onBooked }); } catch {}
+    try { window.Cal('on', { action: 'bookingSuccessfulV2', callback: onBooked }); } catch {}
+  }
+
+  function openBooking() {
+    registerBookingListener();
+    logMessage('user', '[Opened booking]');
+    try {
+      window.Cal('modal', {
+        calLink: CAL_LINK,
+        config: { layout: 'month_view', theme: 'light', notes: bookingNotes() },
+      });
+    } catch {
+      // Fallback: hand off to the contact form with the conversation context.
+      const params = new URLSearchParams({ session: chatSessionId });
+      const n = bookingNotes();
+      if (n) params.set('notes', n);
+      window.location.href = '/contact/?' + params.toString();
+    }
   }
 
   function showWelcome() {
