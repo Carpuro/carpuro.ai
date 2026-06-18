@@ -27,6 +27,7 @@ BigQuery, dbt — and is designed with a future SaaS direction in mind.
 | Domain | Dynadot → `carpuro.ai` |
 | Fonts | Inter + Playfair Display (Google Fonts) |
 | Styling | Vanilla CSS with custom properties (`src/styles/tokens.css`) |
+| SEO | `@astrojs/sitemap`, RSS (`/rss.xml`), OpenGraph/Twitter meta + `public/og.png` |
 
 ---
 

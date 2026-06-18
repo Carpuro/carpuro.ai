@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    background: #fafaf9; color: #16161a;
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 76px 84px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 14px; background: #2563eb; }
+  .top { display: flex; align-items: center; gap: 14px; }
+  .mark { font-family: 'IBM Plex Sans'; font-weight: 600; font-size: 30px; letter-spacing: -0.01em; }
+  .mark .ai { color: #2563eb; }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 19px; letter-spacing: 0.18em; text-transform: uppercase; color: #8a8a93; }
+  h1 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 104px; line-height: 0.98; letter-spacing: -0.01em; text-transform: uppercase; }
+  h1 .accent { color: #2563eb; }
+  .sub { font-size: 27px; color: #55555f; max-width: 30ch; margin-top: 26px; line-height: 1.4; }
+  .foot { display: flex; gap: 14px; flex-wrap: wrap; }
+  .pill { font-family: 'IBM Plex Mono', monospace; font-size: 17px; color: #16161a; border: 1px solid #e6e6e3; background: #fff; border-radius: 999px; padding: 9px 18px; }
+</style>
+</head>
+<body>
+  <div class="spine"></div>
+  <div class="top">
+    <span class="mark">carpuro<span class="ai">.ai</span></span>
+    <span class="eyebrow">· Data engineer · Guadalajara, MX</span>
+  </div>
+  <div>
+    <h1>Data infrastructure<br/>that <span class="accent">earns its keep.</span></h1>
+    <p class="sub">Production pipelines, multicloud warehouses, and the SaaS tools built on top of them.</p>
+  </div>
+  <div class="foot">
+    <span class="pill">Snowflake</span>
+    <span class="pill">Apache Spark</span>
+    <span class="pill">BigQuery</span>
+    <span class="pill">dbt</span>
+    <span class="pill">Airflow</span>
+    <span class="pill">Python</span>
+  </div>
+</body>
+</html>
