@@ -11,6 +11,11 @@ dist/
 # dev tooling (screenshots; keep the script)
 .tooling/*.png
 
+# env / secrets — never commit real keys; the template (.env.example) is tracked
+.env
+.env.*
+!.env.example
+
 # os / misc
 .DS_Store
 *.log
