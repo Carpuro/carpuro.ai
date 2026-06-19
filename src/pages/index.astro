@@ -5,6 +5,15 @@ import { projects } from '../data/projects';
 // Tools grouped by category. `logo` = original brand SVG vendored locally in
 // public/logos/ (full color, no runtime CDN dependency).
 const stackGroups = [
+  { label: 'Languages & query', items: [
+    { name: 'Python', logo: 'python' },
+    { name: 'SQL', logo: 'sql' },
+  ]},
+  { label: 'Databases', items: [
+    { name: 'Supabase', logo: 'supabase' },
+    { name: 'PostgreSQL', logo: 'postgresql' },
+    { name: 'MySQL', logo: 'mysql' },
+  ]},
   { label: 'Cloud warehouses', items: [
     { name: 'Snowflake', logo: 'snowflake' },
     { name: 'BigQuery', logo: 'bigquery' },
@@ -17,13 +26,18 @@ const stackGroups = [
     { name: 'Apache Spark', logo: 'spark' },
     { name: 'Kafka', logo: 'kafka' },
   ]},
+  { label: 'Analytics, BI & ML', items: [
+    { name: 'Power BI', logo: 'powerbi' },
+    { name: 'Looker', logo: 'looker' },
+    { name: 'Dataiku', logo: 'dataiku' },
+    { name: 'pandas', logo: 'pandas' },
+    { name: 'scikit-learn', logo: 'scikitlearn' },
+    { name: 'Tableau', logo: 'tableau', wordmark: true },
+  ]},
   { label: 'Clouds', items: [
     { name: 'AWS', logo: 'aws', wordmark: true },
     { name: 'Azure', logo: 'azure' },
     { name: 'GCP', logo: 'gcp' },
-  ]},
-  { label: 'Languages', items: [
-    { name: 'Python', logo: 'python' },
   ]},
 ];
 
@@ -238,13 +252,14 @@ const services = [
 </Base>
 
 <style>
-  .hero { padding: var(--s-12) 0 var(--s-8); }
-  .hero h1 { max-width: 16ch; margin-bottom: var(--s-6); }
-  .hero .lead { margin-bottom: var(--s-8); max-width: 52ch; }
+  .hero { padding: var(--s-8) 0 var(--s-6); }
+  /* compact hero so the stack carousel rides above the fold (scoped — global h1 unchanged) */
+  .hero h1 { max-width: 18ch; margin-bottom: var(--s-4); font-size: clamp(2.6rem, 6vw, 4.5rem); }
+  .hero .lead { margin-bottom: var(--s-5); max-width: 52ch; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); }
 
   /* Typed pipeline-stages line */
-  .pipeline-line { margin-top: var(--s-8); font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); display: inline-flex; align-items: baseline; gap: 0.5rem; white-space: nowrap; }
+  .pipeline-line { margin-top: var(--s-5); font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); display: inline-flex; align-items: baseline; gap: 0.5rem; white-space: nowrap; }
   .pl-label { color: var(--text-subtle); }
   .pl-text { color: var(--text); }
   .pl-cursor { display: inline-block; width: 7px; height: 1.05em; background: var(--accent); transform: translateY(2px); animation: cursorBlink 1.05s step-end infinite; }
