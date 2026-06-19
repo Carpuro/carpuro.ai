@@ -276,6 +276,7 @@ const services = [
   /* Typed eyebrow — typewriter reveal of the positioning line */
   .eyebrow { display: inline-flex; align-items: center; }
   .eyebrow-cursor { display: inline-block; width: 6px; height: 0.95em; margin-left: 3px; background: var(--accent); animation: cursorBlink 1.05s step-end infinite; }
+  .eyebrow.is-typed .eyebrow-cursor { display: none; }
   @keyframes cursorBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .eyebrow-cursor { display: none; } }
 
@@ -393,26 +394,26 @@ const services = [
     });
   });
 
-  // Hero eyebrow — typewriter reveal of the positioning line, looping.
+  // Hero eyebrow — typewriter reveal of the positioning line, ONCE (no loop/delete).
   // The full text is in the HTML for SEO / no-JS / reduced-motion; we only animate
-  // the visual reveal.
+  // the visual reveal, then leave it in place.
   (() => {
+    const wrap = document.querySelector<HTMLElement>('.eyebrow');
     const el = document.querySelector<HTMLElement>('.eyebrow-text');
     if (!el) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const full = el.textContent ?? '';
     let i = 0;
-    let dir = 1; // 1 = typing, -1 = deleting
     el.textContent = '';
     const step = () => {
       el.textContent = full.slice(0, i);
-      if (dir > 0) {
-        if (i >= full.length) { dir = -1; setTimeout(step, 2400); return; }
-        i++; setTimeout(step, 55);
-      } else {
-        if (i <= 0) { dir = 1; setTimeout(step, 600); return; }
-        i--; setTimeout(step, 22);
+      if (i >= full.length) {
+        // done — stop the blinking cursor a beat later so it settles cleanly
+        setTimeout(() => wrap?.classList.add('is-typed'), 1200);
+        return;
       }
+      i++;
+      setTimeout(step, 55);
     };
     step();
   })();
