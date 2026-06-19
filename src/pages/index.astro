@@ -2,9 +2,29 @@
 import Base from '../layouts/Base.astro';
 import { projects } from '../data/projects';
 
-const stack = [
-  'Snowflake', 'BigQuery', 'Databricks', 'Redshift', 'dbt', 'Airflow',
-  'Apache Spark', 'Kafka', 'AWS', 'Azure', 'GCP', 'Python',
+// Tools grouped by category. `logo` = original brand SVG vendored locally in
+// public/logos/ (full color, no runtime CDN dependency).
+const stackGroups = [
+  { label: 'Cloud warehouses', items: [
+    { name: 'Snowflake', logo: 'snowflake' },
+    { name: 'BigQuery', logo: 'bigquery' },
+    { name: 'Databricks', logo: 'databricks' },
+    { name: 'Redshift', logo: 'redshift' },
+  ]},
+  { label: 'Pipelines & processing', items: [
+    { name: 'dbt', logo: 'dbt', wordmark: true },
+    { name: 'Airflow', logo: 'airflow' },
+    { name: 'Apache Spark', logo: 'spark' },
+    { name: 'Kafka', logo: 'kafka' },
+  ]},
+  { label: 'Clouds', items: [
+    { name: 'AWS', logo: 'aws', wordmark: true },
+    { name: 'Azure', logo: 'azure' },
+    { name: 'GCP', logo: 'gcp' },
+  ]},
+  { label: 'Languages', items: [
+    { name: 'Python', logo: 'python' },
+  ]},
 ];
 
 const services = [
@@ -59,13 +79,25 @@ const services = [
     </div>
   </section>
 
-  <!-- STACK STRIP -->
+  <!-- STACK STRIP — category-grouped auto-scrolling carousel -->
   <section class="strip">
     <div class="container">
       <div class="strip-label">Working in</div>
-      <ul class="strip-list">
-        {stack.map((t) => <li>{t}</li>)}
-      </ul>
+    </div>
+    <div class="strip-marquee">
+      <div class="strip-track">
+        {[...stackGroups, ...stackGroups].map((g, gi) => (
+          <div class="stack-group" aria-hidden={gi >= stackGroups.length ? 'true' : undefined}>
+            <span class="stack-cat">{g.label}</span>
+            {g.items.map((it) => (
+              <span class="stack-chip">
+                <img src={`/logos/${it.logo}.svg`} alt={`${it.name} logo`} width="16" height="16" loading="lazy" class={it.wordmark ? 'logo-wordmark' : undefined} />
+                {!it.wordmark && it.name}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
@@ -206,7 +238,7 @@ const services = [
 </Base>
 
 <style>
-  .hero { padding: var(--s-24) 0 var(--s-16); }
+  .hero { padding: var(--s-12) 0 var(--s-8); }
   .hero h1 { max-width: 16ch; margin-bottom: var(--s-6); }
   .hero .lead { margin-bottom: var(--s-8); max-width: 52ch; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); }
@@ -222,8 +254,26 @@ const services = [
   /* Stack strip */
   .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: var(--s-8) 0; }
   .strip-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: var(--s-4); }
-  .strip-list { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
-  .strip-list li { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text); border: 1px solid var(--border-strong); padding: 6px 12px; border-radius: var(--r-sm); background: var(--surface); }
+  .strip-marquee {
+    overflow: hidden;
+    /* fade the edges so chips slide in/out instead of popping */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  }
+  .strip-track { display: flex; width: max-content; animation: strip-scroll 38s linear infinite; }
+  .strip-marquee:hover .strip-track { animation-play-state: paused; }
+  .stack-group { display: flex; align-items: center; gap: var(--s-3); padding: 0 var(--s-6); border-right: 1px solid var(--border); white-space: nowrap; }
+  .stack-cat { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
+  .stack-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 0.82rem; color: var(--text); border: 1px solid var(--border-strong); padding: 6px 12px; border-radius: var(--r-sm); background: var(--surface); }
+  .stack-chip img { display: block; height: 16px; width: auto; }
+  .stack-chip img.logo-wordmark { height: 18px; }
+  @keyframes strip-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .strip-marquee { -webkit-mask-image: none; mask-image: none; overflow: visible; }
+    .strip-track { animation: none; width: auto; flex-wrap: wrap; gap: var(--s-4) 0; }
+    /* the duplicated set is only for the scroll loop; hide it when static */
+    .stack-group[aria-hidden='true'] { display: none; }
+  }
 
   /* Selected work — tabbed */
   .work-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s-8); gap: var(--s-4); }
