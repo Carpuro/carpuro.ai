@@ -13,29 +13,48 @@ const stackGroups = [
     { name: 'Supabase', logo: 'supabase' },
     { name: 'PostgreSQL', logo: 'postgresql' },
     { name: 'MySQL', logo: 'mysql' },
+    { name: 'MongoDB', logo: 'mongodb' },
+    { name: 'Redis', logo: 'redis' },
   ]},
-  { label: 'Cloud warehouses', items: [
+  { label: 'Warehouses & engines', items: [
     { name: 'Snowflake', logo: 'snowflake' },
     { name: 'BigQuery', logo: 'bigquery' },
     { name: 'Databricks', logo: 'databricks' },
     { name: 'Redshift', logo: 'redshift' },
+    { name: 'ClickHouse', logo: 'clickhouse' },
+    { name: 'DuckDB', logo: 'duckdb' },
   ]},
-  { label: 'Pipelines & processing', items: [
+  { label: 'Pipelines & orchestration', items: [
     { name: 'dbt', logo: 'dbt', wordmark: true },
     { name: 'Airflow', logo: 'airflow' },
     { name: 'Apache Spark', logo: 'spark' },
     { name: 'Kafka', logo: 'kafka' },
+    { name: 'Fivetran', logo: 'fivetran' },
+    { name: 'Airbyte', logo: 'airbyte' },
+    { name: 'Dagster', logo: 'dagster', wordmark: true },
+    { name: 'Prefect', logo: 'prefect' },
   ]},
-  { label: 'Analytics, BI & ML', items: [
+  { label: 'ML & data science', items: [
+    { name: 'pandas', logo: 'pandas' },
+    { name: 'scikit-learn', logo: 'scikitlearn' },
+    { name: 'Jupyter', logo: 'jupyter' },
+    { name: 'PyTorch', logo: 'pytorch' },
+    { name: 'TensorFlow', logo: 'tensorflow' },
+  ]},
+  { label: 'Analytics & BI', items: [
     { name: 'Power BI', logo: 'powerbi' },
     { name: 'Looker', logo: 'looker' },
     { name: 'Dataiku', logo: 'dataiku' },
-    { name: 'pandas', logo: 'pandas' },
-    { name: 'scikit-learn', logo: 'scikitlearn' },
     { name: 'Tableau', logo: 'tableau', wordmark: true },
   ]},
+  { label: 'Platforms & DevOps', items: [
+    { name: 'Docker', logo: 'docker' },
+    { name: 'GitHub', logo: 'github' },
+    { name: 'Vercel', logo: 'vercel' },
+    { name: 'Cloudflare', logo: 'cloudflare' },
+  ]},
   { label: 'Clouds', items: [
-    { name: 'AWS', logo: 'aws', wordmark: true },
+    { name: 'AWS', logo: 'aws' },
     { name: 'Azure', logo: 'azure' },
     { name: 'GCP', logo: 'gcp' },
   ]},
@@ -73,7 +92,7 @@ const services = [
   <section class="hero">
     <div class="container hero-grid">
       <div class="hero-copy">
-        <span class="eyebrow reveal" style="animation-delay:.05s">Data &amp; Analytics Architect · Guadalajara, MX</span>
+        <span class="eyebrow reveal" style="animation-delay:.05s"><span class="eyebrow-text">Data &amp; Analytics Architect · Guadalajara, MX</span><span class="eyebrow-cursor" aria-hidden="true"></span></span>
         <h1 class="reveal" style="animation-delay:.12s">
           Data infrastructure<br />that <span class="hero-accent">earns its keep.</span>
         </h1>
@@ -85,10 +104,6 @@ const services = [
           <a href="/contact" class="btn btn-primary" data-cal-link="carpuro/discovery-call" data-cal-config='{"layout":"month_view","theme":"light"}'>Book a 30-min call<span class="arrow">→</span></a>
           <a href="#work" class="btn btn-ghost">View selected work</a>
         </div>
-        <p class="pipeline-line reveal" style="animation-delay:.36s" aria-label="pipeline: extract, transform, load">
-          <span class="pl-label">pipeline&nbsp;›</span>
-          <span class="pl-text">extract&nbsp;→&nbsp;transform&nbsp;→&nbsp;load</span><span class="pl-cursor" aria-hidden="true"></span>
-        </p>
       </div>
     </div>
   </section>
@@ -258,13 +273,11 @@ const services = [
   .hero .lead { margin-bottom: var(--s-5); max-width: 52ch; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); }
 
-  /* Typed pipeline-stages line */
-  .pipeline-line { margin-top: var(--s-5); font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); display: inline-flex; align-items: baseline; gap: 0.5rem; white-space: nowrap; }
-  .pl-label { color: var(--text-subtle); }
-  .pl-text { color: var(--text); }
-  .pl-cursor { display: inline-block; width: 7px; height: 1.05em; background: var(--accent); transform: translateY(2px); animation: cursorBlink 1.05s step-end infinite; }
+  /* Typed eyebrow — typewriter reveal of the positioning line */
+  .eyebrow { display: inline-flex; align-items: center; }
+  .eyebrow-cursor { display: inline-block; width: 6px; height: 0.95em; margin-left: 3px; background: var(--accent); animation: cursorBlink 1.05s step-end infinite; }
   @keyframes cursorBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .pl-cursor { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .eyebrow-cursor { display: none; } }
 
   /* Stack strip */
   .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: var(--s-8) 0; }
@@ -275,7 +288,7 @@ const services = [
     -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
     mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
   }
-  .strip-track { display: flex; width: max-content; animation: strip-scroll 38s linear infinite; }
+  .strip-track { display: flex; width: max-content; animation: strip-scroll 72s linear infinite; }
   .strip-marquee:hover .strip-track { animation-play-state: paused; }
   .stack-group { display: flex; align-items: center; gap: var(--s-3); padding: 0 var(--s-6); border-right: 1px solid var(--border); white-space: nowrap; }
   .stack-cat { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
@@ -380,11 +393,11 @@ const services = [
     });
   });
 
-  // Hero pipeline line — type "extract → transform → load" stage by stage, loop.
+  // Hero eyebrow — typewriter reveal of the positioning line, looping.
   // The full text is in the HTML for SEO / no-JS / reduced-motion; we only animate
   // the visual reveal.
   (() => {
-    const el = document.querySelector<HTMLElement>('.pl-text');
+    const el = document.querySelector<HTMLElement>('.eyebrow-text');
     if (!el) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const full = el.textContent ?? '';
