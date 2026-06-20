@@ -38,12 +38,28 @@ import PortalLayout from '../../layouts/PortalLayout.astro';
       return;
     }
 
-    const [{ data: updates }, { data: links }] = await Promise.all([
+    const [{ data: updates }, { data: links }, { data: tasks }] = await Promise.all([
       supabase.from('project_updates').select('title, body, created_at')
         .eq('project_id', id).order('created_at', { ascending: false }),
       supabase.from('project_links').select('label, url, kind')
         .eq('project_id', id).order('created_at', { ascending: true }),
+      supabase.from('project_tasks').select('title, status_bucket, assignee')
+        .eq('project_id', id).order('status_bucket', { ascending: true }),
     ]);
+
+    // Group synced tasks into the 3-column board.
+    const buckets: Record<string, { title: string; assignee: string | null }[]> =
+      { todo: [], in_progress: [], done: [] };
+    for (const t of tasks || []) (buckets[t.status_bucket] || buckets.todo).push(t);
+    const col = (key: string, label: string) => `
+      <div class="board-col">
+        <div class="board-h">${label}<span>${buckets[key].length}</span></div>
+        ${buckets[key].map((t) => `<div class="task-card">${escapeHtml(t.title)}${t.assignee ? `<span class="task-who">${escapeHtml(t.assignee)}</span>` : ''}</div>`).join('')
+          || '<p class="board-empty">Nothing here</p>'}
+      </div>`;
+    const boardHtml = (tasks && tasks.length)
+      ? `<h2 class="sec-h">Board</h2><div class="board">${col('todo', 'To do')}${col('in_progress', 'In progress')}${col('done', 'Done')}</div>`
+      : '';
 
     const meta = STATUS_META[project.status] ?? STATUS_META.discovery;
     const progress = Math.max(0, Math.min(100, project.progress ?? 0));
@@ -80,6 +96,7 @@ import PortalLayout from '../../layouts/PortalLayout.astro';
         <span class="pc-pct">${progress}% complete</span>
       </div>
       ${project.description ? `<div class="proj-desc">${escapeHtml(project.description)}</div>` : ''}
+      ${boardHtml}
       ${linksHtml ? `<h2 class="sec-h">Resources</h2>${linksHtml}` : ''}
       <h2 class="sec-h">Updates</h2>
       ${updatesHtml}`;
@@ -134,4 +151,21 @@ import PortalLayout from '../../layouts/PortalLayout.astro';
     margin-top: var(--s-8); max-width: 520px;
   }
   .app-content .empty-card a { color: var(--accent); }
+
+  /* Synced workflow board (To do / In progress / Done) */
+  .app-content .board { display: grid; gap: var(--s-4); }
+  @media (min-width: 680px) { .app-content .board { grid-template-columns: repeat(3, 1fr); } }
+  .app-content .board-col { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s-4); }
+  .app-content .board-h {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-subtle); margin-bottom: var(--s-3);
+  }
+  .app-content .board-h span { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-full); padding: 1px 8px; color: var(--text-muted); }
+  .app-content .task-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm);
+    padding: var(--s-3); font-size: 0.9rem; color: var(--text); margin-bottom: var(--s-2);
+  }
+  .app-content .task-who { display: block; margin-top: 4px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-subtle); }
+  .app-content .board-empty { color: var(--text-subtle); font-size: 0.8rem; padding: var(--s-2); }
 </style>
