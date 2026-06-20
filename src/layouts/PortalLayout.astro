@@ -113,9 +113,25 @@ const help = [
       </div>
     </div>
 
-    <!-- The marketing chat widget (Mon, lead-gen) is intentionally NOT loaded in
-         the portal: a logged-in client shouldn't get the sales pitch. A
-         project-aware Mon for the portal is Phase 4. -->
+    <!-- Project assistant — project-aware chat for the logged-in client only
+         (separate from the marketing lead-gen chat; calls /api/portal-chat). -->
+    <button type="button" class="pa-bubble" id="paBubble" aria-label="Open project assistant">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <section class="pa-panel" id="paPanel" hidden aria-label="Project assistant">
+      <header class="pa-head">
+        <span class="pa-title">Project assistant</span>
+        <button type="button" class="pa-close" id="paClose" aria-label="Close assistant">✕</button>
+      </header>
+      <div class="pa-msgs" id="paMsgs">
+        <div class="pa-msg pa-bot">Hi — ask me anything about your projects: status, what’s next, or recent updates.</div>
+      </div>
+      <form class="pa-form" id="paForm">
+        <input type="text" id="paInput" placeholder="Ask about your projects…" autocomplete="off" />
+        <button type="submit" aria-label="Send">→</button>
+      </form>
+    </section>
+
     <script>
       import { getPortalClient } from '../lib/portalClient';
       const supabase = getPortalClient();
@@ -159,6 +175,55 @@ const help = [
       // Mobile sidebar toggle
       document.getElementById('sbToggle')?.addEventListener('click', () => {
         document.getElementById('sidebar')?.classList.toggle('is-open');
+      });
+
+      // ---- Project assistant chat ----
+      const paBubble = document.getElementById('paBubble');
+      const paPanel = document.getElementById('paPanel');
+      const paMsgs = document.getElementById('paMsgs');
+      const paForm = document.getElementById('paForm') as HTMLFormElement | null;
+      const paInput = document.getElementById('paInput') as HTMLInputElement | null;
+      const paHistory: { role: string; content: string }[] = [];
+
+      const openPa = (open: boolean) => {
+        if (!paPanel || !paBubble) return;
+        if (open) { paPanel.removeAttribute('hidden'); paBubble.setAttribute('hidden', ''); paInput?.focus(); }
+        else { paPanel.setAttribute('hidden', ''); paBubble.removeAttribute('hidden'); }
+      };
+      paBubble?.addEventListener('click', () => openPa(true));
+      document.getElementById('paClose')?.addEventListener('click', () => openPa(false));
+
+      const paAdd = (text: string, who: 'user' | 'bot') => {
+        const d = document.createElement('div');
+        d.className = `pa-msg pa-${who}`;
+        d.textContent = text;
+        paMsgs?.appendChild(d);
+        if (paMsgs) paMsgs.scrollTop = paMsgs.scrollHeight;
+        return d;
+      };
+
+      paForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = paInput?.value.trim();
+        if (!text) return;
+        paAdd(text, 'user');
+        paHistory.push({ role: 'user', content: text });
+        if (paInput) paInput.value = '';
+        const thinking = paAdd('…', 'bot');
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { thinking.textContent = 'Please sign in again.'; return; }
+        try {
+          const res = await fetch('/api/portal-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ message: text, history: paHistory }),
+          });
+          const data = await res.json();
+          thinking.textContent = data.reply || '…';
+          paHistory.push({ role: 'assistant', content: data.reply || '' });
+        } catch {
+          thinking.textContent = 'Couldn’t reach the assistant — please try again.';
+        }
       });
     </script>
 
@@ -253,6 +318,46 @@ const help = [
         .sb-toggle { display: inline-flex; }
         .app-content { padding: var(--s-8) var(--s-6); }
       }
+
+      /* ---- Project assistant ---- */
+      .pa-bubble {
+        position: fixed; bottom: 22px; right: 22px; z-index: 80;
+        width: 52px; height: 52px; border-radius: 50%; cursor: pointer;
+        background: var(--accent); color: #fff; display: grid; place-items: center;
+        box-shadow: var(--shadow-lg); transition: transform .15s ease, background .15s ease;
+      }
+      .pa-bubble:hover { background: var(--accent-hover); transform: translateY(-2px); }
+      .pa-bubble svg { width: 22px; height: 22px; }
+      .pa-panel {
+        position: fixed; bottom: 22px; right: 22px; z-index: 81;
+        width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100vh - 44px));
+        display: flex; flex-direction: column; overflow: hidden;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--r-lg); box-shadow: var(--shadow-lg);
+      }
+      .pa-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--border);
+        background: var(--accent-soft);
+      }
+      .pa-title { font-weight: 600; font-size: 0.95rem; }
+      .pa-close { background: transparent; border: 0; color: var(--text-subtle); cursor: pointer; font-size: 0.95rem; }
+      .pa-msgs { flex: 1; overflow-y: auto; padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-3); }
+      .pa-msg { max-width: 86%; padding: 0.6rem 0.85rem; border-radius: var(--r-md); font-size: 0.92rem; line-height: 1.45; white-space: pre-wrap; }
+      .pa-bot { background: var(--bg-alt); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+      .pa-user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+      .pa-form { display: flex; gap: var(--s-2); padding: var(--s-3); border-top: 1px solid var(--border); }
+      .pa-form input {
+        flex: 1; font-family: var(--font-sans); font-size: 0.92rem; color: var(--text);
+        background: var(--bg-alt); border: 1px solid var(--border-strong); border-radius: var(--r-full);
+        padding: 0.55rem 0.9rem; outline: none;
+      }
+      .pa-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+      .pa-form button {
+        flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; border: 0; cursor: pointer;
+        background: var(--accent); color: #fff; font-size: 1.05rem; transition: background .15s ease;
+      }
+      .pa-form button:hover { background: var(--accent-hover); }
     </style>
   </body>
 </html>
