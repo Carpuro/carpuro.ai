@@ -1,0 +1,258 @@
+---
+import '../styles/tokens.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  active?: 'projects' | 'none';
+}
+const {
+  title = 'Client portal — carpuro.ai',
+  description = 'Your carpuro.ai client portal.',
+  active = 'projects',
+} = Astro.props;
+
+const nav = [
+  { id: 'projects', label: 'Projects', href: '/portal', icon: 'grid' },
+];
+const help = [
+  { id: 'book', label: 'Book a call', href: '/contact#book', icon: 'calendar' },
+  { id: 'contact', label: 'Contact', href: '/contact', icon: 'mail' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#16161a" />
+    <link rel="icon" type="image/svg+xml" href="/assets/carpuro-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="portal-body">
+    <div class="app-shell">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <a href="/" class="sb-brand" aria-label="carpuro.ai home">
+          carpuro<span>.ai</span>
+        </a>
+
+        <nav class="sb-nav" aria-label="Portal">
+          <p class="sb-group">Workspace</p>
+          {nav.map((i) => (
+            <a href={i.href} class:list={['sb-link', { 'is-active': active === i.id }]}
+               aria-current={active === i.id ? 'page' : undefined}>
+              <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+              </svg>
+              <span>{i.label}</span>
+            </a>
+          ))}
+
+          <p class="sb-group">Get help</p>
+          {help.map((i) => (
+            <a href={i.href} class="sb-link">
+              {i.icon === 'calendar' && (
+                <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+              )}
+              {i.icon === 'mail' && (
+                <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>
+                </svg>
+              )}
+              <span>{i.label}</span>
+            </a>
+          ))}
+        </nav>
+
+        <!-- ACCOUNT MENU (bottom) -->
+        <div class="sb-account">
+          <div class="sb-menu" id="acctMenu" hidden>
+            <a href="/" class="sb-menu-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+              Back to carpuro.ai
+            </a>
+            <button type="button" class="sb-menu-item" id="signOut">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              Sign out
+            </button>
+          </div>
+          <button type="button" class="sb-acct-btn" id="acctBtn" aria-haspopup="true" aria-expanded="false">
+            <span class="sb-avatar" id="acctAvatar">·</span>
+            <span class="sb-acct-text">
+              <span class="sb-acct-name" id="acctName">Loading…</span>
+              <span class="sb-acct-mail" id="acctMail"></span>
+            </span>
+            <svg class="sb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="app-main">
+        <header class="app-top">
+          <button type="button" class="sb-toggle" id="sbToggle" aria-label="Toggle sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+          </button>
+          <slot name="top" />
+        </header>
+        <div class="app-content">
+          <slot />
+        </div>
+      </div>
+    </div>
+
+    <!-- The marketing chat widget (Mon, lead-gen) is intentionally NOT loaded in
+         the portal: a logged-in client shouldn't get the sales pitch. A
+         project-aware Mon for the portal is Phase 4. -->
+    <script>
+      import { getPortalClient } from '../lib/portalClient';
+      const supabase = getPortalClient();
+
+      // Gate every portal page at the shell level.
+      (async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { location.replace('/portal/login'); return; }
+
+        const email = session.user.email ?? '';
+        const { data: profile } = await supabase
+          .from('profiles').select('full_name').eq('id', session.user.id).maybeSingle();
+        const name = profile?.full_name || email.split('@')[0] || 'Your account';
+        const nameEl = document.getElementById('acctName');
+        const mailEl = document.getElementById('acctMail');
+        const avEl = document.getElementById('acctAvatar');
+        if (nameEl) nameEl.textContent = name;
+        if (mailEl) mailEl.textContent = email;
+        if (avEl) avEl.textContent = (name[0] || '·').toUpperCase();
+      })();
+
+      // Account dropdown
+      const acctBtn = document.getElementById('acctBtn');
+      const acctMenu = document.getElementById('acctMenu');
+      acctBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = acctMenu?.hasAttribute('hidden');
+        if (open) { acctMenu?.removeAttribute('hidden'); acctBtn.setAttribute('aria-expanded', 'true'); }
+        else { acctMenu?.setAttribute('hidden', ''); acctBtn.setAttribute('aria-expanded', 'false'); }
+      });
+      document.addEventListener('click', () => {
+        acctMenu?.setAttribute('hidden', '');
+        acctBtn?.setAttribute('aria-expanded', 'false');
+      });
+
+      document.getElementById('signOut')?.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        location.replace('/portal/login');
+      });
+
+      // Mobile sidebar toggle
+      document.getElementById('sbToggle')?.addEventListener('click', () => {
+        document.getElementById('sidebar')?.classList.toggle('is-open');
+      });
+    </script>
+
+    <style is:global>
+      .portal-body { background: var(--bg); }
+    </style>
+
+    <style>
+      .app-shell { display: flex; min-height: 100vh; }
+
+      /* ---- Sidebar ---- */
+      .sidebar {
+        width: 248px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+        background: #15151a; color: rgba(255,255,255,0.72);
+        display: flex; flex-direction: column; padding: var(--s-6) var(--s-4);
+        border-right: 1px solid rgba(255,255,255,0.08);
+      }
+      .sb-brand {
+        font-family: var(--font-display); font-size: 1.45rem; color: #fff;
+        letter-spacing: 0.02em; padding: 0 var(--s-3) var(--s-2); line-height: 1;
+      }
+      .sb-brand span { color: var(--accent); }
+
+      .sb-nav { margin-top: var(--s-6); flex: 1; display: flex; flex-direction: column; gap: 2px; }
+      .sb-group {
+        font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em;
+        text-transform: uppercase; color: rgba(255,255,255,0.38);
+        padding: var(--s-4) var(--s-3) var(--s-2);
+      }
+      .sb-link {
+        display: flex; align-items: center; gap: var(--s-3);
+        padding: 0.55rem var(--s-3); border-radius: var(--r-sm);
+        color: rgba(255,255,255,0.72); font-size: 0.92rem; font-weight: 500;
+        transition: background .15s ease, color .15s ease;
+      }
+      .sb-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+      .sb-link.is-active { background: rgba(255,255,255,0.10); color: #fff; }
+      .sb-ico { width: 18px; height: 18px; flex-shrink: 0; }
+
+      /* ---- Account ---- */
+      .sb-account { position: relative; border-top: 1px solid rgba(255,255,255,0.08); padding-top: var(--s-3); }
+      .sb-acct-btn {
+        width: 100%; display: flex; align-items: center; gap: var(--s-3);
+        padding: var(--s-2) var(--s-3); border-radius: var(--r-sm);
+        background: transparent; color: inherit; text-align: left; cursor: pointer;
+        transition: background .15s ease;
+      }
+      .sb-acct-btn:hover { background: rgba(255,255,255,0.06); }
+      .sb-avatar {
+        width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
+        background: var(--accent); color: #fff; font-weight: 700; font-size: 0.85rem;
+        display: grid; place-items: center;
+      }
+      .sb-acct-text { display: grid; min-width: 0; flex: 1; }
+      .sb-acct-name { color: #fff; font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sb-acct-mail { font-size: 0.72rem; color: rgba(255,255,255,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sb-chev { width: 16px; height: 16px; flex-shrink: 0; color: rgba(255,255,255,0.5); }
+
+      .sb-menu {
+        position: absolute; bottom: calc(100% + 6px); left: 0; right: 0;
+        background: #1e1e25; border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--r-md); padding: var(--s-2); box-shadow: var(--shadow-lg);
+      }
+      .sb-menu-item {
+        width: 100%; display: flex; align-items: center; gap: var(--s-3);
+        padding: 0.55rem var(--s-3); border-radius: var(--r-sm);
+        background: transparent; color: rgba(255,255,255,0.8); font-size: 0.88rem;
+        text-align: left; cursor: pointer; transition: background .15s ease, color .15s ease;
+      }
+      .sb-menu-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+      .sb-menu-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+      /* ---- Main ---- */
+      .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+      .app-top {
+        height: 60px; flex-shrink: 0; display: flex; align-items: center; gap: var(--s-4);
+        padding: 0 var(--s-8); border-bottom: 1px solid var(--border);
+        background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(6px);
+        position: sticky; top: 0; z-index: 20;
+      }
+      .sb-toggle { display: none; background: transparent; color: var(--text-muted); cursor: pointer; padding: 4px; }
+      .sb-toggle svg { width: 20px; height: 20px; }
+      .app-content { padding: var(--s-12) var(--s-8); max-width: 1100px; width: 100%; }
+
+      /* ---- Mobile ---- */
+      @media (max-width: 860px) {
+        .sidebar {
+          position: fixed; z-index: 60; left: 0; top: 0;
+          transform: translateX(-100%); transition: transform .22s ease;
+        }
+        .sidebar.is-open { transform: translateX(0); }
+        .sb-toggle { display: inline-flex; }
+        .app-content { padding: var(--s-8) var(--s-6); }
+      }
+    </style>
+  </body>
+</html>
