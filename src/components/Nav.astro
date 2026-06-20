@@ -15,7 +15,10 @@ const links = [
     <nav class="nav-links" aria-label="Primary">
       {links.map((l) => <a href={l.href}>{l.label}</a>)}
     </nav>
-    <a href="/contact" class="btn btn-primary nav-cta">Get in touch</a>
+    <div class="nav-right">
+      <a href="/portal" class="nav-portal">Client login</a>
+      <a href="/contact" class="btn btn-primary nav-cta">Get in touch</a>
+    </div>
   </div>
 </header>
 
@@ -44,8 +47,16 @@ const links = [
   }
   .nav-links a:hover { color: var(--text); }
   .nav-cta { padding: 0.55rem 1.1rem; font-size: 0.9rem; }
+  .nav-right { display: flex; align-items: center; gap: var(--s-4); }
+  .nav-portal {
+    display: none;
+    color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
+    transition: color .15s ease;
+  }
+  .nav-portal:hover { color: var(--text); }
 
   @media (min-width: 880px) {
     .nav-links { display: flex; }
+    .nav-portal { display: inline; }
   }
 </style>

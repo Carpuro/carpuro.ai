@@ -172,6 +172,13 @@ a:hover { color: var(--accent-hover); }
   background: var(--accent-soft); color: var(--accent-hover);
   border: 1px solid var(--accent-ring);
 }
+/* Status tones for portal project badges */
+.badge[data-tone='accent']  { background: var(--accent-soft); color: var(--accent-hover); border-color: var(--accent-ring); }
+.badge[data-tone='green']   { background: #e9f8ef; color: #15803d; border-color: #bbe7cb; }
+.badge[data-tone='amber']   { background: #fdf3e3; color: #b45309; border-color: #f3dcb3; }
+.badge[data-tone='neutral'] { background: var(--bg-alt); color: var(--text-muted); border-color: var(--border-strong); }
+.badge[data-tone='muted']   { background: var(--bg-alt); color: var(--text-subtle); border-color: var(--border); }
+.badge[data-tone='subtle']  { background: transparent; color: var(--text-subtle); border-color: var(--border); }
 
 /* ---- Staggered page-load reveal (one orchestrated moment) ---- */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }

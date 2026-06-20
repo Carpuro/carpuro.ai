@@ -1,0 +1,154 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const providers = [
+  { id: 'google', label: 'Continue with Google' },
+  { id: 'github', label: 'Continue with GitHub' },
+  { id: 'linkedin_oidc', label: 'Continue with LinkedIn' },
+];
+---
+
+<Base
+  title="Client portal — carpuro.ai"
+  description="Sign in to the carpuro.ai client portal to view your projects and their status."
+>
+  <section class="section page-hero portal-auth">
+    <div class="container container-narrow">
+      <span class="eyebrow">Client portal</span>
+      <h1>Sign <span class="hero-accent">in.</span></h1>
+      <p class="lead">Access is invite-only. Use the email Carlos invited, or a connected
+        account, to see your projects and their status.</p>
+
+      <div class="auth-card card">
+        <form class="auth-form" id="magicForm">
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@company.com"
+              autocomplete="email" required />
+          </div>
+          <button type="submit" class="btn btn-primary" id="magicBtn">
+            Email me a sign-in link<span class="arrow">→</span>
+          </button>
+        </form>
+
+        <p class="auth-note" id="authNote" role="status" hidden></p>
+
+        <div class="auth-divider"><span>or</span></div>
+
+        <div class="oauth-buttons">
+          {providers.map((p) => (
+            <button type="button" class="btn btn-ghost oauth-btn" data-provider={p.id}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <p class="auth-foot">Not invited yet? <a href="/contact">Get in touch</a> and Carlos will
+        set you up.</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { getPortalClient } from '../../lib/portalClient';
+
+  const supabase = getPortalClient();
+  const redirectTo = `${location.origin}/portal/callback`;
+
+  const note = document.getElementById('authNote') as HTMLParagraphElement | null;
+  const showNote = (msg: string, kind: 'info' | 'error' = 'info') => {
+    if (!note) return;
+    note.hidden = false;
+    note.textContent = msg;
+    note.dataset.kind = kind;
+  };
+
+  // Already signed in → straight to the dashboard.
+  supabase.auth.getSession().then(({ data }) => {
+    if (data.session) location.replace('/portal');
+  });
+
+  // Magic link
+  const form = document.getElementById('magicForm') as HTMLFormElement | null;
+  const magicBtn = document.getElementById('magicBtn') as HTMLButtonElement | null;
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+    if (!email || !magicBtn) return;
+    magicBtn.disabled = true;
+    magicBtn.textContent = 'Sending…';
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTo },
+    });
+    magicBtn.disabled = false;
+    magicBtn.innerHTML = 'Email me a sign-in link<span class="arrow">→</span>';
+    if (error) {
+      // Most common cause here is an un-invited email (the DB trigger blocks
+      // account creation). Keep the message friendly and non-enumerating.
+      showNote(
+        'We couldn’t send a sign-in link. This portal is invite-only — if you were invited, double-check the email; otherwise get in touch.',
+        'error'
+      );
+    } else {
+      showNote('Check your inbox — we sent you a one-time sign-in link.', 'info');
+    }
+  });
+
+  // OAuth
+  document.querySelectorAll<HTMLButtonElement>('.oauth-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const provider = btn.dataset.provider as
+        | 'google'
+        | 'github'
+        | 'linkedin_oidc'
+        | undefined;
+      if (!provider) return;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo },
+      });
+      if (error) showNote(`Could not start ${provider} sign-in: ${error.message}`, 'error');
+    });
+  });
+</script>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .portal-auth h1 { margin: var(--s-4) 0 var(--s-6); }
+  .portal-auth .lead { margin-bottom: var(--s-8); }
+
+  .auth-card { max-width: 440px; padding: var(--s-8); }
+  .auth-form .field { display: grid; gap: var(--s-2); margin-bottom: var(--s-4); }
+  .auth-form label { font-size: 0.85rem; font-weight: 600; }
+  .auth-form input {
+    font-family: var(--font-sans); font-size: 1rem; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: var(--r-sm); padding: 0.7rem 0.9rem; width: 100%;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .auth-form input:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+  .auth-form .btn-primary { width: 100%; justify-content: center; }
+
+  .auth-note { margin-top: var(--s-4); font-size: 0.9rem; color: var(--text-muted); }
+  .auth-note[data-kind='error'] { color: #b91c1c; }
+  .auth-note[data-kind='info'] { color: var(--accent-hover); }
+
+  .auth-divider {
+    display: flex; align-items: center; gap: var(--s-3);
+    margin: var(--s-6) 0; color: var(--text-subtle);
+    font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .oauth-buttons { display: grid; gap: var(--s-3); }
+  .oauth-btn { width: 100%; justify-content: center; }
+
+  .auth-foot { margin-top: var(--s-6); font-size: 0.9rem; color: var(--text-muted); }
+  .auth-foot a { color: var(--accent); }
+</style>

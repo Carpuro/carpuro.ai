@@ -1,0 +1,142 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Project — carpuro.ai" description="Project status, updates, and resources.">
+  <section class="section page-hero portal">
+    <div class="container container-narrow">
+      <a href="/portal" class="back-link">← All projects</a>
+      <div id="projectState" class="portal-loading">Loading…</div>
+      <article id="projectBody" hidden></article>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { getPortalClient } from '../../lib/portalClient';
+  import { STATUS_META, escapeHtml, fmtDate } from '../../lib/portalUi';
+
+  const supabase = getPortalClient();
+  const state = document.getElementById('projectState')!;
+  const body = document.getElementById('projectBody')!;
+  const id = new URLSearchParams(location.search).get('id');
+
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      location.replace('/portal/login');
+      return;
+    }
+    if (!id) {
+      state.textContent = 'No project specified.';
+      return;
+    }
+
+    // RLS guarantees this returns a row only if the project belongs to the
+    // caller (or they are an admin); otherwise it is empty → treated as not found.
+    const { data: project } = await supabase
+      .from('projects')
+      .select('id, name, summary, description, status, progress, start_date, target_date')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (!project) {
+      state.innerHTML =
+        '<div class="empty card"><h3>Project not found</h3>' +
+        '<p>This project doesn’t exist or isn’t available on your account. ' +
+        '<a href="/portal">Back to your projects</a>.</p></div>';
+      return;
+    }
+
+    const [{ data: updates }, { data: links }] = await Promise.all([
+      supabase.from('project_updates').select('title, body, created_at')
+        .eq('project_id', id).order('created_at', { ascending: false }),
+      supabase.from('project_links').select('label, url, kind')
+        .eq('project_id', id).order('created_at', { ascending: true }),
+    ]);
+
+    const meta = STATUS_META[project.status] ?? STATUS_META.discovery;
+    const progress = Math.max(0, Math.min(100, project.progress ?? 0));
+
+    const dateRow = [
+      project.start_date ? `Started ${fmtDate(project.start_date)}` : '',
+      project.target_date ? `Target ${fmtDate(project.target_date)}` : '',
+    ].filter(Boolean).join(' · ');
+
+    const updatesHtml = (updates && updates.length)
+      ? `<ul class="timeline">${updates.map((u) => `
+          <li>
+            <div class="tl-dot" aria-hidden="true"></div>
+            <div class="tl-body">
+              <div class="tl-meta">${fmtDate(u.created_at)}</div>
+              ${u.title ? `<h4>${escapeHtml(u.title)}</h4>` : ''}
+              ${u.body ? `<p>${escapeHtml(u.body)}</p>` : ''}
+            </div>
+          </li>`).join('')}</ul>`
+      : '<p class="muted-note">No updates yet — they’ll appear here as the project moves forward.</p>';
+
+    const linksHtml = (links && links.length)
+      ? `<ul class="res-links">${links.map((l) => `
+          <li><a href="${escapeHtml(l.url)}" target="_blank" rel="noopener">
+            <span>${escapeHtml(l.label)}</span><span class="arrow">↗</span></a></li>`).join('')}</ul>`
+      : '';
+
+    body.innerHTML = `
+      <div class="proj-head">
+        <span class="badge" data-tone="${meta.tone}">${meta.label}</span>
+        ${dateRow ? `<span class="proj-dates">${dateRow}</span>` : ''}
+      </div>
+      <h1>${escapeHtml(project.name)}</h1>
+      ${project.summary ? `<p class="lead">${escapeHtml(project.summary)}</p>` : ''}
+      <div class="proj-progress">
+        <div class="pc-bar"><span style="width:${progress}%"></span></div>
+        <span class="pc-pct">${progress}% complete</span>
+      </div>
+      ${project.description ? `<div class="proj-desc">${escapeHtml(project.description)}</div>` : ''}
+      ${linksHtml ? `<h2 class="sec-h">Resources</h2>${linksHtml}` : ''}
+      <h2 class="sec-h">Updates</h2>
+      ${updatesHtml}`;
+
+    state.hidden = true;
+    body.hidden = false;
+  })();
+</script>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .back-link { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
+  .back-link:hover { color: var(--text); }
+  .portal-loading { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; margin-top: var(--s-8); }
+
+  .proj-head { display: flex; align-items: center; gap: var(--s-4); margin: var(--s-8) 0 var(--s-4); flex-wrap: wrap; }
+  .proj-dates { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-subtle); }
+  #projectBody h1 { margin-bottom: var(--s-4); }
+  .proj-progress { display: flex; align-items: center; gap: var(--s-3); margin: var(--s-6) 0; }
+  .pc-bar { flex: 1; max-width: 320px; height: 8px; border-radius: var(--r-full); background: var(--bg-alt); overflow: hidden; }
+  .pc-bar span { display: block; height: 100%; background: var(--accent); border-radius: var(--r-full); }
+  .pc-pct { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-subtle); }
+  .proj-desc { color: var(--text-muted); margin: var(--s-6) 0; white-space: pre-wrap; }
+
+  .sec-h { font-size: 1.3rem; margin: var(--s-12) 0 var(--s-6); }
+  .muted-note { color: var(--text-subtle); font-size: 0.92rem; }
+
+  .res-links { list-style: none; display: grid; gap: var(--s-3); }
+  .res-links a {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+    padding: var(--s-4); border: 1px solid var(--border); border-radius: var(--r-md);
+    background: var(--surface); color: var(--text);
+    transition: border-color .18s ease, transform .18s ease;
+  }
+  .res-links a:hover { border-color: var(--text); transform: translateX(2px); }
+  .res-links .arrow { color: var(--text-subtle); }
+
+  .timeline { list-style: none; display: grid; gap: var(--s-6); position: relative; }
+  .timeline li { display: grid; grid-template-columns: 18px 1fr; gap: var(--s-4); }
+  .tl-dot { width: 11px; height: 11px; margin-top: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .tl-meta { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-subtle); margin-bottom: 2px; }
+  .tl-body h4 { font-size: 1rem; margin-bottom: var(--s-2); }
+  .tl-body p { font-size: 0.92rem; color: var(--text-muted); white-space: pre-wrap; }
+
+  .empty { max-width: 520px; padding: var(--s-8); margin-top: var(--s-8); }
+  .empty a { color: var(--accent); }
+</style>

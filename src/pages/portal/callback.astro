@@ -1,0 +1,79 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Signing in… — carpuro.ai" description="Completing sign-in to the client portal.">
+  <section class="section page-hero">
+    <div class="container container-narrow callback">
+      <div id="cbSpinner" class="cb-spinner" aria-hidden="true"></div>
+      <h1 id="cbTitle">Signing you in…</h1>
+      <p class="lead" id="cbMsg">One moment while we complete your sign-in.</p>
+      <p class="cb-actions" id="cbActions" hidden>
+        <a href="/portal/login" class="btn btn-primary">Back to sign in</a>
+        <a href="/contact" class="btn btn-ghost">Get in touch</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { getPortalClient } from '../../lib/portalClient';
+
+  const supabase = getPortalClient();
+  const title = document.getElementById('cbTitle')!;
+  const msg = document.getElementById('cbMsg')!;
+  const spinner = document.getElementById('cbSpinner');
+  const actions = document.getElementById('cbActions');
+
+  const fail = (text: string) => {
+    title.textContent = 'Sign-in didn’t complete';
+    msg.textContent = text;
+    spinner?.setAttribute('hidden', '');
+    actions?.removeAttribute('hidden');
+  };
+
+  // Surface an OAuth error returned in the URL (e.g. invite-only rejection: the
+  // handle_new_user() trigger aborts creation for un-invited emails).
+  const params = new URLSearchParams(
+    location.hash.startsWith('#') ? location.hash.slice(1) : location.search
+  );
+  const errDesc =
+    params.get('error_description') ||
+    new URLSearchParams(location.search).get('error_description');
+
+  // supabase-js (detectSessionInUrl) processes the code/hash on load and fires
+  // SIGNED_IN once the session exists.
+  const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) location.replace('/portal');
+  });
+
+  // Fallback after the client has had a moment to exchange the code.
+  window.setTimeout(async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      location.replace('/portal');
+      return;
+    }
+    sub.subscription.unsubscribe();
+    if (errDesc && /not.*invit|invite|database error|signup/i.test(errDesc)) {
+      fail('This portal is invite-only and that account isn’t on the list yet. Ask Carlos for an invite, or get in touch.');
+    } else if (errDesc) {
+      fail(decodeURIComponent(errDesc));
+    } else {
+      fail('Your sign-in link may have expired or already been used. Request a fresh link to continue.');
+    }
+  }, 1800);
+</script>
+
+<style>
+  .page-hero { padding-top: var(--s-16); }
+  .callback h1 { margin: var(--s-6) 0 var(--s-4); }
+  .cb-actions { display: flex; gap: var(--s-3); flex-wrap: wrap; margin-top: var(--s-6); }
+  .cb-spinner {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 3px solid var(--border-strong); border-top-color: var(--accent);
+    animation: cb-spin .8s linear infinite;
+  }
+  @keyframes cb-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .cb-spinner { animation: none; } }
+</style>
