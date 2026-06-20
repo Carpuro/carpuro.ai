@@ -11,14 +11,20 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, topic, message, sessionId, notes, company } = req.body || {};
+  const { name, email, topic, message, sessionId, notes, company,
+          budget, referralSource, services } = req.body || {};
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
+  const cleanServices = Array.isArray(services)
+    ? services.map((s) => String(s).slice(0, 60)).slice(0, 12)
+    : null;
 
   // If this lead came out of a chat, carry the conversation's score over and
   // attribute the source to the chat funnel.
   let score = 40; // a submitted form is already a warm signal
+  // A stated budget is a strong qualifying signal — nudge the score up.
+  if (budget && /\$|k\b|\d/i.test(budget) && !/not\s*sure/i.test(budget)) score += 20;
   if (sessionId) {
     const { data: session } = await supabase
       .from('chat_sessions')
@@ -39,6 +45,9 @@ export default async function handler(req, res) {
     topic: topic || 'other',
     pain_points: notes || null,
     message,
+    budget: budget || null,
+    referral_source: referralSource || null,
+    services: cleanServices,
     stage: 'new',
     score,
     temperature: tempFromScore(score),

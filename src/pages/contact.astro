@@ -1,79 +1,168 @@
 ---
 import Base from '../layouts/Base.astro';
 
-const socials = [
-  { href: 'https://github.com/Carpuro', title: 'GitHub', handle: 'github.com/Carpuro' },
-  { href: 'https://www.linkedin.com/in/carlos-pulido-489700132/', title: 'LinkedIn', handle: 'linkedin.com/in/carlos-pulido-489700132' },
+const services = [
+  'Data pipelines (ETL/ELT)',
+  'Cloud data warehouse',
+  'Multicloud architecture',
+  'Analytics & BI',
+  'AI & automation',
+  'Data audit / consulting',
+];
+const budgets = ['Not sure yet', 'Under $5K', '$5K – $15K', '$15K – $40K', '$40K+'];
+const sources = ['Referral', 'Google', 'LinkedIn', 'GitHub', 'X / Twitter', 'Other'];
+
+const steps = [
+  { n: '01', t: 'Tell me about it', d: 'Send the project details below, or book a call. The more context, the sharper my first response.' },
+  { n: '02', t: 'We scope it together', d: 'A free 30-minute call to pressure-test the idea, agree on outcomes, and shape clear milestones — no obligation.' },
+  { n: '03', t: 'I build, you track it', d: 'Work ships in milestones you follow live in your own client portal — status, progress, and updates, no chasing.' },
+];
+
+const faqs = [
+  { q: 'Who do you work best with?', a: 'Startups and teams that have outgrown spreadsheets and ad-hoc scripts and need real data infrastructure — pipelines, a warehouse, and analytics they can trust. If you have messy or scattered data and need it to become a reliable system, that’s the sweet spot.' },
+  { q: 'How do projects usually start?', a: 'With a short call to make sure it’s a good fit and to scope the work into clear outcomes. From there I propose milestones and a timeline before anything is committed.' },
+  { q: 'What does it cost?', a: 'It depends on scope — a focused audit or pipeline is very different from a full multicloud platform. The budget range in the form helps me tailor the first proposal; I’ll always be upfront before any work begins.' },
+  { q: 'How long do projects take?', a: 'Small, well-defined pieces land in a couple of weeks; larger platform builds run longer and ship in milestones so you see value early and continuously.' },
+  { q: 'Do you work remotely?', a: 'Yes — based in Guadalajara, Mexico, working with teams worldwide. Async-friendly, with calls when they add value.' },
+  { q: 'What happens once we start?', a: 'You get a private client portal where every project’s status, progress, and updates live in one place, so you always know where things stand without asking.' },
 ];
 ---
 
-<Base title="Contact — Carlos Pulido Rosas" description="Get in touch about data engineering projects, consulting, or collaboration. Based in Zapopan, Jalisco — working remotely worldwide.">
-  <section class="section page-hero">
-    <div class="container">
-      <span class="eyebrow">Contact</span>
-      <h1>Let's <span class="hero-accent">connect.</span></h1>
-      <p class="lead">A data engineering project, consulting, collaboration, or just a good
-        conversation about data — reach out.</p>
+<Base
+  title="Work with me — Carlos Pulido Rosas"
+  description="Start a data engineering project: pipelines, cloud warehousing, multicloud architecture, and analytics. Tell me about your project or book a free 30-minute call."
+>
+  <section class="section page-hero contact-hero">
+    <div class="container container-narrow">
+      <span class="eyebrow">Work with me</span>
+      <h1>Let's see if we're <span class="hero-accent">a fit.</span></h1>
+      <p class="lead">Tell me what you're building and where your data is getting in the way.
+        If it's a good match, we'll scope it on a free call — and you'll track the whole
+        thing in your own client portal.</p>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section contact-main">
     <div class="container contact-grid">
-      <form class="contact-form" id="contactForm">
-        <div class="field">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" placeholder="Your name" required />
+      <!-- QUALIFYING FORM -->
+      <form class="contact-form card" id="contactForm">
+        <div class="grid-2">
+          <div class="field">
+            <label for="name">Name <span>*</span></label>
+            <input type="text" id="name" name="name" placeholder="Your name" required />
+          </div>
+          <div class="field">
+            <label for="email">Business email <span>*</span></label>
+            <input type="email" id="email" name="email" placeholder="you@company.com" required />
+          </div>
         </div>
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="you@company.com" required />
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" placeholder="Company / project" />
+          </div>
+          <div class="field">
+            <label for="budget">Budget</label>
+            <select id="budget" name="budget">
+              {budgets.map((b) => <option value={b}>{b}</option>)}
+            </select>
+          </div>
         </div>
+
         <div class="field">
-          <label for="topic">Topic</label>
-          <select id="topic" name="topic">
-            <option value="project">Data engineering project</option>
-            <option value="consulting">Consulting</option>
-            <option value="collaboration">Open-source collaboration</option>
-            <option value="other">Other</option>
-          </select>
+          <label>What do you need?</label>
+          <div class="check-grid">
+            {services.map((s) => (
+              <label class="check">
+                <input type="checkbox" name="services" value={s} />
+                <span>{s}</span>
+              </label>
+            ))}
+          </div>
         </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="referral">How did you hear about me?</label>
+            <select id="referral" name="referral">
+              <option value="" selected disabled>Choose one…</option>
+              {sources.map((s) => <option value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div class="field"></div>
+        </div>
+
         <div class="field">
-          <label for="message">Message</label>
-          <textarea id="message" name="message" rows="5" placeholder="Tell me about your project or idea…" required></textarea>
+          <label for="message">Tell me about your project <span>*</span></label>
+          <textarea id="message" name="message" rows="5"
+            placeholder="What are you building, what's your current stack, and what's getting in the way?" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" id="submitBtn">Send message<span class="arrow">→</span></button>
+
+        <label class="consent">
+          <input type="checkbox" id="consent" required />
+          <span>I agree to be contacted about this enquiry.</span>
+        </label>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">Send project details<span class="arrow">→</span></button>
         <p class="form-note" id="formNote" hidden></p>
       </form>
 
+      <!-- SIDE: fit + process -->
       <aside class="contact-side">
-        <h2>Find me online</h2>
-        <ul class="links">
-          {socials.map((s) => (
-            <li>
-              <a href={s.href} target="_blank" rel="noopener">
-                <span class="l-text">
-                  <span class="l-title">{s.title}</span>
-                  <span class="l-handle">{s.handle}</span>
-                </span>
-                <span class="arrow">↗</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div class="avail-box">
-          <p class="avail"><i></i> Available for projects</p>
-          <p>Open to data engineering consulting, freelance pipelines, and interesting
-            collaborations. Zapopan, Jalisco — working remotely worldwide.</p>
+        <div class="fit-box">
+          <h2>A good fit if…</h2>
+          <ul class="fit-list">
+            <li>You've outgrown spreadsheets and ad-hoc scripts</li>
+            <li>Your data is scattered and you need one reliable system</li>
+            <li>You want pipelines, a warehouse, and analytics you can trust</li>
+            <li>You value clear milestones over vague retainers</li>
+          </ul>
+          <p class="reply-note"><i></i> I personally read every message and usually reply within a day.</p>
         </div>
       </aside>
     </div>
   </section>
 
-  <!-- BOOK A CALL — Cal.com inline agenda -->
-  <section class="section book-section" id="book">
+  <!-- HOW IT WORKS -->
+  <section class="section section--alt">
     <div class="container">
-      <h2>Or book a call directly</h2>
-      <p class="lead book-lead">Grab a free 30-minute slot that works for you — no back-and-forth.</p>
+      <span class="eyebrow">How it works</span>
+      <h2 class="sec-title">From first message to shipped work.</h2>
+      <div class="steps">
+        {steps.map((s) => (
+          <div class="step">
+            <span class="step-n">{s.n}</span>
+            <h3>{s.t}</h3>
+            <p>{s.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container container-narrow">
+      <span class="eyebrow">FAQ</span>
+      <h2 class="sec-title">Questions, answered.</h2>
+      <div class="faq">
+        {faqs.map((f) => (
+          <details class="faq-item">
+            <summary>{f.q}<span class="faq-mark" aria-hidden="true"></span></summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOK A CALL — Cal.com inline agenda -->
+  <section class="section section--alt book-section" id="book">
+    <div class="container">
+      <span class="eyebrow">Or skip the form</span>
+      <h2 class="sec-title">Book a free 30-minute call.</h2>
+      <p class="lead book-lead">Grab a slot that works for you — no back-and-forth.</p>
       <div id="cal-inline" class="cal-inline"></div>
     </div>
   </section>
@@ -101,16 +190,13 @@ const socials = [
   const btn = document.getElementById('submitBtn') as HTMLButtonElement | null;
   const note = document.getElementById('formNote') as HTMLParagraphElement | null;
 
-  // When Mon's "Book a free call" button sends a visitor here, it appends
-  // ?session=<id>&notes=<conversation summary>. Carry both into the lead.
+  // Carry a chat hand-off (?session=&notes=) into the lead.
   const urlParams = new URLSearchParams(location.search);
   const chatSession = urlParams.get('session');
   const chatNotes = urlParams.get('notes');
   if (chatNotes) {
     const msg = document.getElementById('message') as HTMLTextAreaElement | null;
-    const topicSel = document.getElementById('topic') as HTMLSelectElement | null;
     if (msg && !msg.value) msg.value = `Following up on my chat with Mon:\n${chatNotes}`;
-    if (topicSel) topicSel.value = 'project';
   }
   if (chatSession || chatNotes) history.replaceState({}, '', location.pathname);
 
@@ -120,10 +206,18 @@ const socials = [
     btn.textContent = 'Sending…';
     btn.disabled = true;
 
+    const services = Array.from(
+      document.querySelectorAll<HTMLInputElement>('input[name="services"]:checked')
+    ).map((el) => el.value);
+
     const payload = {
       name: (document.getElementById('name') as HTMLInputElement).value,
       email: (document.getElementById('email') as HTMLInputElement).value,
-      topic: (document.getElementById('topic') as HTMLSelectElement).value,
+      company: (document.getElementById('company') as HTMLInputElement).value || undefined,
+      budget: (document.getElementById('budget') as HTMLSelectElement).value || undefined,
+      referralSource: (document.getElementById('referral') as HTMLSelectElement).value || undefined,
+      services,
+      topic: services[0] || 'project',
       message: (document.getElementById('message') as HTMLTextAreaElement).value,
       sessionId: chatSession || undefined,
       notes: chatNotes || undefined,
@@ -136,11 +230,11 @@ const socials = [
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
-      btn.textContent = 'Message sent ✓';
+      btn.innerHTML = 'Sent ✓';
       form?.reset();
-      if (note) { note.hidden = false; note.textContent = "Thanks — I'll get back to you soon."; }
+      if (note) { note.hidden = false; note.textContent = "Thanks — I'll get back to you within a day."; }
     } catch {
-      btn.textContent = 'Error — try again';
+      btn.innerHTML = 'Error — try again';
       btn.disabled = false;
     }
   });
@@ -148,13 +242,19 @@ const socials = [
 
 <style>
   .page-hero { padding-top: var(--s-16); }
-  .page-hero h1 { margin: var(--s-4) 0 var(--s-6); }
+  .contact-hero h1 { margin: var(--s-4) 0 var(--s-6); }
 
-  .contact-grid { display: grid; gap: var(--s-16); }
-  @media (min-width: 880px) { .contact-grid { grid-template-columns: 1.3fr 1fr; align-items: start; } }
+  .contact-main { padding-top: var(--s-8); }
+  .contact-grid { display: grid; gap: var(--s-12); align-items: start; }
+  @media (min-width: 920px) { .contact-grid { grid-template-columns: 1.5fr 1fr; } }
 
-  .field { display: grid; gap: var(--s-2); margin-bottom: var(--s-6); }
+  .contact-form { padding: var(--s-8); display: grid; gap: var(--s-5); }
+  .grid-2 { display: grid; gap: var(--s-5); }
+  @media (min-width: 560px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+  .field { display: grid; gap: var(--s-2); }
   .field label { font-size: 0.85rem; font-weight: 600; }
+  .field label span { color: var(--accent); }
   .field input, .field select, .field textarea {
     font-family: var(--font-sans); font-size: 1rem; color: var(--text);
     background: var(--surface); border: 1px solid var(--border-strong);
@@ -165,30 +265,56 @@ const socials = [
   .field input:focus, .field select:focus, .field textarea:focus {
     outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring);
   }
-  .form-note { margin-top: var(--s-4); color: var(--accent-hover); font-size: 0.92rem; }
 
-  .contact-side h2 { font-size: 1.3rem; margin-bottom: var(--s-6); }
-  .links { list-style: none; display: grid; gap: var(--s-3); margin-bottom: var(--s-8); }
-  .links a {
-    display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
-    padding: var(--s-4); border: 1px solid var(--border);
-    border-radius: var(--r-md); background: var(--surface); color: var(--text);
-    transition: border-color .18s ease, transform .18s ease;
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+  @media (max-width: 480px) { .check-grid { grid-template-columns: 1fr; } }
+  .check {
+    display: flex; align-items: center; gap: var(--s-2); cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--r-sm);
+    padding: 0.55rem 0.7rem; font-size: 0.9rem; transition: border-color .15s ease, background .15s ease;
   }
-  .links a:hover { border-color: var(--text); transform: translateX(2px); }
-  .l-text { display: grid; gap: 2px; }
-  .l-title { font-weight: 600; }
-  .l-handle { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-subtle); }
-  .links .arrow { color: var(--text-subtle); flex-shrink: 0; }
+  .check:hover { border-color: var(--border-strong); }
+  .check input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .check:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
 
-  .avail-box { padding: var(--s-6); border: 1px solid var(--border); border-left: 4px solid #16a34a; border-radius: var(--r-md); background: var(--surface); }
-  .avail-box p:last-child { font-size: 0.9rem; margin-top: var(--s-3); }
+  .consent { display: flex; align-items: center; gap: var(--s-3); font-size: 0.9rem; color: var(--text-muted); }
+  .consent input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  .contact-form .btn-primary { justify-self: start; }
+  .form-note { color: var(--accent-hover); font-size: 0.92rem; }
+
+  .fit-box { padding: var(--s-8); border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
+  .fit-box h2 { font-size: 1.2rem; margin-bottom: var(--s-5); }
+  .fit-list { list-style: none; display: grid; gap: var(--s-3); margin-bottom: var(--s-6); }
+  .fit-list li { position: relative; padding-left: var(--s-6); color: var(--text-muted); font-size: 0.95rem; }
+  .fit-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .reply-note { display: flex; align-items: center; gap: var(--s-3); font-size: 0.88rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: var(--s-5); }
+  .reply-note i { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.15); flex-shrink: 0; }
+
+  .sec-title { margin: var(--s-3) 0 var(--s-12); }
+
+  .steps { display: grid; gap: var(--s-6); }
+  @media (min-width: 760px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .step { padding: var(--s-8); border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
+  .step-n { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); font-weight: 500; }
+  .step h3 { margin: var(--s-4) 0 var(--s-2); font-size: 1.15rem; }
+  .step p { color: var(--text-muted); font-size: 0.95rem; }
+
+  .faq { display: grid; gap: var(--s-3); }
+  .faq-item { border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
+  .faq-item summary {
+    list-style: none; cursor: pointer; padding: var(--s-5) var(--s-6);
+    font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-mark { position: relative; width: 14px; height: 14px; flex-shrink: 0; }
+  .faq-mark::before, .faq-mark::after { content: ''; position: absolute; background: var(--accent); transition: transform .2s ease; }
+  .faq-mark::before { top: 6px; left: 0; width: 14px; height: 2px; }
+  .faq-mark::after { top: 0; left: 6px; width: 2px; height: 14px; }
+  .faq-item[open] .faq-mark::after { transform: scaleY(0); }
+  .faq-item p { padding: 0 var(--s-6) var(--s-6); color: var(--text-muted); }
 
   .book-section { border-top: 1px solid var(--border); }
-  .book-lead { margin: var(--s-3) 0 var(--s-8); }
-  .cal-inline {
-    width: 100%; min-height: 620px; overflow: auto;
-    border: 1px solid var(--border); border-radius: var(--r-md);
-    background: var(--surface);
-  }
+  .book-lead { margin: 0 0 var(--s-8); }
+  .cal-inline { width: 100%; min-height: 620px; overflow: auto; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); }
 </style>
