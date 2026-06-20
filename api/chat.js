@@ -26,9 +26,29 @@ BUTTONS RULE: At the end of EVERY reply, add buttons on a NEW LINE in this exact
 BUTTONS:[{"label":"Book a free call","action":"cal:discovery-call"},{"label":"View services","action":"/services/"}]
 Always include the "Book a free call" button. You may add one more relevant button. NEVER start your reply with BUTTONS.`;
 
+// Defense-in-depth: this endpoint is only meant to be called by our own chat
+// widget. Cloudflare's WAF blocks foreign Origins at the edge, but Origin is
+// spoofable, so we re-check it here. Allow carpuro.ai (+ subdomains), local dev,
+// and Vercel preview deploys; reject everything else (curl/scripts/scrapers).
+const ALLOWED_HOST_RE = /(^|\.)carpuro\.ai$/i;
+function isAllowedOrigin(req) {
+  const source = req.headers.origin || req.headers.referer || '';
+  if (!source) return false; // a real browser fetch always sends one of these
+  let host;
+  try { host = new URL(source).hostname; } catch { return false; }
+  if (ALLOWED_HOST_RE.test(host)) return true;
+  if (host === 'localhost' || host === '127.0.0.1') return true;
+  if (host.endsWith('.vercel.app')) return true;
+  return false;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (!isAllowedOrigin(req)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
 
   if (!process.env.GEMINI_API_KEY) {
     console.error('GEMINI_API_KEY is not set');
