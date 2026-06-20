@@ -1,0 +1,239 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+
+const statuses = ['discovery', 'in_progress', 'review', 'delivered', 'on_hold', 'archived'];
+---
+
+<PortalLayout title="Projects — admin" active="projects" admin={true}>
+  <span slot="top" class="app-title">Projects</span>
+
+  <div class="page-head">
+    <h1>Projects</h1>
+    <p class="page-sub">Create and manage client projects, updates, links, and tool integrations.</p>
+  </div>
+
+  <!-- NEW PROJECT -->
+  <details class="new-proj card">
+    <summary>+ New project</summary>
+    <form id="newProjForm" class="np-form">
+      <div class="np-grid">
+        <label>Client
+          <select id="npClient" required></select>
+        </label>
+        <label>Name
+          <input id="npName" type="text" placeholder="Project name" required />
+        </label>
+        <label>Status
+          <select id="npStatus">{statuses.map((s) => <option value={s}>{s}</option>)}</select>
+        </label>
+        <label>Target date
+          <input id="npTarget" type="date" />
+        </label>
+      </div>
+      <label>Summary
+        <input id="npSummary" type="text" placeholder="One-line summary the client sees" />
+      </label>
+      <button type="submit" class="btn btn-primary">Create project</button>
+      <span id="npMsg" class="np-msg"></span>
+    </form>
+  </details>
+
+  <div id="projState" class="portal-loading">Loading…</div>
+  <div id="projList" class="proj-list" hidden></div>
+
+  <script type="application/json" id="statusOpts" set:html={JSON.stringify(statuses)}></script>
+</PortalLayout>
+
+<script>
+  import { getPortalClient } from '../../lib/portalClient';
+  import { escapeHtml } from '../../lib/portalUi';
+
+  const supabase = getPortalClient();
+  const statuses: string[] = JSON.parse(document.getElementById('statusOpts')!.textContent || '[]');
+  const state = document.getElementById('projState')!;
+  const listEl = document.getElementById('projList')!;
+  const clientSel = document.getElementById('npClient') as HTMLSelectElement;
+
+  let clients: any[] = [];
+  const clientName = (id: string) => {
+    const c = clients.find((x) => x.id === id);
+    return c ? (c.full_name || c.email) : '—';
+  };
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+  const opt = (vals: string[], sel: string) => vals.map((v) => `<option value="${v}"${v === sel ? ' selected' : ''}>${v}</option>`).join('');
+
+  async function loadClients() {
+    const { data } = await supabase.from('profiles').select('id, full_name, email, company').order('full_name');
+    clients = data || [];
+    clientSel.innerHTML = '<option value="" disabled selected>Choose…</option>' +
+      clients.map((c) => `<option value="${c.id}">${escapeHtml(c.full_name || c.email)}${c.company ? ' — ' + escapeHtml(c.company) : ''}</option>`).join('');
+  }
+
+  async function loadProjects() {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('id, client_id, name, summary, status, progress, target_date')
+      .order('updated_at', { ascending: false });
+    if (error) { state.textContent = 'Could not load projects (are you an admin?).'; return; }
+    const projects = data || [];
+    const ids = projects.map((p) => p.id);
+    const [{ data: integs }] = await Promise.all([
+      ids.length ? supabase.from('project_integrations').select('project_id, source, external_ref, last_sync_status') : Promise.resolve({ data: [] as any[] }),
+    ]);
+
+    state.hidden = true; listEl.hidden = false;
+    if (!projects.length) { listEl.innerHTML = '<p class="muted-note">No projects yet — create one above.</p>'; return; }
+
+    listEl.innerHTML = projects.map((p) => {
+      const pIntegs = (integs || []).filter((i: any) => i.project_id === p.id);
+      const integLine = pIntegs.map((i: any) => `<span class="integ-tag">${i.source}: ${escapeHtml(i.external_ref)}${i.last_sync_status ? ` (${escapeHtml(i.last_sync_status)})` : ''}</span>`).join('');
+      return `
+      <div class="proj-card card" data-id="${p.id}">
+        <div class="pc-head">
+          <div>
+            <h3>${escapeHtml(p.name)}</h3>
+            <span class="pc-client">${escapeHtml(clientName(p.client_id))}</span>
+          </div>
+          <a class="pc-view" href="/portal/project?id=${p.id}" target="_blank" rel="noopener">View ↗</a>
+        </div>
+        <div class="pc-row">
+          <label>Status <select class="p-status">${opt(statuses, p.status)}</select></label>
+          <label>Progress <input class="p-progress" type="number" min="0" max="100" value="${p.progress ?? 0}" /></label>
+          <span class="p-saved" hidden>Saved ✓</span>
+        </div>
+        ${integLine ? `<div class="integ-list">${integLine}</div>` : ''}
+        <details class="manage">
+          <summary>Manage</summary>
+          <div class="mini">
+            <p class="mini-h">Add update</p>
+            <input class="u-title" placeholder="Title" />
+            <textarea class="u-body" rows="2" placeholder="What happened…"></textarea>
+            <button class="btn btn-ghost add-update" type="button">Add update</button>
+          </div>
+          <div class="mini">
+            <p class="mini-h">Add resource link</p>
+            <input class="l-label" placeholder="Label (e.g. Live dashboard)" />
+            <input class="l-url" placeholder="https://…" />
+            <button class="btn btn-ghost add-link" type="button">Add link</button>
+          </div>
+          <div class="mini">
+            <p class="mini-h">Link a tool (synced board)</p>
+            <select class="i-source"><option value="github">GitHub Project</option><option value="jira">Jira</option></select>
+            <input class="i-ref" placeholder="GitHub: project title · Jira: PROJECT KEY" />
+            <input class="i-owner" placeholder="GitHub owner (e.g. Carpuro)" />
+            <input class="i-number" type="number" placeholder="GitHub project number" />
+            <button class="btn btn-ghost add-integ" type="button">Link tool</button>
+          </div>
+          <p class="mini-saved" hidden>Done ✓</p>
+        </details>
+      </div>`;
+    }).join('');
+  }
+
+  // New project
+  (document.getElementById('newProjForm') as HTMLFormElement).addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('npMsg')!;
+    const client_id = clientSel.value;
+    const name = (document.getElementById('npName') as HTMLInputElement).value.trim();
+    if (!client_id || !name) { msg.textContent = 'Client and name are required.'; return; }
+    const row = {
+      client_id, name, slug: slugify(name) || null,
+      summary: (document.getElementById('npSummary') as HTMLInputElement).value || null,
+      status: (document.getElementById('npStatus') as HTMLSelectElement).value,
+      target_date: (document.getElementById('npTarget') as HTMLInputElement).value || null,
+    };
+    const { error } = await supabase.from('projects').insert(row);
+    if (error) { msg.textContent = 'Error: ' + error.message; return; }
+    msg.textContent = 'Created ✓';
+    (e.target as HTMLFormElement).reset();
+    await loadProjects();
+  });
+
+  // Inline edits + mini-forms via delegation
+  listEl.addEventListener('change', async (e) => {
+    const t = e.target as HTMLElement;
+    const card = t.closest('.proj-card') as HTMLElement | null; if (!card) return;
+    const id = card.dataset.id!;
+    const flash = () => { const s = card.querySelector('.p-saved') as HTMLElement; s.hidden = false; setTimeout(() => (s.hidden = true), 1400); };
+    if (t.classList.contains('p-status')) { await supabase.from('projects').update({ status: (t as HTMLSelectElement).value }).eq('id', id); flash(); }
+    else if (t.classList.contains('p-progress')) { await supabase.from('projects').update({ progress: Number((t as HTMLInputElement).value) }).eq('id', id); flash(); }
+  });
+
+  listEl.addEventListener('click', async (e) => {
+    const t = e.target as HTMLElement;
+    const card = t.closest('.proj-card') as HTMLElement | null; if (!card) return;
+    const id = card.dataset.id!;
+    const done = () => { const s = card.querySelector('.mini-saved') as HTMLElement; s.hidden = false; setTimeout(() => (s.hidden = true), 1400); };
+    const val = (sel: string) => (card.querySelector(sel) as HTMLInputElement | HTMLTextAreaElement)?.value.trim();
+
+    if (t.classList.contains('add-update')) {
+      const title = val('.u-title'); const body = val('.u-body');
+      if (!title && !body) return;
+      await supabase.from('project_updates').insert({ project_id: id, title: title || null, body: body || null });
+      (card.querySelector('.u-title') as HTMLInputElement).value = ''; (card.querySelector('.u-body') as HTMLTextAreaElement).value = '';
+      done();
+    } else if (t.classList.contains('add-link')) {
+      const label = val('.l-label'); const url = val('.l-url');
+      if (!label || !url) return;
+      await supabase.from('project_links').insert({ project_id: id, label, url });
+      (card.querySelector('.l-label') as HTMLInputElement).value = ''; (card.querySelector('.l-url') as HTMLInputElement).value = '';
+      done();
+    } else if (t.classList.contains('add-integ')) {
+      const source = (card.querySelector('.i-source') as HTMLSelectElement).value;
+      const ref = val('.i-ref');
+      if (!ref) return;
+      const config: any = {};
+      if (source === 'github') {
+        config.owner = val('.i-owner') || 'Carpuro';
+        config.projectNumber = Number(val('.i-number')) || null;
+        config.ownerType = 'user';
+      }
+      const { error } = await supabase.from('project_integrations').insert({ project_id: id, source, external_ref: ref, config });
+      if (error) { alert('Link failed: ' + error.message); return; }
+      done(); await loadProjects();
+    }
+  });
+
+  await loadClients();
+  await loadProjects();
+</script>
+
+<style is:global>
+  .app-top .app-title { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+  .app-content .page-head { margin-bottom: var(--s-6); }
+  .app-content .page-head h1 { font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3rem); text-transform: uppercase; }
+  .app-content .page-sub { color: var(--text-muted); margin-top: var(--s-2); }
+  .app-content .portal-loading { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; }
+  .app-content .muted-note { color: var(--text-subtle); }
+
+  .app-content .new-proj { padding: var(--s-5) var(--s-6); margin-bottom: var(--s-8); }
+  .app-content .new-proj summary { cursor: pointer; font-weight: 600; }
+  .app-content .np-form { display: grid; gap: var(--s-4); margin-top: var(--s-5); }
+  .app-content .np-grid { display: grid; gap: var(--s-4); grid-template-columns: 1fr 1fr; }
+  @media (min-width: 760px) { .app-content .np-grid { grid-template-columns: repeat(4, 1fr); } }
+  .app-content .np-form label { display: grid; gap: var(--s-2); font-size: 0.82rem; font-weight: 600; }
+  .app-content .np-form input, .app-content .np-form select { font-family: var(--font-sans); font-size: 0.92rem; padding: 0.5rem 0.7rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); }
+  .app-content .np-form .btn-primary { justify-self: start; }
+  .app-content .np-msg { font-size: 0.85rem; color: var(--accent-hover); }
+
+  .app-content .proj-list { display: grid; gap: var(--s-5); }
+  @media (min-width: 960px) { .app-content .proj-list { grid-template-columns: 1fr 1fr; } }
+  .app-content .proj-card { padding: var(--s-6); }
+  .app-content .pc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-4); }
+  .app-content .proj-card h3 { font-size: 1.1rem; }
+  .app-content .pc-client { font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-subtle); }
+  .app-content .pc-view { font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent); white-space: nowrap; }
+  .app-content .pc-row { display: flex; align-items: center; gap: var(--s-5); margin-top: var(--s-4); font-size: 0.82rem; flex-wrap: wrap; }
+  .app-content .pc-row select, .app-content .pc-row input { font-family: var(--font-sans); padding: 0.35rem 0.5rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); margin-left: var(--s-2); }
+  .app-content .pc-row input { width: 70px; }
+  .app-content .p-saved, .app-content .mini-saved { color: var(--accent-hover); font-size: 0.8rem; }
+  .app-content .integ-list { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
+  .app-content .integ-tag { font-family: var(--font-mono); font-size: 0.68rem; background: var(--accent-soft); color: var(--accent-hover); border: 1px solid var(--accent-ring); border-radius: var(--r-full); padding: 2px 8px; }
+  .app-content .manage { margin-top: var(--s-4); }
+  .app-content .manage summary { cursor: pointer; font-size: 0.85rem; color: var(--text-muted); }
+  .app-content .mini { display: grid; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--border); }
+  .app-content .mini-h { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); }
+  .app-content .mini input, .app-content .mini textarea, .app-content .mini select { font-family: var(--font-sans); font-size: 0.88rem; padding: 0.45rem 0.6rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); }
+  .app-content .mini .btn { justify-self: start; padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+</style>

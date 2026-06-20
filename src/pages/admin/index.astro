@@ -1,0 +1,158 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+
+const stages = ['new', 'qualified', 'scheduled', 'contacted', 'won', 'lost'];
+const temps = ['cold', 'warm', 'hot'];
+---
+
+<PortalLayout title="Leads — admin" active="leads" admin={true}>
+  <span slot="top" class="app-title">Leads</span>
+
+  <div class="page-head">
+    <h1>Leads</h1>
+    <p class="page-sub">Your pipeline from chat + the contact form. Update stage and notes inline.</p>
+  </div>
+
+  <div class="lead-filters">
+    <label>Stage
+      <select id="stageFilter">
+        <option value="">All</option>
+        {stages.map((s) => <option value={s}>{s}</option>)}
+      </select>
+    </label>
+    <span id="leadCount" class="lead-count"></span>
+  </div>
+
+  <div id="leadsState" class="portal-loading">Loading leads…</div>
+  <div id="leadsList" class="leads-list" hidden></div>
+
+  <!-- data for the client script -->
+  <script type="application/json" id="stageOpts" set:html={JSON.stringify(stages)}></script>
+  <script type="application/json" id="tempOpts" set:html={JSON.stringify(temps)}></script>
+</PortalLayout>
+
+<script>
+  import { getPortalClient } from '../../lib/portalClient';
+  import { escapeHtml, fmtDate } from '../../lib/portalUi';
+
+  const supabase = getPortalClient();
+  const state = document.getElementById('leadsState')!;
+  const list = document.getElementById('leadsList')!;
+  const countEl = document.getElementById('leadCount')!;
+  const stageFilter = document.getElementById('stageFilter') as HTMLSelectElement;
+  const stages: string[] = JSON.parse(document.getElementById('stageOpts')!.textContent || '[]');
+  const temps: string[] = JSON.parse(document.getElementById('tempOpts')!.textContent || '[]');
+
+  type Lead = Record<string, any>;
+  let leads: Lead[] = [];
+
+  const opt = (vals: string[], sel: string) =>
+    vals.map((v) => `<option value="${v}"${v === sel ? ' selected' : ''}>${v}</option>`).join('');
+
+  function render() {
+    const f = stageFilter.value;
+    const shown = f ? leads.filter((l) => l.stage === f) : leads;
+    countEl.textContent = `${shown.length} of ${leads.length}`;
+    if (!shown.length) { list.innerHTML = '<p class="muted-note">No leads here.</p>'; return; }
+    list.innerHTML = shown.map((l) => {
+      const meta = [l.company, l.budget, (l.services || []).join(', '), l.referral_source]
+        .filter(Boolean).map((m) => escapeHtml(m)).join(' · ');
+      return `
+      <div class="lead-card" data-id="${l.id}">
+        <div class="lead-top">
+          <div>
+            <h3>${escapeHtml(l.name || '—')} <span class="lead-temp lead-temp-${l.temperature}">${l.temperature || ''}</span></h3>
+            <a class="lead-mail" href="mailto:${escapeHtml(l.email || '')}">${escapeHtml(l.email || '')}</a>
+          </div>
+          <div class="lead-score">${l.score ?? 0}</div>
+        </div>
+        ${meta ? `<p class="lead-meta">${meta}</p>` : ''}
+        ${l.message ? `<p class="lead-msg">${escapeHtml(l.message)}</p>` : ''}
+        <div class="lead-controls">
+          <label>Stage <select class="lead-stage">${opt(stages, l.stage)}</select></label>
+          <label>Temp <select class="lead-temp-sel">${opt(temps, l.temperature)}</select></label>
+          <span class="lead-date">${fmtDate(l.created_at)}</span>
+        </div>
+        <div class="lead-notes-row">
+          <textarea class="lead-notes" rows="2" placeholder="Notes…">${escapeHtml(l.notes || '')}</textarea>
+          <button class="btn btn-ghost lead-save" type="button">Save</button>
+        </div>
+        <p class="lead-saved" hidden>Saved ✓</p>
+      </div>`;
+    }).join('');
+  }
+
+  async function load() {
+    const { data, error } = await supabase
+      .from('leads')
+      .select('id,name,email,company,budget,services,referral_source,message,stage,temperature,score,notes,created_at')
+      .order('created_at', { ascending: false });
+    if (error) { state.textContent = 'Could not load leads (are you an admin?).'; return; }
+    leads = data || [];
+    state.hidden = true;
+    list.hidden = false;
+    render();
+  }
+
+  stageFilter.addEventListener('change', render);
+
+  // Event delegation for inline edits.
+  list.addEventListener('change', async (e) => {
+    const t = e.target as HTMLElement;
+    const card = t.closest('.lead-card') as HTMLElement | null;
+    if (!card) return;
+    const id = card.dataset.id!;
+    if (t.classList.contains('lead-stage')) {
+      await supabase.from('leads').update({ stage: (t as HTMLSelectElement).value }).eq('id', id);
+      const lead = leads.find((l) => l.id === id); if (lead) lead.stage = (t as HTMLSelectElement).value;
+    } else if (t.classList.contains('lead-temp-sel')) {
+      await supabase.from('leads').update({ temperature: (t as HTMLSelectElement).value }).eq('id', id);
+    }
+  });
+  list.addEventListener('click', async (e) => {
+    const t = e.target as HTMLElement;
+    if (!t.classList.contains('lead-save')) return;
+    const card = t.closest('.lead-card') as HTMLElement;
+    const id = card.dataset.id!;
+    const notes = (card.querySelector('.lead-notes') as HTMLTextAreaElement).value;
+    await supabase.from('leads').update({ notes }).eq('id', id);
+    const saved = card.querySelector('.lead-saved') as HTMLElement;
+    saved.hidden = false; setTimeout(() => (saved.hidden = true), 1500);
+  });
+
+  load();
+</script>
+
+<style is:global>
+  .app-top .app-title { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+  .app-content .page-head { margin-bottom: var(--s-6); }
+  .app-content .page-head h1 { font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3rem); text-transform: uppercase; }
+  .app-content .page-sub { color: var(--text-muted); margin-top: var(--s-2); }
+  .app-content .portal-loading { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; }
+  .app-content .muted-note { color: var(--text-subtle); }
+
+  .app-content .lead-filters { display: flex; align-items: center; gap: var(--s-5); margin-bottom: var(--s-8); font-size: 0.9rem; }
+  .app-content .lead-filters select { font-family: var(--font-sans); padding: 0.4rem 0.6rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); margin-left: var(--s-2); }
+  .app-content .lead-count { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-subtle); }
+
+  .app-content .leads-list { display: grid; gap: var(--s-5); }
+  @media (min-width: 900px) { .app-content .leads-list { grid-template-columns: 1fr 1fr; } }
+  .app-content .lead-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-6); box-shadow: var(--shadow-sm); }
+  .app-content .lead-top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-4); }
+  .app-content .lead-card h3 { font-size: 1.05rem; display: flex; align-items: center; gap: var(--s-2); }
+  .app-content .lead-temp { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; padding: 2px 7px; border-radius: var(--r-full); }
+  .app-content .lead-temp-hot { background: #fde8e8; color: #c0392b; }
+  .app-content .lead-temp-warm { background: #fdf3e3; color: #b45309; }
+  .app-content .lead-temp-cold { background: var(--bg-alt); color: var(--text-subtle); }
+  .app-content .lead-mail { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); }
+  .app-content .lead-score { font-family: var(--font-display); font-size: 1.6rem; color: var(--text); line-height: 1; }
+  .app-content .lead-meta { font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-subtle); margin-top: var(--s-3); }
+  .app-content .lead-msg { color: var(--text-muted); font-size: 0.92rem; margin-top: var(--s-3); white-space: pre-wrap; }
+  .app-content .lead-controls { display: flex; align-items: center; gap: var(--s-4); margin-top: var(--s-5); flex-wrap: wrap; font-size: 0.82rem; color: var(--text-muted); }
+  .app-content .lead-controls select { font-family: var(--font-sans); padding: 0.35rem 0.5rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); margin-left: var(--s-2); }
+  .app-content .lead-date { margin-left: auto; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-subtle); }
+  .app-content .lead-notes-row { display: flex; gap: var(--s-3); margin-top: var(--s-4); align-items: flex-start; }
+  .app-content .lead-notes { flex: 1; font-family: var(--font-sans); font-size: 0.88rem; padding: 0.5rem 0.7rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); resize: vertical; }
+  .app-content .lead-save { padding: 0.5rem 0.9rem; font-size: 0.85rem; }
+  .app-content .lead-saved { color: var(--accent-hover); font-size: 0.8rem; margin-top: var(--s-2); }
+</style>

@@ -4,21 +4,38 @@ import '../styles/tokens.css';
 interface Props {
   title?: string;
   description?: string;
-  active?: 'projects' | 'none';
+  active?: string;
+  admin?: boolean;
 }
 const {
   title = 'Client portal — carpuro.ai',
   description = 'Your carpuro.ai client portal.',
   active = 'projects',
+  admin = false,
 } = Astro.props;
 
-const nav = [
-  { id: 'projects', label: 'Projects', href: '/portal', icon: 'grid' },
-];
-const help = [
-  { id: 'book', label: 'Book a call', href: '/contact#book', icon: 'calendar' },
-  { id: 'contact', label: 'Contact', href: '/contact', icon: 'mail' },
-];
+const nav = admin
+  ? [
+      { id: 'leads', label: 'Leads', href: '/admin', icon: 'inbox' },
+      { id: 'projects', label: 'Projects', href: '/admin/projects', icon: 'grid' },
+      { id: 'clients', label: 'Clients', href: '/admin/clients', icon: 'users' },
+    ]
+  : [{ id: 'projects', label: 'Projects', href: '/portal', icon: 'grid' }];
+const help = admin
+  ? []
+  : [
+      { id: 'book', label: 'Book a call', href: '/contact#book', icon: 'calendar' },
+      { id: 'contact', label: 'Contact', href: '/contact', icon: 'mail' },
+    ];
+const groupLabel = admin ? 'Admin' : 'Workspace';
+
+const ICONS: Record<string, string> = {
+  grid: '<svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  inbox: '<svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+  users: '<svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  calendar: '<svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  mail: '<svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+};
 ---
 
 <!DOCTYPE html>
@@ -38,7 +55,7 @@ const help = [
       rel="stylesheet"
     />
   </head>
-  <body class="portal-body">
+  <body class="portal-body" data-admin={admin ? '1' : '0'}>
     <div class="app-shell">
       <!-- SIDEBAR -->
       <aside class="sidebar" id="sidebar">
@@ -47,30 +64,19 @@ const help = [
         </a>
 
         <nav class="sb-nav" aria-label="Portal">
-          <p class="sb-group">Workspace</p>
+          <p class="sb-group">{groupLabel}</p>
           {nav.map((i) => (
             <a href={i.href} class:list={['sb-link', { 'is-active': active === i.id }]}
                aria-current={active === i.id ? 'page' : undefined}>
-              <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
-              </svg>
+              <Fragment set:html={ICONS[i.icon]} />
               <span>{i.label}</span>
             </a>
           ))}
 
-          <p class="sb-group">Get help</p>
+          {help.length > 0 && <p class="sb-group">Get help</p>}
           {help.map((i) => (
             <a href={i.href} class="sb-link">
-              {i.icon === 'calendar' && (
-                <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-                </svg>
-              )}
-              {i.icon === 'mail' && (
-                <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>
-                </svg>
-              )}
+              <Fragment set:html={ICONS[i.icon]} />
               <span>{i.label}</span>
             </a>
           ))}
@@ -79,6 +85,10 @@ const help = [
         <!-- ACCOUNT MENU (bottom) -->
         <div class="sb-account">
           <div class="sb-menu" id="acctMenu" hidden>
+            <a href={admin ? '/portal' : '/admin'} class="sb-menu-item" id="acctSwitch" hidden={!admin}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              {admin ? 'Client portal' : 'Admin dashboard'}
+            </a>
             <a href="/" class="sb-menu-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
               Back to carpuro.ai
@@ -113,8 +123,10 @@ const help = [
       </div>
     </div>
 
-    <!-- Project assistant — project-aware chat for the logged-in client only
-         (separate from the marketing lead-gen chat; calls /api/portal-chat). -->
+    {/* Project assistant — project-aware chat for the logged-in client only
+        (separate from the marketing lead-gen chat; calls /api/portal-chat). */}
+    {!admin && (
+    <Fragment>
     <button type="button" class="pa-bubble" id="paBubble" aria-label="Open project assistant">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </button>
@@ -131,19 +143,30 @@ const help = [
         <button type="submit" aria-label="Send">→</button>
       </form>
     </section>
+    </Fragment>
+    )}
 
     <script>
       import { getPortalClient } from '../lib/portalClient';
       const supabase = getPortalClient();
 
       // Gate every portal page at the shell level.
+      const isAdminPage = document.body.dataset.admin === '1';
       (async () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { location.replace('/portal/login'); return; }
 
         const email = session.user.email ?? '';
         const { data: profile } = await supabase
-          .from('profiles').select('full_name').eq('id', session.user.id).maybeSingle();
+          .from('profiles').select('full_name, role').eq('id', session.user.id).maybeSingle();
+
+        // Admin-only pages: bounce non-admins back to the client portal.
+        if (isAdminPage && profile?.role !== 'admin') { location.replace('/portal'); return; }
+        // On client pages, reveal the admin shortcut for admins.
+        if (!isAdminPage && profile?.role === 'admin') {
+          document.getElementById('acctSwitch')?.removeAttribute('hidden');
+        }
+
         const name = profile?.full_name || email.split('@')[0] || 'Your account';
         const nameEl = document.getElementById('acctName');
         const mailEl = document.getElementById('acctMail');

@@ -1,0 +1,134 @@
+---
+import PortalLayout from '../../layouts/PortalLayout.astro';
+---
+
+<PortalLayout title="Clients — admin" active="clients" admin={true}>
+  <span slot="top" class="app-title">Clients</span>
+
+  <div class="page-head">
+    <h1>Clients</h1>
+    <p class="page-sub">Invite clients, manage accounts, and see who has access.</p>
+  </div>
+
+  <!-- INVITE -->
+  <form id="inviteForm" class="invite card">
+    <p class="mini-h">Invite someone (adds them to the allowlist)</p>
+    <div class="inv-grid">
+      <input id="invEmail" type="email" placeholder="email@company.com" required />
+      <input id="invName" type="text" placeholder="Full name (optional)" />
+      <input id="invCompany" type="text" placeholder="Company (optional)" />
+      <select id="invRole"><option value="client">client</option><option value="admin">admin</option></select>
+      <button type="submit" class="btn btn-primary">Invite</button>
+    </div>
+    <span id="invMsg" class="inv-msg"></span>
+  </form>
+
+  <h2 class="sub-h">Pending invites</h2>
+  <div id="invitesList" class="invites-list"><p class="portal-loading">Loading…</p></div>
+
+  <h2 class="sub-h">Accounts</h2>
+  <div id="accountsList" class="accounts-list"><p class="portal-loading">Loading…</p></div>
+</PortalLayout>
+
+<script>
+  import { getPortalClient } from '../../lib/portalClient';
+  import { escapeHtml, fmtDate } from '../../lib/portalUi';
+
+  const supabase = getPortalClient();
+  const invitesList = document.getElementById('invitesList')!;
+  const accountsList = document.getElementById('accountsList')!;
+
+  async function loadInvites() {
+    const { data } = await supabase.from('invites').select('email, role, full_name, company, accepted_at, invited_at').order('invited_at', { ascending: false });
+    const pending = (data || []).filter((i) => !i.accepted_at);
+    invitesList.innerHTML = pending.length
+      ? pending.map((i) => `
+        <div class="inv-row" data-email="${escapeHtml(i.email)}">
+          <span><strong>${escapeHtml(i.email)}</strong> · ${i.role}${i.company ? ' · ' + escapeHtml(i.company) : ''}</span>
+          <button class="inv-del btn btn-ghost" type="button">Remove</button>
+        </div>`).join('')
+      : '<p class="muted-note">No pending invites.</p>';
+  }
+
+  async function loadAccounts() {
+    const [{ data: profiles }, { data: projects }] = await Promise.all([
+      supabase.from('profiles').select('id, full_name, email, company, role, created_at').order('created_at', { ascending: false }),
+      supabase.from('projects').select('client_id'),
+    ]);
+    const counts: Record<string, number> = {};
+    for (const p of projects || []) counts[p.client_id] = (counts[p.client_id] || 0) + 1;
+    accountsList.innerHTML = (profiles || []).length
+      ? (profiles || []).map((p) => `
+        <div class="acct-row" data-id="${p.id}">
+          <div>
+            <strong>${escapeHtml(p.full_name || '—')}</strong> <span class="role-tag role-${p.role}">${p.role}</span>
+            <div class="acct-mail">${escapeHtml(p.email || '')}${p.company ? ' · ' + escapeHtml(p.company) : ''}</div>
+          </div>
+          <div class="acct-meta">
+            <span>${counts[p.id] || 0} projects</span>
+            <select class="role-sel"><option value="client"${p.role === 'client' ? ' selected' : ''}>client</option><option value="admin"${p.role === 'admin' ? ' selected' : ''}>admin</option></select>
+          </div>
+        </div>`).join('')
+      : '<p class="muted-note">No accounts yet.</p>';
+  }
+
+  document.getElementById('inviteForm')!.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('invMsg')!;
+    const email = (document.getElementById('invEmail') as HTMLInputElement).value.trim().toLowerCase();
+    if (!email) return;
+    const row = {
+      email, role: (document.getElementById('invRole') as HTMLSelectElement).value,
+      full_name: (document.getElementById('invName') as HTMLInputElement).value || null,
+      company: (document.getElementById('invCompany') as HTMLInputElement).value || null,
+    };
+    const { error } = await supabase.from('invites').upsert(row, { onConflict: 'email' });
+    msg.textContent = error ? 'Error: ' + error.message : 'Invited ✓';
+    if (!error) { (e.target as HTMLFormElement).reset(); await loadInvites(); }
+  });
+
+  invitesList.addEventListener('click', async (e) => {
+    const t = e.target as HTMLElement;
+    if (!t.classList.contains('inv-del')) return;
+    const row = t.closest('.inv-row') as HTMLElement;
+    await supabase.from('invites').delete().eq('email', row.dataset.email);
+    await loadInvites();
+  });
+
+  accountsList.addEventListener('change', async (e) => {
+    const t = e.target as HTMLElement;
+    if (!t.classList.contains('role-sel')) return;
+    const row = t.closest('.acct-row') as HTMLElement;
+    await supabase.from('profiles').update({ role: (t as HTMLSelectElement).value }).eq('id', row.dataset.id);
+  });
+
+  await loadInvites();
+  await loadAccounts();
+</script>
+
+<style is:global>
+  .app-top .app-title { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+  .app-content .page-head { margin-bottom: var(--s-6); }
+  .app-content .page-head h1 { font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3rem); text-transform: uppercase; }
+  .app-content .page-sub { color: var(--text-muted); margin-top: var(--s-2); }
+  .app-content .portal-loading { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; }
+  .app-content .muted-note { color: var(--text-subtle); }
+  .app-content .sub-h { font-size: 1.1rem; margin: var(--s-12) 0 var(--s-5); }
+  .app-content .mini-h { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); margin-bottom: var(--s-3); }
+
+  .app-content .invite { padding: var(--s-5) var(--s-6); }
+  .app-content .inv-grid { display: grid; gap: var(--s-3); grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .app-content .inv-grid { grid-template-columns: 2fr 1.5fr 1.5fr 1fr auto; } }
+  .app-content .invite input, .app-content .invite select { font-family: var(--font-sans); font-size: 0.9rem; padding: 0.5rem 0.7rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); }
+  .app-content .inv-msg { font-size: 0.85rem; color: var(--accent-hover); display: inline-block; margin-top: var(--s-3); }
+
+  .app-content .invites-list, .app-content .accounts-list { display: grid; gap: var(--s-3); }
+  .app-content .inv-row, .app-content .acct-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-4) var(--s-5); background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); font-size: 0.92rem; }
+  .app-content .inv-del { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+  .app-content .acct-mail { font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-subtle); margin-top: 2px; }
+  .app-content .acct-meta { display: flex; align-items: center; gap: var(--s-4); font-size: 0.8rem; color: var(--text-muted); }
+  .app-content .acct-meta select { font-family: var(--font-sans); padding: 0.3rem 0.5rem; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--surface); }
+  .app-content .role-tag { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; padding: 2px 7px; border-radius: var(--r-full); }
+  .app-content .role-admin { background: var(--accent-soft); color: var(--accent-hover); }
+  .app-content .role-client { background: var(--bg-alt); color: var(--text-subtle); }
+</style>
