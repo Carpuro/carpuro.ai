@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const pg = await b.newPage({ viewport: { width: 1280, height: 900 } });
+await pg.goto('http://localhost:4399/', { waitUntil: 'networkidle' });
+const strip = await pg.$('.strip');
+await strip.scrollIntoViewIfNeeded();
+await pg.waitForTimeout(400);
+await strip.screenshot({ path: '_strip.png' });
+await pg.screenshot({ path: '_full.png', fullPage: false });
+await b.close();
+console.log('done');

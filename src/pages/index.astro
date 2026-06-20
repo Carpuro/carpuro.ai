@@ -60,6 +60,11 @@ const stackGroups = [
   ]},
 ];
 
+// Split the categories across two counter-scrolling rows.
+const stackHalf = Math.ceil(stackGroups.length / 2);
+const stackRowA = stackGroups.slice(0, stackHalf);
+const stackRowB = stackGroups.slice(stackHalf);
+
 const services = [
   {
     title: 'Data pipeline engineering',
@@ -111,12 +116,25 @@ const services = [
   <!-- STACK STRIP — category-grouped auto-scrolling carousel -->
   <section class="strip">
     <div class="container">
-      <div class="strip-label">Working in</div>
+      <div class="strip-label">Stack</div>
     </div>
     <div class="strip-marquee">
-      <div class="strip-track">
-        {[...stackGroups, ...stackGroups].map((g, gi) => (
-          <div class="stack-group" aria-hidden={gi >= stackGroups.length ? 'true' : undefined}>
+      <div class="strip-track strip-track--ltr">
+        {[...stackRowA, ...stackRowA].map((g, gi) => (
+          <div class="stack-group" aria-hidden={gi >= stackRowA.length ? 'true' : undefined}>
+            <span class="stack-cat">{g.label}</span>
+            {g.items.map((it) => (
+              <span class="stack-chip">
+                <img src={`/logos/${it.logo}.svg`} alt={`${it.name} logo`} width="16" height="16" loading="lazy" class={it.wordmark ? 'logo-wordmark' : undefined} />
+                {!it.wordmark && it.name}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div class="strip-track strip-track--rtl">
+        {[...stackRowB, ...stackRowB].map((g, gi) => (
+          <div class="stack-group" aria-hidden={gi >= stackRowB.length ? 'true' : undefined}>
             <span class="stack-cat">{g.label}</span>
             {g.items.map((it) => (
               <span class="stack-chip">
@@ -280,24 +298,28 @@ const services = [
 
   /* Stack strip */
   .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: var(--s-12) 0; }
-  .strip-label { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: var(--s-5); }
+  .strip-label { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: var(--s-8); }
+  .strip-label::before { content: ''; width: 22px; height: 2px; background: var(--accent); border-radius: 2px; }
   .strip-marquee {
     overflow: hidden;
     /* fade the edges so chips slide in/out instead of popping */
     -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
     mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
   }
-  .strip-track { display: flex; width: max-content; animation: strip-scroll 72s linear infinite; }
+  .strip-track { display: flex; width: max-content; }
+  .strip-track--ltr { animation: strip-scroll-ltr 55s linear infinite; }
+  .strip-track--rtl { animation: strip-scroll-rtl 55s linear infinite; margin-top: var(--s-3); }
   .strip-marquee:hover .strip-track { animation-play-state: paused; }
   .stack-group { display: flex; align-items: center; gap: var(--s-4); padding: 0 var(--s-8); border-right: 1px solid var(--border); white-space: nowrap; }
   .stack-cat { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
   .stack-chip { display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-mono); font-size: 0.95rem; color: var(--text); border: 1px solid var(--border-strong); padding: 9px 16px; border-radius: var(--r-sm); background: var(--surface); }
   .stack-chip img { display: block; height: 22px; width: auto; }
   .stack-chip img.logo-wordmark { height: 26px; }
-  @keyframes strip-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes strip-scroll-ltr { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes strip-scroll-rtl { from { transform: translateX(-50%); } to { transform: translateX(0); } }
   @media (prefers-reduced-motion: reduce) {
     .strip-marquee { -webkit-mask-image: none; mask-image: none; overflow: visible; }
-    .strip-track { animation: none; width: auto; flex-wrap: wrap; gap: var(--s-4) 0; }
+    .strip-track { animation: none; width: auto; flex-wrap: wrap; gap: var(--s-4) 0; margin-top: 0; }
     /* the duplicated set is only for the scroll loop; hide it when static */
     .stack-group[aria-hidden='true'] { display: none; }
   }
